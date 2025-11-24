@@ -1,0 +1,240 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ manga.meta_title|default:manga.title }} - Watch2D{% endblock %}
+{% block meta_description %}{{ manga.meta_description }}{% endblock %}
+{% block meta_keywords %}{{ manga.keywords }}{% endblock %}
+
+{% block content %}
+<!-- Banner Section -->
+<div class="relative h-96 overflow-hidden">
+    <div class="absolute inset-0 bg-gradient-to-b from-transparent via-gray-900/50 to-gray-900"></div>
+    {% if manga.banner_url %}
+    <img src="{{ manga.banner_url }}" alt="{{ manga.title }}" class="w-full h-full object-cover" onerror="this.src='{{ manga.cover_url }}'">
+    {% else %}
+    <img src="{{ manga.cover_url }}" alt="{{ manga.title }}" class="w-full h-full object-cover blur-lg scale-110">
+    {% endif %}
+</div>
+
+<div class="container mx-auto px-4 lg:px-6 -mt-64 relative z-10 pb-12">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Sidebar -->
+        <div class="lg:col-span-1">
+            <div class="glass-effect rounded-2xl overflow-hidden shadow-2xl sticky top-20">
+                <img src="{{ manga.cover_url }}" alt="{{ manga.title }}" class="w-full aspect-[3/4] object-cover" onerror="this.src='{% static 'img/placeholder.png' %}'">
+                
+                <div class="p-6 space-y-4">
+                    <!-- Action Buttons -->
+                    <!-- <button onclick="likeManga({{ manga.id }})" class="w-full px-6 py-3 bg-gradient-to-r from-red-500 to-pink-500 text-white rounded-xl hover:from-red-600 hover:to-pink-600 transition-all duration-300 font-semibold">
+                        <i class="fas fa-heart mr-2"></i>Like (<span id="likes-count">{{ manga.likes }}</span>)
+                    </button> -->
+                    
+                    <!-- <button onclick="bookmarkManga({{ manga.id }})" class="w-full px-6 py-3 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-xl hover:from-blue-600 hover:to-cyan-600 transition-all duration-300 font-semibold">
+                        <i class="fas fa-bookmark mr-2"></i>Bookmark (<span id="bookmarks-count">{{ manga.bookmarks }}</span>)
+                    </button> -->
+                    
+                    <!-- Info Grid -->
+                    <div class="space-y-3 pt-4 border-t border-gray-200 dark:border-gray-700">
+                        {% if manga.rating %}
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600 dark:text-gray-400 text-sm">Rating</span>
+                            <span class="font-bold text-yellow-500 text-lg">
+                                <i class="fas fa-star"></i> {{ manga.rating }}/10
+                            </span>
+                        </div>
+                        {% endif %}
+                        
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600 dark:text-gray-400 text-sm">Status</span>
+                            <span class="font-semibold px-3 py-1 rounded-lg text-sm
+                                {% if manga.status == 'ongoing' %}bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300
+                                {% elif manga.status == 'completed' %}bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300
+                                {% elif manga.status == 'hiatus' %}bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300
+                                {% else %}bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300{% endif %}">
+                                {{ manga.get_status_display }}
+                            </span>
+                        </div>
+                        
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600 dark:text-gray-400 text-sm">Type</span>
+                            <span class="font-semibold text-gray-900 dark:text-white">{{ manga.get_manga_type_display }}</span>
+                        </div>
+                        
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600 dark:text-gray-400 text-sm">Chapters</span>
+                            <span class="font-semibold text-gray-900 dark:text-white">{{ manga.total_chapters }}</span>
+                        </div>
+                        
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600 dark:text-gray-400 text-sm">Views</span>
+                            <span class="font-semibold text-gray-900 dark:text-white">{{ manga.views|default:0 }}</span>
+                        </div>
+                        
+                        {% if manga.author %}
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600 dark:text-gray-400 text-sm">Author</span>
+                            <span class="font-semibold text-gray-900 dark:text-white text-right">{{ manga.author }}</span>
+                        </div>
+                        {% endif %}
+                        
+                        {% if manga.artist %}
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600 dark:text-gray-400 text-sm">Artist</span>
+                            <span class="font-semibold text-gray-900 dark:text-white text-right">{{ manga.artist }}</span>
+                        </div>
+                        {% endif %}
+                        
+                        {% if manga.year %}
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600 dark:text-gray-400 text-sm">Year</span>
+                            <span class="font-semibold text-gray-900 dark:text-white">{{ manga.year }}</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="lg:col-span-2 space-y-8">
+            <!-- Title & Info -->
+            <div class="glass-effect rounded-2xl p-8">
+                <h1 class="text-4xl font-bold text-gray-900 dark:text-white mb-4">
+                    {{ manga.title }}
+                </h1>
+                
+                {% if manga.alternative_titles %}
+                <p class="text-gray-600 dark:text-gray-400 mb-4">
+                    <i class="fas fa-tag mr-2"></i>{{ manga.alternative_titles }}
+                </p>
+                {% endif %}
+                
+                <!-- Genres -->
+                {% if manga.genres.all %}
+                <div class="flex flex-wrap gap-2 mb-6">
+                    {% for genre in manga.genres.all %}
+                    <a href="{% url 'manga:list' %}?genre={{ genre.slug }}" 
+                       class="px-3 py-1 rounded-lg text-sm font-semibold transition-all duration-300 hover:scale-105"
+                       style="background-color: {{ genre.color }}20; color: {{ genre.color }}; border: 1px solid {{ genre.color }}40;">
+                        {{ genre.name }}
+                    </a>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                
+                <!-- Description -->
+                {% if manga.description %}
+                <div class="prose dark:prose-invert max-w-none">
+                    <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-3">Synopsis</h3>
+                    <p class="text-gray-700 dark:text-gray-300 leading-relaxed">{{ manga.description }}</p>
+                </div>
+                {% endif %}
+            </div>
+            
+            <!-- Latest Chapters -->
+            <div class="glass-effect rounded-2xl p-8">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-2xl font-bold text-gray-900 dark:text-white">
+                        <i class="fas fa-list mr-2"></i>Latest Chapters
+                    </h2>
+                    {% if total_chapters > 20 %}
+                    <a href="{% url 'manga:chapters' manga.slug %}" class="text-primary-600 dark:text-primary-400 hover:underline font-semibold">
+                        View All ({{ total_chapters }}) <i class="fas fa-arrow-right ml-1"></i>
+                    </a>
+                    {% endif %}
+                </div>
+                
+                {% if chapters %}
+                <div class="space-y-3">
+                    {% for chapter in chapters %}
+                    <div class="flex items-center justify-between p-4 rounded-xl hover:bg-white/50 dark:hover:bg-gray-700/50 transition-all duration-300 group">
+                        <div class="flex-1">
+                            <a href="{{ chapter.get_absolute_url }}" class="font-semibold text-gray-900 dark:text-white hover:text-primary-600 dark:hover:text-primary-400">
+                                {{ chapter.display_title }}
+                            </a>
+                            <div class="flex items-center gap-3 mt-1 text-sm text-gray-600 dark:text-gray-400">
+                                <span><i class="fas fa-book-open mr-1"></i>{{ chapter.pages_count }} pages</span>
+                                <span>•</span>
+                                <span><i class="fas fa-clock mr-1"></i>{{ chapter.created_at|timesince }} ago</span>
+                                <!-- {% if chapter.translator %}
+                                <span>•</span>
+                                <span><i class="fas fa-user mr-1"></i>{{ chapter.translator }}</span>
+                                {% endif %} -->
+                            </div>
+                        </div>
+                        <a href="{{ chapter.get_absolute_url }}" class="px-6 py-2 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-lg hover:from-blue-600 hover:to-cyan-600 transition-all duration-300 font-semibold opacity-0 group-hover:opacity-100">
+                            <i class="fas fa-book-reader mr-2"></i>Read
+                        </a>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="text-center text-gray-600 dark:text-gray-400 py-8">No chapters available yet</p>
+                {% endif %}
+            </div>
+            
+            <!-- Related Manga -->
+            {% if related_mangas %}
+            <div class="glass-effect rounded-2xl p-8">
+                <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">
+                    <i class="fas fa-heart mr-2"></i>You May Also Like
+                </h2>
+                
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                    {% for related in related_mangas %}
+                    <a href="{{ related.get_absolute_url }}" class="group">
+                        <div class="glass-effect rounded-xl overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+                            <div class="relative aspect-[3/4] overflow-hidden">
+                                <img src="{{ related.cover_url }}" alt="{{ related.title }}" 
+                                     class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                                     onerror="this.src='{% static 'img/placeholder.png' %}'">
+                            </div>
+                            <div class="p-3">
+                                <h3 class="font-semibold text-sm text-gray-900 dark:text-white line-clamp-2 group-hover:text-primary-600 dark:group-hover:text-primary-400">
+                                    {{ related.title }}
+                                </h3>
+                            </div>
+                        </div>
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+function likeManga(mangaId) {
+    fetch(`/manga/ajax/${mangaId}/like/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            document.getElementById('likes-count').textContent = data.likes;
+        }
+    })
+    .catch(error => console.error('Error:', error));
+}
+
+function bookmarkManga(mangaId) {
+    fetch(`/manga/ajax/${mangaId}/bookmark/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            document.getElementById('bookmarks-count').textContent = data.bookmarks;
+        }
+    })
+    .catch(error => console.error('Error:', error));
+}
+</script>
+{% endblock %}

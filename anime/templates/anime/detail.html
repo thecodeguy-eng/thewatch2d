@@ -1,0 +1,333 @@
+{% extends 'anime/base.html' %}
+{% load static %}
+
+{% block title %}{{ anime.title }} - Watch2D{% endblock %}
+
+{% block meta_description %}{{ anime.meta_description|default:anime.description|truncatewords:25 }}{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 lg:px-6 py-6">
+  <!-- Hero Section -->
+  <div class="relative bg-gradient-to-r from-primary-600 via-blue-600 to-accent-600 rounded-3xl overflow-hidden mb-8">
+    <div class="absolute inset-0 bg-black opacity-50"></div>
+    {% if anime.cover_image_url or anime.poster_url %}
+    <div class="absolute inset-0">
+      <img src="{{ anime.cover_image_url|default:anime.poster_url }}" 
+           alt="{{ anime.title }}" 
+           class="w-full h-full object-cover opacity-30">
+    </div>
+    {% endif %}
+    
+    <div class="relative p-8 lg:p-12">
+      <div class="flex flex-col lg:flex-row items-start lg:items-center space-y-6 lg:space-y-0 lg:space-x-8">
+        <!-- Poster -->
+        <div class="flex-shrink-0">
+          {% if anime.poster_url %}
+          <img src="{{ anime.poster_url }}" 
+               alt="{{ anime.title }}" 
+               class="w-48 h-64 object-cover rounded-2xl shadow-2xl">
+          {% else %}
+          <div class="w-48 h-64 bg-gradient-to-br from-white/20 to-white/10 rounded-2xl flex items-center justify-center shadow-2xl">
+            <i class="fas fa-play text-white text-4xl"></i>
+          </div>
+          {% endif %}
+        </div>
+        
+        <!-- Info -->
+        <div class="flex-1 text-white">
+          <h1 class="text-3xl lg:text-4xl font-bold mb-4">{{ anime.title }}</h1>
+          
+          <div class="flex flex-wrap items-center gap-4 mb-6">
+            <span class="status-badge status-{{ anime.status }} !text-white !bg-white/20">
+              {{ anime.get_status_display }}
+            </span>
+            {% if anime.year %}
+            <span class="flex items-center">
+              <i class="fas fa-calendar mr-2"></i>{{ anime.year }}
+            </span>
+            {% endif %}
+            {% if anime.total_episodes > 0 %}
+            <span class="flex items-center">
+              <i class="fas fa-film mr-2"></i>{{ anime.total_episodes }} Episodes
+            </span>
+            {% endif %}
+            {% if anime.rating %}
+            <span class="flex items-center text-yellow-400">
+              <i class="fas fa-star mr-2"></i>{{ anime.rating }}/10
+            </span>
+            {% endif %}
+          </div>
+          
+          {% if anime.description %}
+          <p class="text-blue-100 text-lg leading-relaxed mb-6 max-w-3xl">
+            {{ anime.description|truncatewords:30 }}
+          </p>
+          {% endif %}
+          
+          <!-- Action Buttons -->
+          <div class="flex flex-wrap gap-4">
+            {% if episodes %}
+            <a href="{{ episodes.0.get_absolute_url }}" 
+               class="inline-flex items-center px-8 py-4 bg-white text-primary-600 font-bold rounded-2xl hover:bg-gray-100 transition-all duration-300 transform hover:scale-105">
+              <i class="fas fa-play mr-3"></i>Watch Now
+            </a>
+            {% endif %}
+            
+            <!-- <button onclick="addToWatchlist({{ anime.id }})" 
+                    class="inline-flex items-center px-6 py-4 border-2 border-white text-white font-semibold rounded-2xl hover:bg-white hover:text-primary-600 transition-all duration-300">
+              <i class="fas fa-bookmark mr-3"></i>Add to List
+            </button> -->
+            
+            <!-- <button onclick="likeAnime({{ anime.id }})" 
+                    class="inline-flex items-center px-6 py-4 border-2 border-white text-white font-semibold rounded-2xl hover:bg-white hover:text-red-500 transition-all duration-300">
+              <i class="fas fa-heart mr-3"></i>
+              <span class="like-count">{{ anime.likes }}</span>
+            </button> -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+    <!-- Main Content -->
+    <div class="lg:col-span-3 space-y-8">
+      <!-- Episodes Section -->
+      {% if episodes %}
+      <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6">
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="text-2xl font-bold text-gray-900 dark:text-white flex items-center">
+            <i class="fas fa-list text-primary-500 mr-3"></i>
+            Episodes
+          </h2>
+          <a href="{% url 'anime:episodes' anime.slug %}" 
+             class="text-primary-500 hover:text-primary-600 font-semibold">
+            View All Episodes
+          </a>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {% for episode in episodes %}
+          <div class="episode-card bg-gray-50 dark:bg-gray-700 rounded-xl overflow-hidden group hover:shadow-lg transition-all duration-300">
+            <div class="relative aspect-video bg-gradient-to-br from-primary-500 to-accent-500">
+              {% if episode.snapshot_url %}
+              <img src="{{ episode.snapshot_url }}" 
+                   alt="{{ episode.display_title }}" 
+                   class="w-full h-full object-cover">
+              {% else %}
+              <div class="w-full h-full flex items-center justify-center">
+                <i class="fas fa-play text-white text-2xl"></i>
+              </div>
+              {% endif %}
+              
+              <!-- Episode Number -->
+              <div class="absolute top-2 left-2 bg-black/70 text-white px-2 py-1 rounded text-sm font-semibold">
+                EP {{ episode.episode_number }}
+              </div>
+              
+              <!-- Play Overlay -->
+              <div class="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                <a href="{{ episode.get_absolute_url }}" 
+                   class="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-white/30 transition-colors">
+                  <i class="fas fa-play ml-1"></i>
+                </a>
+              </div>
+            </div>
+            
+            <div class="p-4">
+              <h3 class="font-semibold text-gray-900 dark:text-white mb-2 line-clamp-2">
+                <a href="{{ episode.get_absolute_url }}" class="hover:text-primary-500">
+                  {{ episode.display_title }}
+                </a>
+              </h3>
+              
+              <div class="flex items-center justify-between text-sm text-gray-600 dark:text-gray-400">
+                <span>{{ episode.created_at|timesince }} ago</span>
+                <span class="flex items-center">
+                  <i class="fas fa-eye mr-1"></i>
+                  {{ episode.views|floatformat:0 }}
+                </span>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- Description -->
+      {% if anime.description %}
+      <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6">
+        <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4 flex items-center">
+          <i class="fas fa-info-circle text-primary-500 mr-3"></i>
+          Synopsis
+        </h2>
+        <div class="prose dark:prose-invert max-w-none">
+          <p class="text-gray-700 dark:text-gray-300 leading-relaxed">{{ anime.description }}</p>
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- Related Anime -->
+      {% if related_animes %}
+      <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6">
+        <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6 flex items-center">
+          <i class="fas fa-heart text-red-500 mr-3"></i>
+          You Might Also Like
+        </h2>
+        
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+          {% for related in related_animes %}
+          <div class="anime-card group">
+            <div class="relative aspect-[3/4] overflow-hidden rounded-xl">
+              {% if related.poster_url %}
+              <img src="{{ related.poster_url }}" 
+                   alt="{{ related.title }}" 
+                   class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110">
+              {% else %}
+              <div class="w-full h-full bg-gradient-to-br from-primary-500 to-accent-500 flex items-center justify-center">
+                <i class="fas fa-play text-white text-2xl"></i>
+              </div>
+              {% endif %}
+              
+              <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
+                <div class="absolute bottom-2 left-2 right-2">
+                  <a href="{{ related.get_absolute_url }}" 
+                     class="block text-center py-1 bg-primary-500 text-white rounded text-sm font-semibold hover:bg-primary-600 transition-colors">
+                    Watch
+                  </a>
+                </div>
+              </div>
+            </div>
+            
+            <h3 class="mt-2 text-sm font-semibold text-gray-900 dark:text-white line-clamp-2">
+              <a href="{{ related.get_absolute_url }}" class="hover:text-primary-500">
+                {{ related.title }}
+              </a>
+            </h3>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- Sidebar -->
+    <div class="space-y-6">
+      <!-- Anime Info -->
+      <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6">
+        <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-4">Information</h3>
+        
+        <div class="space-y-3 text-sm">
+          <div class="flex justify-between">
+            <span class="text-gray-600 dark:text-gray-400">Status:</span>
+            <span class="status-badge status-{{ anime.status }}">{{ anime.get_status_display }}</span>
+          </div>
+          
+          {% if anime.total_episodes > 0 %}
+          <div class="flex justify-between">
+            <span class="text-gray-600 dark:text-gray-400">Episodes:</span>
+            <span class="font-semibold text-gray-900 dark:text-white">{{ anime.total_episodes }}</span>
+          </div>
+          {% endif %}
+          
+          {% if anime.year %}
+          <div class="flex justify-between">
+            <span class="text-gray-600 dark:text-gray-400">Year:</span>
+            <span class="font-semibold text-gray-900 dark:text-white">{{ anime.year }}</span>
+          </div>
+          {% endif %}
+          
+          {% if anime.season %}
+          <div class="flex justify-between">
+            <span class="text-gray-600 dark:text-gray-400">Season:</span>
+            <span class="font-semibold text-gray-900 dark:text-white">{{ anime.get_season_display }}</span>
+          </div>
+          {% endif %}
+          
+          {% if anime.studio %}
+          <div class="flex justify-between">
+            <span class="text-gray-600 dark:text-gray-400">Studio:</span>
+            <span class="font-semibold text-gray-900 dark:text-white">{{ anime.studio }}</span>
+          </div>
+          {% endif %}
+          
+          {% if anime.category %}
+          <div class="flex justify-between">
+            <span class="text-gray-600 dark:text-gray-400">Category:</span>
+            <a href="{{ anime.category.get_absolute_url }}" 
+               class="font-semibold text-primary-500 hover:text-primary-600">
+              {{ anime.category.name }}
+            </a>
+          </div>
+          {% endif %}
+          
+          <div class="flex justify-between">
+            <span class="text-gray-600 dark:text-gray-400">Views:</span>
+            <span class="font-semibold text-gray-900 dark:text-white">{{ anime.views|floatformat:0 }}</span>
+          </div>
+          
+          {% if anime.rating %}
+          <div class="flex justify-between">
+            <span class="text-gray-600 dark:text-gray-400">Rating:</span>
+            <span class="flex items-center font-semibold text-yellow-500">
+              <i class="fas fa-star mr-1"></i>
+              {{ anime.rating }}/10
+            </span>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Genres -->
+      {% if anime.genres.exists %}
+      <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6">
+        <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-4">Genres</h3>
+        <div class="flex flex-wrap gap-2">
+          {% for genre in anime.genres.all %}
+          <a href="{% url 'anime:genre_detail' genre.slug %}" 
+             class="genre-tag">
+            {{ genre.name }}
+          </a>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- Stats -->
+      <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6">
+        <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-4">Statistics</h3>
+        
+        <div class="space-y-4">
+          <div class="flex items-center justify-between">
+            <span class="text-gray-600 dark:text-gray-400">Total Views</span>
+            <span class="font-bold text-blue-500">{{ anime.views|floatformat:0 }}</span>
+          </div>
+          
+          <!-- <div class="flex items-center justify-between">
+            <span class="text-gray-600 dark:text-gray-400">Likes</span>
+            <span class="font-bold text-red-500">{{ anime.likes|floatformat:0 }}</span>
+          </div> -->
+          
+          <div class="flex items-center justify-between">
+            <span class="text-gray-600 dark:text-gray-400">Episodes Available</span>
+            <span class="font-bold text-green-500">{{ total_episodes|default:anime.total_episodes }}</span>
+          </div>
+          
+          {% if anime.progress_percentage > 0 %}
+          <div>
+            <div class="flex justify-between mb-1">
+              <span class="text-gray-600 dark:text-gray-400">Progress</span>
+              <span class="font-bold text-primary-500">{{ anime.progress_percentage|floatformat:0 }}%</span>
+            </div>
+            <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+              <div class="bg-primary-500 h-2 rounded-full" style="width: {{ anime.progress_percentage }}%"></div>
+            </div>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

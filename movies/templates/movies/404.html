@@ -1,0 +1,229 @@
+{% extends 'movies/base.html' %}
+{% load static %}
+
+{% block title %}Page Not Found - Watch2D{% endblock %}
+
+{% block meta_description %}
+  The page you're looking for doesn't exist. Return to Watch2D to discover amazing movies, series, and episodes.
+{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center relative overflow-hidden">
+  
+  {# Animated Background Elements #}
+  <div class="absolute inset-0 overflow-hidden">
+    <div class="absolute top-10 left-10 w-20 h-20 bg-blue-500/10 rounded-full animate-pulse"></div>
+    <div class="absolute top-32 right-20 w-16 h-16 bg-purple-500/10 rounded-full animate-pulse animation-delay-1000"></div>
+    <div class="absolute bottom-20 left-20 w-24 h-24 bg-red-500/10 rounded-full animate-pulse animation-delay-2000"></div>
+    <div class="absolute bottom-32 right-32 w-12 h-12 bg-green-500/10 rounded-full animate-pulse animation-delay-1500"></div>
+  </div>
+
+  <div class="container mx-auto px-4 py-12 relative z-10">
+    <div class="max-w-2xl mx-auto text-center">
+      
+      {# 404 Number with Gradient #}
+      <div class="mb-8">
+        <h1 class="text-8xl md:text-9xl font-black bg-gradient-to-r from-blue-500 via-purple-500 to-red-500 bg-clip-text text-transparent mb-4 animate-pulse">
+          404
+        </h1>
+        <div class="w-32 h-1 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full mx-auto"></div>
+      </div>
+
+      {# Error Message #}
+      <div class="mb-12">
+        <h2 class="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-4">
+          Oops! Page Not Found
+        </h2>
+        <p class="text-lg text-gray-600 dark:text-gray-400 leading-relaxed">
+          The movie you're looking for seems to have gone off-screen. 
+          <br class="hidden md:block">
+          Don't worry, there are plenty of amazing content waiting for you!
+        </p>
+      </div>
+
+      {# Action Buttons #}
+      <div class="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
+        <a href="{% url 'home' %}" 
+           class="group bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white px-8 py-4 rounded-full font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center">
+          <i class="fas fa-home mr-2 group-hover:animate-bounce"></i>
+          Back to Home
+        </a>
+        
+        <a href="javascript:history.back()" 
+           class="group bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 hover:border-blue-500 dark:hover:border-blue-400 text-gray-900 dark:text-white px-8 py-4 rounded-full font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg flex items-center">
+          <i class="fas fa-arrow-left mr-2 group-hover:animate-bounce"></i>
+          Go Back
+        </a>
+      </div>
+
+      {# Quick Navigation #}
+      <div class="mb-12">
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-6">
+          Or explore these sections:
+        </h3>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <a href="{% url 'home' %}#recent-movies" 
+             class="group bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 border border-gray-200 dark:border-gray-700">
+            <div class="text-blue-500 text-2xl mb-2 group-hover:animate-pulse">
+              <i class="fas fa-film"></i>
+            </div>
+            <h4 class="font-semibold text-gray-900 dark:text-white text-sm">Recent Movies</h4>
+          </a>
+          
+          <a href="{% url 'home' %}#latest-episodes" 
+             class="group bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 border border-gray-200 dark:border-gray-700">
+            <div class="text-red-500 text-2xl mb-2 group-hover:animate-pulse">
+              <i class="fas fa-tv"></i>
+            </div>
+            <h4 class="font-semibold text-gray-900 dark:text-white text-sm">Latest Episodes</h4>
+          </a>
+          
+          <a href="{% url 'home' %}#completed-series" 
+             class="group bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 border border-gray-200 dark:border-gray-700">
+            <div class="text-green-500 text-2xl mb-2 group-hover:animate-pulse">
+              <i class="fas fa-check-circle"></i>
+            </div>
+            <h4 class="font-semibold text-gray-900 dark:text-white text-sm">Complete Series</h4>
+          </a>
+          
+          <a href="/search/" 
+             class="group bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 border border-gray-200 dark:border-gray-700">
+            <div class="text-purple-500 text-2xl mb-2 group-hover:animate-pulse">
+              <i class="fas fa-search"></i>
+            </div>
+            <h4 class="font-semibold text-gray-900 dark:text-white text-sm">Search</h4>
+          </a>
+        </div>
+      </div>
+
+      {# Fun Movie Quote #}
+      <div class="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-gray-800 dark:to-gray-700 p-6 rounded-xl border border-gray-200 dark:border-gray-600">
+        <div class="text-4xl text-blue-500 mb-2">
+          <i class="fas fa-quote-left"></i>
+        </div>
+        <blockquote class="text-lg font-medium text-gray-700 dark:text-gray-300 italic">
+          "The show must go on, even when the page goes missing!"
+        </blockquote>
+        <div class="mt-4 text-sm text-gray-500 dark:text-gray-400">
+          - Watch2D Team
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+{# Custom Styles #}
+<style>
+  /* Animation delays */
+  .animation-delay-1000 {
+    animation-delay: 1s;
+  }
+  .animation-delay-1500 {
+    animation-delay: 1.5s;
+  }
+  .animation-delay-2000 {
+    animation-delay: 2s;
+  }
+  
+  /* Smooth animations */
+  * {
+    scroll-behavior: smooth;
+  }
+  
+  /* Gradient text animation */
+  @keyframes gradientShift {
+    0% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+    100% {
+      background-position: 0% 50%;
+    }
+  }
+  
+  .bg-gradient-to-r {
+    background-size: 200% 200%;
+    animation: gradientShift 3s ease infinite;
+  }
+  
+  /* Hover effects */
+  .group:hover .group-hover\:scale-105 {
+    transform: scale(1.05);
+  }
+  
+  .group:hover .group-hover\:animate-pulse {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+  
+  .group:hover .group-hover\:animate-bounce {
+    animation: bounce 1s infinite;
+  }
+  
+  /* Responsive adjustments */
+  @media (max-width: 640px) {
+    .text-8xl {
+      font-size: 4rem;
+    }
+    .text-9xl {
+      font-size: 5rem;
+    }
+  }
+  
+  /* Dark mode improvements */
+  @media (prefers-color-scheme: dark) {
+    .bg-gradient-to-r.from-blue-50.to-purple-50 {
+      background: linear-gradient(to right, rgb(31, 41, 55), rgb(55, 65, 81));
+    }
+  }
+</style>
+
+{# JavaScript for Enhanced Interactions #}
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Add floating animation to background elements
+    const floatingElements = document.querySelectorAll('.absolute.top-10, .absolute.top-32, .absolute.bottom-20, .absolute.bottom-32');
+    
+    floatingElements.forEach((element, index) => {
+      element.style.animation = `float ${3 + index * 0.5}s ease-in-out infinite`;
+    });
+    
+    // Add smooth entrance animation
+    const mainContent = document.querySelector('.container');
+    mainContent.style.opacity = '0';
+    mainContent.style.transform = 'translateY(20px)';
+    
+    setTimeout(() => {
+      mainContent.style.transition = 'all 0.8s ease-out';
+      mainContent.style.opacity = '1';
+      mainContent.style.transform = 'translateY(0)';
+    }, 100);
+    
+    // Add click animation to buttons
+    const buttons = document.querySelectorAll('a[class*="group"]');
+    buttons.forEach(button => {
+      button.addEventListener('click', function(e) {
+        const ripple = document.createElement('div');
+        ripple.className = 'absolute inset-0 bg-white opacity-25 rounded-full transform scale-0 animate-ping';
+        this.appendChild(ripple);
+        
+        setTimeout(() => {
+          ripple.remove();
+        }, 600);
+      });
+    });
+  });
+  
+  // Floating animation keyframes
+  const style = document.createElement('style');
+  style.textContent = `
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-20px); }
+    }
+  `;
+  document.head.appendChild(style);
+</script>
+{% endblock %}

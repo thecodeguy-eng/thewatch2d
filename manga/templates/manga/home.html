@@ -1,0 +1,276 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Watch2D Manga - Read & Download Manga, Manhwa, Manhua Online{% endblock %}
+
+{% block content %}
+{# Hero Section #}
+<div class="relative bg-gradient-to-r from-purple-900 via-indigo-900 to-blue-900 text-white py-20">
+    <div class="absolute inset-0 opacity-20">
+        <div class="absolute inset-0 bg-[url('{% static 'img/pattern.png' %}')] bg-repeat"></div>
+    </div>
+    <div class="container mx-auto px-4 lg:px-6 relative z-10">
+        <div class="max-w-4xl mx-auto text-center">
+            <h1 class="text-4xl lg:text-6xl font-bold mb-6 bg-gradient-to-r from-purple-200 via-pink-200 to-blue-200 bg-clip-text text-transparent">
+                Read & Download Manga Online
+            </h1>
+            <p class="text-xl lg:text-2xl mb-8 text-purple-100">
+                Free access to thousands of manga, manhwa, and manhua chapters
+            </p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <a href="{% url 'manga:list' %}" class="px-8 py-4 bg-gradient-to-r from-purple-500 to-pink-600 rounded-xl font-semibold text-lg hover:from-purple-600 hover:to-pink-700 transition-all duration-300 shadow-lg hover:shadow-2xl transform hover:scale-105">
+                    <i class="fas fa-book-open mr-2"></i>Browse Manga
+                </a>
+                <a href="{% url 'manga:trending' %}" class="px-8 py-4 bg-white/10 backdrop-blur-sm border-2 border-white/30 rounded-xl font-semibold text-lg hover:bg-white/20 transition-all duration-300">
+                    <i class="fas fa-fire mr-2"></i>Trending Now
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+{# Features Section #}
+<div class="container mx-auto px-4 lg:px-6 py-12">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
+        <div class="glass-effect rounded-2xl p-6 text-center group hover:shadow-xl transition-all duration-300">
+            <div class="w-16 h-16 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+                <i class="fas fa-book-reader text-3xl text-white"></i>
+            </div>
+            <h3 class="font-bold text-lg mb-2 text-gray-900 dark:text-white">Read Online</h3>
+            <p class="text-sm text-gray-600 dark:text-gray-400">Multiple reading modes for your comfort</p>
+        </div>
+        
+        <div class="glass-effect rounded-2xl p-6 text-center group hover:shadow-xl transition-all duration-300">
+            <div class="w-16 h-16 bg-gradient-to-r from-green-500 to-emerald-500 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+                <i class="fas fa-download text-3xl text-white"></i>
+            </div>
+            <h3 class="font-bold text-lg mb-2 text-gray-900 dark:text-white">Download</h3>
+            <p class="text-sm text-gray-600 dark:text-gray-400">PDF, CBZ, ZIP & EPUB formats</p>
+        </div>
+        
+        <div class="glass-effect rounded-2xl p-6 text-center group hover:shadow-xl transition-all duration-300">
+            <div class="w-16 h-16 bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+                <i class="fas fa-mobile-alt text-3xl text-white"></i>
+            </div>
+            <h3 class="font-bold text-lg mb-2 text-gray-900 dark:text-white">Mobile Friendly</h3>
+            <p class="text-sm text-gray-600 dark:text-gray-400">Optimized for all devices</p>
+        </div>
+        
+        <div class="glass-effect rounded-2xl p-6 text-center group hover:shadow-xl transition-all duration-300">
+            <div class="w-16 h-16 bg-gradient-to-r from-orange-500 to-red-500 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+                <i class="fas fa-bolt text-3xl text-white"></i>
+            </div>
+            <h3 class="font-bold text-lg mb-2 text-gray-900 dark:text-white">Daily Updates</h3>
+            <p class="text-sm text-gray-600 dark:text-gray-400">New chapters added daily</p>
+        </div>
+    </div>
+    
+    {# Featured Manga - FIXED IMAGE DISPLAY #}
+    {% if featured_mangas %}
+    <section class="mb-16">
+        <div class="flex items-center justify-between mb-6">
+            <h2 class="text-3xl font-bold text-gray-900 dark:text-white">
+                <i class="fas fa-star text-yellow-500 mr-2"></i>Featured Manga
+            </h2>
+            <a href="{% url 'manga:featured' %}" class="text-primary-600 dark:text-primary-400 hover:underline font-semibold">
+                View All <i class="fas fa-arrow-right ml-1"></i>
+            </a>
+        </div>
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+            {% for manga in featured_mangas %}
+            <a href="{{ manga.get_absolute_url }}" class="group block">
+                <div class="glass-effect rounded-xl overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2">
+                    <!-- Fixed aspect ratio container -->
+                    <div class="relative w-full" style="padding-top: 142.857%; /* 3:4.28 ratio */">
+                        <img src="{{ manga.cover_url }}" 
+                             alt="{{ manga.title }}" 
+                             class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                             loading="lazy"
+                             onerror="this.src='{% static 'img/placeholder.png' %}'">
+                        
+                        <!-- Badge overlay -->
+                        <div class="absolute top-2 right-2 bg-yellow-500 text-white px-2 py-1 rounded text-xs font-bold shadow-lg">
+                            <i class="fas fa-star"></i> Featured
+                        </div>
+                    </div>
+                    
+                    <!-- Info section with fixed height -->
+                    <div class="p-3">
+                        <h3 class="font-bold text-sm text-gray-900 dark:text-white mb-2 line-clamp-2 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors min-h-[2.5rem]">
+                            {{ manga.title }}
+                        </h3>
+                        <div class="flex items-center justify-between text-xs text-gray-600 dark:text-gray-400">
+                            <span class="inline-flex items-center">
+                                <i class="fas fa-book mr-1"></i>{{ manga.total_chapters }}
+                            </span>
+                            <span class="inline-flex items-center">
+                                <i class="fas fa-eye mr-1"></i>{{ manga.views|default:0|floatformat:0 }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+    
+    {# Recent Chapters - FIXED #}
+    {% if recent_chapters %}
+    <section class="mb-16">
+        <div class="flex items-center justify-between mb-6">
+            <h2 class="text-3xl font-bold text-gray-900 dark:text-white">
+                <i class="fas fa-clock text-blue-500 mr-2"></i>Latest Updates
+            </h2>
+        </div>
+        <div class="glass-effect rounded-2xl p-6">
+            <div class="space-y-3">
+                {% for chapter in recent_chapters %}
+                <div class="flex items-center gap-4 p-3 rounded-xl hover:bg-white/50 dark:hover:bg-gray-700/50 transition-all duration-300 group">
+                    <!-- Fixed thumbnail size -->
+                    <a href="{{ chapter.manga.get_absolute_url }}" class="flex-shrink-0">
+                        <div class="w-14 h-20 rounded-lg overflow-hidden">
+                            <img src="{{ chapter.manga.cover_url }}" 
+                                 alt="{{ chapter.manga.title }}"
+                                 class="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                                 loading="lazy"
+                                 onerror="this.src='{% static 'img/placeholder.png' %}'">
+                        </div>
+                    </a>
+                    
+                    <div class="flex-1 min-w-0">
+                        <a href="{{ chapter.manga.get_absolute_url }}" class="font-bold text-sm text-gray-900 dark:text-white hover:text-primary-600 dark:hover:text-primary-400 line-clamp-1 block">
+                            {{ chapter.manga.title }}
+                        </a>
+                        <a href="{{ chapter.get_absolute_url }}" class="text-xs text-gray-600 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 line-clamp-1 block">
+                            Chapter {{ chapter.chapter_number }}{% if chapter.title %}: {{ chapter.title }}{% endif %}
+                        </a>
+                        <div class="flex items-center gap-2 mt-1 text-xs text-gray-500 dark:text-gray-500">
+                            <span><i class="fas fa-book-open mr-1"></i>{{ chapter.pages_count }}</span>
+                            <span>•</span>
+                            <span>{{ chapter.created_at|timesince }} ago</span>
+                        </div>
+                    </div>
+                    
+                    <div class="flex-shrink-0 flex gap-2">
+                        <a href="{{ chapter.get_absolute_url }}" class="px-3 py-2 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-lg hover:from-blue-600 hover:to-cyan-600 transition-all duration-300 font-semibold text-xs">
+                            <i class="fas fa-book-reader mr-1"></i>Read
+                        </a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+    {% endif %}
+    
+    {# Popular by Type - FIXED #}
+    <section class="mb-16">
+        <h2 class="text-3xl font-bold text-gray-900 dark:text-white mb-6">
+            <i class="fas fa-fire text-red-500 mr-2"></i>Popular by Type
+        </h2>
+        
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {# Manga #}
+            {% if popular_manga %}
+            <div class="glass-effect rounded-2xl p-6">
+                <h3 class="text-xl font-bold mb-4 text-gray-900 dark:text-white flex items-center">
+                    <span class="w-10 h-10 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-lg flex items-center justify-center mr-3">
+                        <i class="fas fa-book text-white"></i>
+                    </span>
+                    Manga
+                </h3>
+                <div class="space-y-3">
+                    {% for manga in popular_manga %}
+                    <a href="{{ manga.get_absolute_url }}" class="flex items-center gap-3 p-2 rounded-lg hover:bg-white/50 dark:hover:bg-gray-700/50 transition-all group">
+                        <!-- Fixed size thumbnail -->
+                        <div class="w-12 h-16 rounded overflow-hidden flex-shrink-0">
+                            <img src="{{ manga.cover_url }}" 
+                                 alt="{{ manga.title }}"
+                                 class="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                                 loading="lazy"
+                                 onerror="this.src='{% static 'img/placeholder.png' %}'">
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="font-semibold text-sm text-gray-900 dark:text-white line-clamp-1 group-hover:text-primary-600 dark:group-hover:text-primary-400">
+                                {{ manga.title }}
+                            </div>
+                            <div class="text-xs text-gray-600 dark:text-gray-400">
+                                <i class="fas fa-eye mr-1"></i>{{ manga.views|default:0|floatformat:0 }}
+                            </div>
+                        </div>
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+            
+            {# Manhwa #}
+            {% if popular_manhwa %}
+            <div class="glass-effect rounded-2xl p-6">
+                <h3 class="text-xl font-bold mb-4 text-gray-900 dark:text-white flex items-center">
+                    <span class="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg flex items-center justify-center mr-3">
+                        <i class="fas fa-book text-white"></i>
+                    </span>
+                    Manhwa
+                </h3>
+                <div class="space-y-3">
+                    {% for manga in popular_manhwa %}
+                    <a href="{{ manga.get_absolute_url }}" class="flex items-center gap-3 p-2 rounded-lg hover:bg-white/50 dark:hover:bg-gray-700/50 transition-all group">
+                        <div class="w-12 h-16 rounded overflow-hidden flex-shrink-0">
+                            <img src="{{ manga.cover_url }}" 
+                                 alt="{{ manga.title }}"
+                                 class="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                                 loading="lazy"
+                                 onerror="this.src='{% static 'img/placeholder.png' %}'">
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="font-semibold text-sm text-gray-900 dark:text-white line-clamp-1 group-hover:text-primary-600 dark:group-hover:text-primary-400">
+                                {{ manga.title }}
+                            </div>
+                            <div class="text-xs text-gray-600 dark:text-gray-400">
+                                <i class="fas fa-eye mr-1"></i>{{ manga.views|default:0|floatformat:0 }}
+                            </div>
+                        </div>
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+            
+            {# Manhua #}
+            {% if popular_manhua %}
+            <div class="glass-effect rounded-2xl p-6">
+                <h3 class="text-xl font-bold mb-4 text-gray-900 dark:text-white flex items-center">
+                    <span class="w-10 h-10 bg-gradient-to-r from-orange-500 to-red-500 rounded-lg flex items-center justify-center mr-3">
+                        <i class="fas fa-book text-white"></i>
+                    </span>
+                    Manhua
+                </h3>
+                <div class="space-y-3">
+                    {% for manga in popular_manhua %}
+                    <a href="{{ manga.get_absolute_url }}" class="flex items-center gap-3 p-2 rounded-lg hover:bg-white/50 dark:hover:bg-gray-700/50 transition-all group">
+                        <div class="w-12 h-16 rounded overflow-hidden flex-shrink-0">
+                            <img src="{{ manga.cover_url }}" 
+                                 alt="{{ manga.title }}"
+                                 class="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                                 loading="lazy"
+                                 onerror="this.src='{% static 'img/placeholder.png' %}'">
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="font-semibold text-sm text-gray-900 dark:text-white line-clamp-1 group-hover:text-primary-600 dark:group-hover:text-primary-400">
+                                {{ manga.title }}
+                            </div>
+                            <div class="text-xs text-gray-600 dark:text-gray-400">
+                                <i class="fas fa-eye mr-1"></i>{{ manga.views|default:0|floatformat:0 }}
+                            </div>
+                        </div>
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </section>
+</div>
+{% endblock %}

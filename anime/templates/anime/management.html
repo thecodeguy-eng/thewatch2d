@@ -1,0 +1,343 @@
+{% extends 'anime/base.html' %}
+{% load static %}
+
+{% block title %}Anime Management Dashboard - Watch2D{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 lg:px-6 py-6">
+  <div class="flex items-center justify-between mb-8">
+    <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Management Dashboard</h1>
+    <div class="flex space-x-3">
+      <button onclick="fetchMissingImages()" 
+              class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-semibold transition-colors">
+        <i class="fas fa-image mr-2"></i>Fetch Missing Images
+      </button>
+      <button onclick="showScrapeModal()" 
+              class="px-4 py-2 bg-primary-500 hover:bg-primary-600 text-white rounded-lg font-semibold transition-colors">
+        <i class="fas fa-sync mr-2"></i>Scrape Episodes
+      </button>
+    </div>
+  </div>
+
+  <!-- Stats Cards -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6">
+      <div class="flex items-center">
+        <div class="flex-shrink-0">
+          <div class="w-12 h-12 bg-primary-100 dark:bg-primary-900 rounded-full flex items-center justify-center">
+            <i class="fas fa-tv text-primary-600 text-xl"></i>
+          </div>
+        </div>
+        <div class="ml-4">
+          <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Total Anime</h3>
+          <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ total_animes }}</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6">
+      <div class="flex items-center">
+        <div class="flex-shrink-0">
+          <div class="w-12 h-12 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center">
+            <i class="fas fa-film text-green-600 text-xl"></i>
+          </div>
+        </div>
+        <div class="ml-4">
+          <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Total Episodes</h3>
+          <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ total_episodes }}</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6">
+      <div class="flex items-center">
+        <div class="flex-shrink-0">
+          <div class="w-12 h-12 bg-yellow-100 dark:bg-yellow-900 rounded-full flex items-center justify-center">
+            <i class="fas fa-star text-yellow-600 text-xl"></i>
+          </div>
+        </div>
+        <div class="ml-4">
+          <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Featured Anime</h3>
+          <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ featured_animes }}</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6">
+      <div class="flex items-center">
+        <div class="flex-shrink-0">
+          <div class="w-12 h-12 bg-red-100 dark:bg-red-900 rounded-full flex items-center justify-center">
+            <i class="fas fa-fire text-red-600 text-xl"></i>
+          </div>
+        </div>
+        <div class="ml-4">
+          <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Trending Anime</h3>
+          <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ trending_animes }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+    <!-- Recent Anime -->
+    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6">
+      <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-6 flex items-center">
+        <i class="fas fa-clock text-primary-500 mr-3"></i>
+        Recent Anime
+      </h2>
+      
+      <div class="space-y-4">
+        {% for anime in recent_animes %}
+        <div class="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-xl">
+          <div class="flex items-center">
+            <div class="w-12 h-16 bg-gray-200 dark:bg-gray-600 rounded-lg mr-4 overflow-hidden">
+              {% if anime.poster_url %}
+              <img src="{{ anime.poster_url }}" 
+                   alt="{{ anime.title }}" 
+                   class="w-full h-full object-cover">
+              {% else %}
+              <div class="w-full h-full flex items-center justify-center">
+                <i class="fas fa-image text-gray-400"></i>
+              </div>
+              {% endif %}
+            </div>
+            <div>
+              <h3 class="font-semibold text-gray-900 dark:text-white">{{ anime.title }}</h3>
+              <p class="text-sm text-gray-600 dark:text-gray-400">
+                {{ anime.total_episodes }} Episodes • {{ anime.get_status_display }}
+              </p>
+            </div>
+          </div>
+          <div class="flex items-center space-x-2">
+            {% if not anime.poster_url %}
+            <button onclick="fetchAnimeImage({{ anime.id }})" 
+                    class="text-blue-500 hover:text-blue-600" 
+                    title="Fetch Image">
+              <i class="fas fa-image"></i>
+            </button>
+            {% endif %}
+            <a href="{{ anime.get_absolute_url }}" 
+               class="text-primary-500 hover:text-primary-600">
+              <i class="fas fa-external-link-alt"></i>
+            </a>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Recent Episodes -->
+    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6">
+      <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-6 flex items-center">
+        <i class="fas fa-film text-primary-500 mr-3"></i>
+        Recent Episodes
+      </h2>
+      
+      <div class="space-y-4">
+        {% for episode in recent_episodes %}
+        <div class="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-xl">
+          <div class="flex items-center">
+            <div class="w-16 h-12 bg-gray-200 dark:bg-gray-600 rounded-lg mr-4 overflow-hidden">
+              {% if episode.snapshot_url %}
+              <img src="{{ episode.snapshot_url }}" 
+                   alt="Episode {{ episode.episode_number }}" 
+                   class="w-full h-full object-cover">
+              {% elif episode.anime.poster_url %}
+              <img src="{{ episode.anime.poster_url }}" 
+                   alt="{{ episode.anime.title }}" 
+                   class="w-full h-full object-cover">
+              {% else %}
+              <div class="w-full h-full flex items-center justify-center">
+                <i class="fas fa-play text-gray-400"></i>
+              </div>
+              {% endif %}
+            </div>
+            <div>
+              <h3 class="font-semibold text-gray-900 dark:text-white">{{ episode.anime.title }}</h3>
+              <p class="text-sm text-gray-600 dark:text-gray-400">
+                Episode {{ episode.episode_number }} • {{ episode.download_links.count }} Links
+              </p>
+            </div>
+          </div>
+          <div class="flex items-center space-x-2">
+            <span class="text-xs text-gray-500">{{ episode.created_at|timesince }} ago</span>
+            <a href="{{ episode.get_absolute_url }}" 
+               class="text-primary-500 hover:text-primary-600">
+              <i class="fas fa-external-link-alt"></i>
+            </a>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Anime without images -->
+  <div class="mt-8 bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6">
+    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-6 flex items-center">
+      <i class="fas fa-image text-yellow-500 mr-3"></i>
+      Anime Missing Images
+      <span id="missing-images-count" class="ml-2 px-2 py-1 bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200 rounded-full text-xs">Loading...</span>
+    </h2>
+    
+    <div id="missing-images-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <!-- Will be populated by JavaScript -->
+    </div>
+  </div>
+</div>
+
+<!-- Scrape Modal -->
+<div id="scrapeModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+  <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 w-full max-w-md">
+    <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-4">Scrape New Episodes</h3>
+    
+    <form method="post" action="{% url 'anime:trigger_scrape' %}">
+      {% csrf_token %}
+      <div class="mb-4">
+        <label for="pages" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          Number of pages to scrape:
+        </label>
+        <input type="number" 
+               id="pages" 
+               name="pages" 
+               value="3" 
+               min="1" 
+               max="10" 
+               class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 dark:bg-gray-700 dark:text-white">
+      </div>
+      
+      <div class="flex justify-end space-x-3">
+        <button type="button" 
+                onclick="closeScrapeModal()" 
+                class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+          Cancel
+        </button>
+        <button type="submit" 
+                class="px-4 py-2 bg-primary-500 hover:bg-primary-600 text-white rounded-lg font-semibold transition-colors">
+          Start Scraping
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Loading Modal -->
+<div id="loadingModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+  <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 text-center">
+    <div class="animate-spin w-8 h-8 border-4 border-primary-500 border-t-transparent rounded-full mx-auto mb-4"></div>
+    <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">Processing...</h3>
+    <p id="loadingText" class="text-gray-600 dark:text-gray-400">Please wait while we process your request.</p>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Load missing images count on page load
+document.addEventListener('DOMContentLoaded', function() {
+  loadMissingImagesCount();
+  loadMissingImagesGrid();
+});
+
+function loadMissingImagesCount() {
+  // This would be an AJAX call to get the count
+  fetch('/anime/ajax/missing-images-count/')
+    .then(response => response.json())
+    .then(data => {
+      document.getElementById('missing-images-count').textContent = data.count || '0';
+    })
+    .catch(error => {
+      document.getElementById('missing-images-count').textContent = '?';
+    });
+}
+
+function loadMissingImagesGrid() {
+  const grid = document.getElementById('missing-images-grid');
+  grid.innerHTML = '<div class="col-span-full text-center py-8"><div class="animate-spin w-6 h-6 border-2 border-primary-500 border-t-transparent rounded-full mx-auto mb-2"></div><p class="text-gray-600">Loading anime without images...</p></div>';
+  
+  // This would be an AJAX call to get anime without images
+  // For now, we'll simulate it
+  setTimeout(() => {
+    grid.innerHTML = '<div class="col-span-full text-center py-8"><p class="text-gray-600">No anime missing images found.</p></div>';
+  }, 1000);
+}
+
+function fetchAnimeImage(animeId) {
+  showLoadingModal('Fetching anime image...');
+  
+  fetch(`/anime/ajax/anime/${animeId}/update-image/`, {
+    method: 'POST',
+    headers: {
+      'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+      'X-Requested-With': 'XMLHttpRequest',
+    }
+  })
+  .then(response => response.json())
+  .then(data => {
+    hideLoadingModal();
+    if (data.success) {
+      alert('Image updated successfully!');
+      location.reload(); // Refresh to show new image
+    } else {
+      alert('Failed to fetch image: ' + (data.error || 'Unknown error'));
+    }
+  })
+  .catch(error => {
+    hideLoadingModal();
+    alert('Error fetching image: ' + error.message);
+  });
+}
+
+function fetchMissingImages() {
+  showLoadingModal('Fetching missing images for multiple anime...');
+  
+  fetch('{% url "anime:fetch_images" %}', {
+    method: 'POST',
+    headers: {
+      'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+      'X-Requested-With': 'XMLHttpRequest',
+    }
+  })
+  .then(response => {
+    hideLoadingModal();
+    if (response.ok) {
+      alert('Image fetching process started! This may take a few minutes.');
+      location.reload();
+    } else {
+      alert('Error starting image fetch process.');
+    }
+  })
+  .catch(error => {
+    hideLoadingModal();
+    alert('Error: ' + error.message);
+  });
+}
+
+function showScrapeModal() {
+  document.getElementById('scrapeModal').classList.remove('hidden');
+}
+
+function closeScrapeModal() {
+  document.getElementById('scrapeModal').classList.add('hidden');
+}
+
+function showLoadingModal(text) {
+  document.getElementById('loadingText').textContent = text;
+  document.getElementById('loadingModal').classList.remove('hidden');
+}
+
+function hideLoadingModal() {
+  document.getElementById('loadingModal').classList.add('hidden');
+}
+
+// Close modals on outside click
+document.addEventListener('click', function(e) {
+  if (e.target.id === 'scrapeModal') {
+    closeScrapeModal();
+  }
+  if (e.target.id === 'loadingModal') {
+    hideLoadingModal();
+  }
+});
+</script>
+{% endblock %}

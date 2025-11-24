@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Browse Manga - Watch2D{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 lg:px-6 py-8">
+    <!-- Page Header -->
+    <div class="mb-8">
+        <h1 class="text-4xl font-bold text-gray-900 dark:text-white mb-2">
+            <i class="fas fa-book-open text-primary-600"></i> Browse Manga
+        </h1>
+        <p class="text-gray-600 dark:text-gray-400">Discover thousands of manga, manhwa, and manhua</p>
+    </div>
+    
+    
+    <!-- Manga Grid - FIXED IMAGE DISPLAY -->
+    {% if mangas %}
+    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 mb-8">
+        {% for manga in mangas %}
+        <a href="{{ manga.get_absolute_url }}" class="group block">
+            <div class="glass-effect rounded-xl overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2">
+                <!-- Fixed aspect ratio container -->
+                <div class="relative w-full" style="padding-top: 142.857%; /* 3:4.28 ratio */">
+                    <img src="{{ manga.cover_url }}" 
+                         alt="{{ manga.title }}" 
+                         class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                         loading="lazy"
+                         onerror="this.src='{% static 'img/placeholder.png' %}'">
+                    
+                    <!-- Badges -->
+                    <div class="absolute top-2 left-2 flex flex-col gap-1">
+                        {% if manga.is_featured %}
+                        <span class="bg-yellow-500 text-white px-2 py-1 rounded text-xs font-bold shadow-lg">
+                            <i class="fas fa-star"></i>
+                        </span>
+                        {% endif %}
+                        {% if manga.is_trending %}
+                        <span class="bg-red-500 text-white px-2 py-1 rounded text-xs font-bold shadow-lg">
+                            <i class="fas fa-fire"></i>
+                        </span>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Type Badge -->
+                    <div class="absolute top-2 right-2">
+                        <span class="bg-black/70 text-white px-2 py-1 rounded text-xs font-bold backdrop-blur-sm">
+                            {{ manga.get_manga_type_display }}
+                        </span>
+                    </div>
+                    
+                    <!-- Rating -->
+                    {% if manga.rating %}
+                    <div class="absolute bottom-2 left-2">
+                        <span class="bg-green-500 text-white px-2 py-1 rounded text-xs font-bold shadow-lg">
+                            <i class="fas fa-star"></i> {{ manga.rating }}
+                        </span>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <!-- Info section with fixed height -->
+                <div class="p-3">
+                    <h3 class="font-bold text-sm text-gray-900 dark:text-white mb-2 line-clamp-2 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors min-h-[2.5rem]">
+                        {{ manga.title }}
+                    </h3>
+                    
+                    <div class="flex items-center justify-between text-xs text-gray-600 dark:text-gray-400 mb-2">
+                        <span class="inline-flex items-center">
+                            <i class="fas fa-book mr-1"></i>{{ manga.total_chapters }}
+                        </span>
+                        <span class="inline-flex items-center">
+                            <i class="fas fa-eye mr-1"></i>{{ manga.views|default:0|floatformat:0 }}
+                        </span>
+                    </div>
+                    
+                    {% if manga.status %}
+                    <span class="inline-block px-2 py-0.5 text-xs rounded
+                        {% if manga.status == 'ongoing' %}bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300
+                        {% elif manga.status == 'completed' %}bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300
+                        {% elif manga.status == 'hiatus' %}bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300
+                        {% else %}bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300{% endif %}">
+                        {{ manga.get_status_display }}
+                    </span>
+                    {% endif %}
+                </div>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+    
+    <!-- Pagination -->
+    {% if is_paginated %}
+    <div class="flex justify-center items-center gap-2 flex-wrap">
+        {% if page_obj.has_previous %}
+        <a href="?page=1{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" 
+           class="px-4 py-2 bg-white dark:bg-gray-800 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+            <i class="fas fa-angle-double-left"></i>
+        </a>
+        <a href="?page={{ page_obj.previous_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" 
+           class="px-4 py-2 bg-white dark:bg-gray-800 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+            <i class="fas fa-angle-left"></i>
+        </a>
+        {% endif %}
+        
+        <span class="px-4 py-2 bg-primary-600 text-white rounded-lg font-semibold">
+            {{ page_obj.number }}
+        </span>
+        
+        {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" 
+           class="px-4 py-2 bg-white dark:bg-gray-800 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+            <i class="fas fa-angle-right"></i>
+        </a>
+        <a href="?page={{ page_obj.paginator.num_pages }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" 
+           class="px-4 py-2 bg-white dark:bg-gray-800 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+            <i class="fas fa-angle-double-right"></i>
+        </a>
+        {% endif %}
+    </div>
+    {% endif %}
+    
+    {% else %}
+    <div class="glass-effect rounded-2xl p-12 text-center">
+        <i class="fas fa-inbox text-6xl text-gray-400 mb-4"></i>
+        <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">No manga found</h3>
+        <p class="text-gray-600 dark:text-gray-400 mb-6">Try adjusting your filters</p>
+        <a href="{% url 'manga:list' %}" class="inline-block px-6 py-3 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-lg hover:from-blue-600 hover:to-cyan-600 transition-all duration-300 font-semibold">
+            <i class="fas fa-redo mr-2"></i>Reset Filters
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

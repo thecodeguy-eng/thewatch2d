@@ -1,0 +1,401 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ manga.title }} - Chapter {{ chapter.chapter_number }} - Watch2D{% endblock %}
+
+{% block extra_css %}
+<style>
+    .reader-container {
+        max-width: 1000px;
+        margin: 0 auto;
+    }
+    
+    .manga-page img {
+        width: 100%;
+        height: auto;
+        display: block;
+    }
+    
+    .reader-controls {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: rgba(0, 0, 0, 0.95);
+        backdrop-filter: blur(10px);
+        z-index: 40;
+        transform: translateY(100%);
+        transition: transform 0.3s ease;
+    }
+    
+    .reader-controls.show {
+        transform: translateY(0);
+    }
+    
+    @keyframes fade-in {
+        from {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    .animate-fade-in {
+        animation: fade-in 0.3s ease-out;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Reader Header -->
+<div class="bg-gray-900 text-white sticky top-16 z-30 shadow-lg">
+    <div class="container mx-auto px-4 py-4">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-4">
+                <a href="{{ manga.get_absolute_url }}" class="hover:text-primary-400 transition-colors">
+                    <i class="fas fa-arrow-left mr-2"></i>Back to Manga
+                </a>
+                <div class="hidden md:block">
+                    <h1 class="font-bold text-lg">{{ manga.title }}</h1>
+                    <p class="text-sm text-gray-400">{{ chapter.display_title }}</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center space-x-2">
+                <!-- Chapter Selector -->
+                <select id="chapter-selector" onchange="navigateToChapter(this.value)" 
+                        class="px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-primary-500">
+                    {% for ch in all_chapters %}
+                    <option value="{{ ch.get_absolute_url }}" {% if ch.id == chapter.id %}selected{% endif %}>
+                        Chapter {{ ch.chapter_number }}{% if ch.title %}: {{ ch.title }}{% endif %}
+                    </option>
+                    {% endfor %}
+                </select>
+                
+                <!-- Reading Mode -->
+                <button onclick="toggleReadingMode()" class="px-4 py-2 bg-gray-800 hover:bg-gray-700 rounded-lg transition-colors" title="Toggle Reading Mode">
+                    <i class="fas fa-book-open"></i>
+                </button>
+                
+                <!-- Download Button -->
+                <button onclick="showDownloadModal()" class="px-4 py-2 bg-green-600 hover:bg-green-700 rounded-lg transition-colors">
+                    <i class="fas fa-download mr-2"></i>Download
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Reader Content -->
+<div class="bg-gray-900 min-h-screen py-8">
+    <div class="reader-container px-4">
+        <!-- Chapter Info -->
+        <div class="glass-effect text-white rounded-2xl p-6 mb-8">
+            <h2 class="text-2xl font-bold mb-2">{{ chapter.display_title }}</h2>
+            <div class="flex items-center gap-4 text-sm text-gray-400">
+                <span><i class="fas fa-book-open mr-1"></i>{{ chapter.pages_count }} pages</span>
+                {% if chapter.translator %}
+                <span><i class="fas fa-user mr-1"></i>{{ chapter.translator }}</span>
+                {% endif %}
+                <span><i class="fas fa-clock mr-1"></i>{{ chapter.created_at|timesince }} ago</span>
+                <span><i class="fas fa-eye mr-1"></i>{{ chapter.views }} views</span>
+            </div>
+        </div>
+        
+        <!-- Navigation Buttons Top -->
+        <div class="flex gap-4 mb-8">
+            {% if prev_chapter %}
+            <a href="{{ prev_chapter.get_absolute_url }}" 
+               class="flex-1 px-6 py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl hover:from-purple-700 hover:to-pink-700 transition-all duration-300 font-semibold text-center">
+                <i class="fas fa-arrow-left mr-2"></i>Previous Chapter
+            </a>
+            {% else %}
+            <div class="flex-1 px-6 py-4 bg-gray-800 text-gray-500 rounded-xl text-center font-semibold cursor-not-allowed">
+                <i class="fas fa-arrow-left mr-2"></i>No Previous Chapter
+            </div>
+            {% endif %}
+            
+            {% if next_chapter %}
+            <a href="{{ next_chapter.get_absolute_url }}" 
+               class="flex-1 px-6 py-4 bg-gradient-to-r from-blue-600 to-cyan-600 text-white rounded-xl hover:from-blue-700 hover:to-cyan-700 transition-all duration-300 font-semibold text-center">
+                Next Chapter<i class="fas fa-arrow-right ml-2"></i>
+            </a>
+            {% else %}
+            <div class="flex-1 px-6 py-4 bg-gray-800 text-gray-500 rounded-xl text-center font-semibold cursor-not-allowed">
+                No Next Chapter<i class="fas fa-arrow-right ml-2"></i>
+            </div>
+            {% endif %}
+        </div>
+        
+        <!-- Manga Pages -->
+        <div id="manga-pages" class="space-y-2">
+            {% for page in pages %}
+            <div class="manga-page relative" data-page="{{ page.page_number }}">
+                <img src="{{ page.image_url }}" 
+                     alt="Page {{ page.page_number }}" 
+                     loading="lazy"
+                     class="w-full rounded-lg shadow-lg">
+                <div class="absolute bottom-4 right-4 bg-black/70 text-white px-4 py-2 rounded-lg font-bold backdrop-blur-sm">
+                    Page {{ page.page_number }} / {{ chapter.pages_count }}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <!-- Navigation Buttons Bottom -->
+        <div class="flex gap-4 mt-8 mb-8">
+            {% if prev_chapter %}
+            <a href="{{ prev_chapter.get_absolute_url }}" 
+               class="flex-1 px-6 py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl hover:from-purple-700 hover:to-pink-700 transition-all duration-300 font-semibold text-center">
+                <i class="fas fa-arrow-left mr-2"></i>Previous Chapter
+            </a>
+            {% else %}
+            <div class="flex-1 px-6 py-4 bg-gray-800 text-gray-500 rounded-xl text-center font-semibold cursor-not-allowed">
+                <i class="fas fa-arrow-left mr-2"></i>No Previous Chapter
+            </div>
+            {% endif %}
+            
+            {% if next_chapter %}
+            <a href="{{ next_chapter.get_absolute_url }}" 
+               class="flex-1 px-6 py-4 bg-gradient-to-r from-blue-600 to-cyan-600 text-white rounded-xl hover:from-blue-700 hover:to-cyan-700 transition-all duration-300 font-semibold text-center">
+                Next Chapter<i class="fas fa-arrow-right ml-2"></i>
+            </a>
+            {% else %}
+            <div class="flex-1 px-6 py-4 bg-gray-800 text-gray-500 rounded-xl text-center font-semibold cursor-not-allowed">
+                No Next Chapter<i class="fas fa-arrow-right ml-2"></i>
+            </div>
+            {% endif %}
+        </div>
+        
+        <!-- Comments Section Placeholder -->
+        <div class="glass-effect text-white rounded-2xl p-8">
+            <h3 class="text-xl font-bold mb-4">
+                <i class="fas fa-comments mr-2"></i>Comments
+            </h3>
+            <p class="text-gray-400 text-center py-8">Comments section coming soon!</p>
+        </div>
+    </div>
+</div>
+
+<!-- Download Modal -->
+<div id="download-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+    <div class="glass-effect rounded-2xl max-w-2xl w-full max-h-[80vh] overflow-y-auto">
+        <div class="p-6 border-b border-gray-700">
+            <div class="flex items-center justify-between">
+                <h3 class="text-2xl font-bold text-white">
+                    <i class="fas fa-download mr-2"></i>Download Chapter
+                </h3>
+                <button onclick="closeDownloadModal()" class="text-gray-400 hover:text-white transition-colors">
+                    <i class="fas fa-times text-2xl"></i>
+                </button>
+            </div>
+        </div>
+        
+        <div class="p-6">
+            <p class="text-gray-400 mb-6">{{ chapter.display_title }} - {{ chapter.pages_count }} pages</p>
+            
+            <div class="space-y-3">
+                <!-- Download as PDF -->
+                <a href="{% url 'manga:download_chapter' chapter.chapter_id 'pdf' %}" 
+                   class="w-full flex items-center justify-between p-4 bg-gray-800 hover:bg-gray-700 rounded-xl transition-all duration-300 group block"
+                   onclick="trackDownload('pdf')">
+                    <div class="flex items-center space-x-4">
+                        <div class="w-12 h-12 bg-gradient-to-r from-red-500 to-pink-500 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-file-pdf text-white text-xl"></i>
+                        </div>
+                        <div>
+                            <div class="font-semibold text-white">Download as PDF</div>
+                            <div class="text-sm text-gray-400">All {{ pages|length }} pages in single PDF file</div>
+                        </div>
+                    </div>
+                    <i class="fas fa-download text-gray-400 group-hover:text-white transition-colors"></i>
+                </a>
+                
+                <!-- Download as ZIP -->
+                <a href="{% url 'manga:download_chapter' chapter.chapter_id 'zip' %}" 
+                   class="w-full flex items-center justify-between p-4 bg-gray-800 hover:bg-gray-700 rounded-xl transition-all duration-300 group block"
+                   onclick="trackDownload('zip')">
+                    <div class="flex items-center space-x-4">
+                        <div class="w-12 h-12 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-file-archive text-white text-xl"></i>
+                        </div>
+                        <div>
+                            <div class="font-semibold text-white">Download as ZIP</div>
+                            <div class="text-sm text-gray-400">All {{ pages|length }} pages as separate images</div>
+                        </div>
+                    </div>
+                    <i class="fas fa-download text-gray-400 group-hover:text-white transition-colors"></i>
+                </a>
+                
+                <!-- Info Box -->
+                <div class="bg-blue-900/30 border border-blue-500/50 rounded-xl p-4 mt-4">
+                    <div class="flex items-start space-x-3">
+                        <i class="fas fa-info-circle text-blue-400 mt-1"></i>
+                        <div class="text-sm text-blue-200">
+                            <p class="font-semibold mb-1">Download Information</p>
+                            <ul class="space-y-1 text-blue-300">
+                                <li>• <strong>PDF:</strong> Single file with all pages, perfect for reading</li>
+                                <li>• <strong>ZIP:</strong> Individual image files, better for editing</li>
+                                <li>• Both formats preserve high-quality images</li>
+                                <li>• Estimated size: 2-5 MB per page</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Individual Pages Section (Optional) -->
+                <div class="border-t border-gray-700 pt-4 mt-4">
+                    <button onclick="toggleIndividualPages()" class="w-full text-left text-white font-semibold mb-3 flex items-center justify-between hover:text-primary-400 transition-colors">
+                        <span><i class="fas fa-images mr-2"></i>Download Individual Pages</span>
+                        <i id="toggle-icon" class="fas fa-chevron-down"></i>
+                    </button>
+                    
+                    <div id="individual-pages" class="hidden max-h-64 overflow-y-auto space-y-2">
+                        {% for page in pages %}
+                        <a href="{{ page.image_url }}" download="page-{{ page.page_number }}.jpg" target="_blank"
+                           class="flex items-center justify-between p-3 bg-gray-800 hover:bg-gray-700 rounded-lg transition-colors text-sm group">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg flex items-center justify-center text-xs font-bold text-white">
+                                    {{ page.page_number }}
+                                </div>
+                                <span class="text-white">Page {{ page.page_number }}</span>
+                            </div>
+                            <i class="fas fa-download text-gray-400 group-hover:text-white transition-colors"></i>
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Reader Controls (Bottom Bar) -->
+<div id="reader-controls" class="reader-controls show">
+    <div class="container mx-auto px-4 py-4">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-4">
+                {% if prev_chapter %}
+                <a href="{{ prev_chapter.get_absolute_url }}" class="px-4 py-2 bg-purple-600 hover:bg-purple-700 rounded-lg transition-colors">
+                    <i class="fas fa-arrow-left"></i>
+                </a>
+                {% endif %}
+                
+                <span class="text-white font-semibold">
+                    Chapter {{ chapter.chapter_number }}
+                </span>
+                
+                {% if next_chapter %}
+                <a href="{{ next_chapter.get_absolute_url }}" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors">
+                    <i class="fas fa-arrow-right"></i>
+                </a>
+                {% endif %}
+            </div>
+            
+            <button onclick="scrollToTop()" class="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors">
+                <i class="fas fa-arrow-up mr-2"></i>Top
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+function navigateToChapter(url) {
+    if (url) {
+        window.location.href = url;
+    }
+}
+
+function toggleReadingMode() {
+    document.body.classList.toggle('reading-mode');
+    // Add your reading mode logic here
+}
+
+function showDownloadModal() {
+    document.getElementById('download-modal').classList.remove('hidden');
+    document.getElementById('download-modal').classList.add('flex');
+}
+
+function closeDownloadModal() {
+    document.getElementById('download-modal').classList.add('hidden');
+    document.getElementById('download-modal').classList.remove('flex');
+}
+
+function toggleIndividualPages() {
+    const container = document.getElementById('individual-pages');
+    const icon = document.getElementById('toggle-icon');
+    
+    if (container.classList.contains('hidden')) {
+        container.classList.remove('hidden');
+        icon.classList.remove('fa-chevron-down');
+        icon.classList.add('fa-chevron-up');
+    } else {
+        container.classList.add('hidden');
+        icon.classList.remove('fa-chevron-up');
+        icon.classList.add('fa-chevron-down');
+    }
+}
+
+function trackDownload(format) {
+    // Show notification based on format
+    const messages = {
+        'pdf': 'Preparing PDF download... This may take a moment.',
+        'zip': 'Preparing ZIP download... This may take a moment.'
+    };
+    
+    showNotification(messages[format] || 'Preparing download...');
+}
+
+function showNotification(message) {
+    const notification = document.createElement('div');
+    notification.className = 'fixed top-20 right-4 bg-green-600 text-white px-6 py-3 rounded-lg shadow-lg z-50 animate-fade-in';
+    notification.innerHTML = `<i class="fas fa-check-circle mr-2"></i>${message}`;
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.style.opacity = '0';
+        setTimeout(() => notification.remove(), 300);
+    }, 3000);
+}
+
+function scrollToTop() {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// Show/hide controls on scroll
+let lastScroll = 0;
+window.addEventListener('scroll', () => {
+    const currentScroll = window.pageYOffset;
+    const controls = document.getElementById('reader-controls');
+    
+    if (currentScroll <= 0) {
+        controls.classList.add('show');
+        return;
+    }
+    
+    if (currentScroll > lastScroll && currentScroll > 100) {
+        controls.classList.remove('show');
+    } else {
+        controls.classList.add('show');
+    }
+    
+    lastScroll = currentScroll;
+});
+
+// Close modal on escape key
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+        closeDownloadModal();
+    }
+});
+
+// Close modal on outside click
+document.getElementById('download-modal').addEventListener('click', (e) => {
+    if (e.target.id === 'download-modal') {
+        closeDownloadModal();
+    }
+});
+</script>
+{% endblock %}

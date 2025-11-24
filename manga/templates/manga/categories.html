@@ -1,0 +1,58 @@
+<!-- ==================== categories.html ==================== -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}All Categories - Watch2D{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 lg:px-6 py-8">
+    <div class="mb-8">
+        <h1 class="text-4xl font-bold text-gray-900 dark:text-white mb-2">
+            <i class="fas fa-th-large text-primary-600"></i> All Categories
+        </h1>
+        <p class="text-gray-600 dark:text-gray-400">Browse manga by category</p>
+    </div>
+    
+    {% if categories %}
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for category in categories %}
+        <a href="{{ category.get_absolute_url }}" class="group">
+            <div class="glass-effect rounded-2xl overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2">
+                {% if category.image %}
+                <div class="relative h-48 overflow-hidden">
+                    <img src="{{ category.image }}" alt="{{ category.name }}" 
+                         class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
+                    <div class="absolute bottom-4 left-4 right-4">
+                        <h3 class="text-2xl font-bold text-white mb-1">{{ category.name }}</h3>
+                        <p class="text-white/80 text-sm">{{ category.manga_count }} manga</p>
+                    </div>
+                </div>
+                {% else %}
+                <div class="relative h-48 bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center">
+                    <div class="text-center">
+                        <h3 class="text-2xl font-bold text-white mb-1">{{ category.name }}</h3>
+                        <p class="text-white/80 text-sm">{{ category.manga_count }} manga</p>
+                    </div>
+                </div>
+                {% endif %}
+                
+                {% if category.description %}
+                <div class="p-4">
+                    <p class="text-sm text-gray-600 dark:text-gray-400 line-clamp-2">
+                        {{ category.description }}
+                    </p>
+                </div>
+                {% endif %}
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="glass-effect rounded-2xl p-12 text-center">
+        <i class="fas fa-inbox text-6xl text-gray-400 mb-4"></i>
+        <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">No categories found</h3>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

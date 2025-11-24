@@ -1,0 +1,53 @@
+Ah, you copied the comments too! 😄 Remove the # comments from the command. Here are the correct commands:
+✅ Correct Commands
+bash# WITHOUT the comments:
+python manage.py scrape_manga
+
+python manage.py scrape_metadata
+🚀 Full Usage Examples
+Basic Usage
+bash# Main scraper (default: 10 manga, 5 chapters each)
+python manage.py scrape_manga
+
+# Metadata scraper (default: 100 per page, 10 pages)
+python manage.py scrape_metadata
+With Options
+bash# Scrape 20 manga with 10 chapters each
+python manage.py scrape_manga --max-manga 20 --max-chapters 10
+
+# Slower scraping (more reliable)
+python manage.py scrape_manga --max-manga 5 --delay-min 3 --delay-max 6
+
+# Get 500 manga metadata quickly
+python manage.py scrape_metadata --per-page 100 --max-pages 5
+
+# Start from page 3
+python manage.py scrape_manga --start-page 3
+📋 Quick Reference
+scrape_manga Options
+bashpython manage.py scrape_manga \
+  --max-manga 20 \
+  --max-chapters 10 \
+  --start-page 1 \
+  --delay-min 2 \
+  --delay-max 4
+scrape_metadata Options
+bashpython manage.py scrape_metadata \
+  --url https://manhuaplus.com \
+  --per-page 100 \
+  --max-pages 5 \
+  --post-type posts
+🎯 Recommended Workflow
+bash# Step 1: Test with small batch
+python manage.py scrape_manga --max-manga 2 --max-chapters 3
+
+# Step 2: If working, scale up
+python manage.py scrape_manga --max-manga 50 --max-chapters 10
+
+# Step 3: Get metadata for discovery
+python manage.py scrape_metadata --max-pages 5
+Try running just python manage.py scrape_manga without the comment! 🚀
+
+
+
+python manage.py scrape_manga --max-manga 10

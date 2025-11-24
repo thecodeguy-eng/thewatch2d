@@ -1,0 +1,1521 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en" class="h-full scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  {# -- PWA Meta Tags -- #}
+  <meta name="application-name" content="Watch2D">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Watch2D">
+  <meta name="msapplication-TileColor" content="#0ea5e9">
+  <meta name="msapplication-tap-highlight" content="no">
+  <meta name="theme-color" content="#0ea5e9" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#1e293b" media="(prefers-color-scheme: dark)">
+
+  {# -- Web App Manifest -- #}
+  <link rel="manifest" href="{% static 'manifest.json' %}">
+
+  {# -- Title -- #}
+  <title>
+    {% block title %}
+      Watch2D - Download Latest Movies | Netnaija, Nkiri, Waploaded, FZMovies, Netflix & More
+    {% endblock %}
+  </title>
+
+  {# -- Meta Tags -- #}
+  <meta name="description" content="{% block meta_description %}Download or stream free movies and TV shows on Watch2D. We offer latest releases like on Netnaija, Nkiri, Awafim, FZMovies, Waploaded, and Netflix. Watch anime, K-Drama, Nollywood & Hollywood blockbusters in HD.{% endblock %}" />
+  <meta name="keywords" content="{% block meta_keywords %}Watch2D, Netnaija movies, Nkiri TV, Awafim movies, Waploaded, FZMovies, Netflix free download, anime streaming, Korean drama, Nollywood movies, Hollywood HD movies, free TV shows{% endblock %}" />
+  <meta name="robots" content="{% block meta_robots %}index, follow{% endblock %}" />
+
+  {# -- Canonical -- #}
+  {% block canonical_block %}
+    <link rel="canonical" href="https://www.watch2d.com/" />
+  {% endblock %}
+
+  {# -- Open Graph (Social) -- #}
+  <meta property="og:type" content="{% block og_type %}website{% endblock %}" />
+  <meta property="og:title" content="{% block og_title %}Watch2D - Stream & Download Movies Like Netnaija, Nkiri, Netflix & More{% endblock %}" />
+  <meta property="og:description" content="{% block og_description %}Stream and download trending movies, anime, K-Dramas, and Netflix-style series for free—just like Netnaija, Nkiri, and Waploaded. Updated daily in HD.{% endblock %}" />
+  <meta property="og:url" content="{% block og_url %}https://www.watch2d.com/{% endblock %}" />
+  <meta property="og:image" content="{% block og_image %}https://www.watch2d.com/static/images/preview.jpg{% endblock %}" />
+  <meta property="og:site_name" content="Watch2D" />
+
+  {# -- Twitter Card -- #}
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="{% block twitter_title %}Watch2D - Free Movies like Netnaija, Nkiri, Waploaded, FZMovies{% endblock %}" />
+  <meta name="twitter:description" content="{% block twitter_description %}Watch2D lets you stream & download HD movies like Netnaija, Nkiri, Awafim, FZ Movies & more—for free. Updated daily.{% endblock %}" />
+  <meta name="twitter:image" content="{% block twitter_image %}https://www.watch2d.com/static/img/favicon.png{% endblock %}" />
+
+  {# -- PWA Icons -- #}
+  <link rel="icon" type="image/png" href="{% static 'img/favicon.png' %}" />
+  <link rel="apple-touch-icon" href="{% static 'img/icons/icon-192x192.png' %}">
+  <link rel="apple-touch-icon" sizes="152x152" href="{% static 'img/icons/icon-152x152.png' %}">
+  <link rel="apple-touch-icon" sizes="180x180" href="{% static 'img/icons/icon-192x192.png' %}">
+  <link rel="apple-touch-icon" sizes="167x167" href="{% static 'img/icons/icon-192x192.png' %}">
+  
+  {# -- Splash Screens for iOS -- #}
+  <link rel="apple-touch-startup-image" href="{% static 'img/splash/iphone5_splash.png' %}" media="(device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2)" />
+  <link rel="apple-touch-startup-image" href="{% static 'img/splash/iphone6_splash.png' %}" media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2)" />
+  <link rel="apple-touch-startup-image" href="{% static 'img/splash/iphoneplus_splash.png' %}" media="(device-width: 621px) and (device-height: 1104px) and (-webkit-device-pixel-ratio: 3)" />
+  <link rel="apple-touch-startup-image" href="{% static 'img/splash/iphonex_splash.png' %}" media="(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3)" />
+  <link rel="apple-touch-startup-image" href="{% static 'img/splash/iphonexr_splash.png' %}" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2)" />
+  <link rel="apple-touch-startup-image" href="{% static 'img/splash/iphonexsmax_splash.png' %}" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3)" />
+  <link rel="apple-touch-startup-image" href="{% static 'img/splash/ipad_splash.png' %}" media="(device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2)" />
+  <link rel="apple-touch-startup-image" href="{% static 'img/splash/ipadpro1_splash.png' %}" media="(device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2)" />
+  <link rel="apple-touch-startup-image" href="{% static 'img/splash/ipadpro2_splash.png' %}" media="(device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2)" />
+
+  {# -- Structured Data -- #}
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "Watch2D",
+    "url": "https://www.watch2d.com/",
+    "alternateName": [
+      "Netnaija Movies",
+      "Nkiri TV",
+      "Awafim Movies",
+      "Waploaded",
+      "FZMovies",
+      "Netflix Free",
+      "K-Drama Streaming",
+      "Hollywood & Nollywood Series"
+    ],
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": "https://www.watch2d.com/search/?q={search_term_string}",
+      "query-input": "required name=search_term_string"
+    }
+  }
+  </script>
+  {% block extra_ld_json %}{% endblock %}
+
+  {# -- Styles & Scripts -- #}
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            primary: {
+              50: '#f0f9ff',
+              100: '#e0f2fe',
+              200: '#bae6fd',
+              300: '#7dd3fc',
+              400: '#38bdf8',
+              500: '#0ea5e9',
+              600: '#0284c7',
+              700: '#0369a1',
+              800: '#075985',
+              900: '#0c4a6e'
+            },
+            accent: {
+              50: '#fdf2f8',
+              100: '#fce7f3',
+              200: '#fbcfe8',
+              300: '#f9a8d4',
+              400: '#f472b6',
+              500: '#ec4899',
+              600: '#db2777',
+              700: '#be185d',
+              800: '#9d174d',
+              900: '#831843'
+            }
+          },
+          fontFamily: {
+            'sans': ['Inter', 'system-ui', 'sans-serif']
+          },
+          animation: {
+            'fade-in': 'fadeIn 0.5s ease-in-out',
+            'slide-up': 'slideUp 0.3s ease-out',
+            'slide-down': 'slideDown 0.3s ease-out',
+            'pulse-slow': 'pulse 3s ease-in-out infinite',
+            'bounce-gentle': 'bounceGentle 2s ease-in-out infinite'
+          },
+          keyframes: {
+            fadeIn: {
+              '0%': { opacity: '0' },
+              '100%': { opacity: '1' }
+            },
+            slideUp: {
+              '0%': { transform: 'translateY(10px)', opacity: '0' },
+              '100%': { transform: 'translateY(0)', opacity: '1' }
+            },
+            slideDown: {
+              '0%': { transform: 'translateY(-10px)', opacity: '0' },
+              '100%': { transform: 'translateY(0)', opacity: '1' }
+            },
+            bounceGentle: {
+              '0%, 100%': { transform: 'translateY(0)' },
+              '50%': { transform: 'translateY(-5px)' }
+            }
+          }
+        }
+      }
+    };
+  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  {# -- Extra head elements per-page -- #}
+  {% block head_extra %}{% endblock %}
+
+  <!-- Watch2D Review System -->
+<script>
+  /**
+ * Watch2D Google Review Integration System - Non-Intrusive Version
+ * Shows review request without blocking user interaction
+ * Blocks ads when review popup is active
+ */
+
+(function() {
+    'use strict';
+    
+    // Configuration - Easy to modify
+    const WATCH2D_CONFIG = {
+        REVIEW_URL: 'https://g.page/r/CRSgilums2fuEAI/review',
+        POPUP_DELAY: 15000, // 0.25 minutes in milliseconds
+        BUSINESS_NAME: 'Watch2D',
+        ZONE_IDS: ['9487215', '9487214'], // Your ad zone IDs from the document
+        STORAGE_KEYS: {
+            HAS_REVIEWED: 'watch2d_has_reviewed',
+            REVIEW_DATE: 'watch2d_review_date',
+            POPUP_SHOWN: 'watch2d_popup_shown_session',
+            DISMISSED_COUNT: 'watch2d_dismissed_count'
+        }
+    };
+    
+    // State management
+    let timeOnSite = 0;
+    let reviewPopupActive = false;
+    let popupShownThisSession = false;
+    let originalPopunderFunctions = {};
+    
+    // Initialize the system
+    function initializeReviewSystem() {
+        startTimeTracking();
+        interceptPopunderAds();
+        
+        // Check if we should show popup after delay
+        setTimeout(() => {
+            if (shouldShowReviewPopup()) {
+                showReviewPopup();
+            }
+        }, WATCH2D_CONFIG.POPUP_DELAY);
+    }
+    
+    // Time tracking
+    function startTimeTracking() {
+        setInterval(() => {
+            timeOnSite += 1000;
+            
+            // Also check if enough time has passed (backup trigger)
+            if (timeOnSite >= WATCH2D_CONFIG.POPUP_DELAY && shouldShowReviewPopup()) {
+                showReviewPopup();
+            }
+        }, 1000);
+    }
+    
+    // Check if popup should be shown
+    function shouldShowReviewPopup() {
+        const dismissedCount = parseInt(localStorage.getItem(WATCH2D_CONFIG.STORAGE_KEYS.DISMISSED_COUNT) || '0');
+        return !hasReviewedBefore() && 
+              !popupShownThisSession && 
+              !reviewPopupActive &&
+              timeOnSite >= WATCH2D_CONFIG.POPUP_DELAY &&
+              dismissedCount < 3; // Stop showing after 3 dismissals
+    }
+    
+    // Check if user has reviewed before
+    function hasReviewedBefore() {
+        return localStorage.getItem(WATCH2D_CONFIG.STORAGE_KEYS.HAS_REVIEWED) === 'true';
+    }
+    
+    // Mark user as having reviewed
+    function markAsReviewed() {
+        localStorage.setItem(WATCH2D_CONFIG.STORAGE_KEYS.HAS_REVIEWED, 'true');
+        localStorage.setItem(WATCH2D_CONFIG.STORAGE_KEYS.REVIEW_DATE, new Date().toISOString());
+    }
+    
+    // Increment dismissed count
+    function incrementDismissedCount() {
+        const count = parseInt(localStorage.getItem(WATCH2D_CONFIG.STORAGE_KEYS.DISMISSED_COUNT) || '0');
+        localStorage.setItem(WATCH2D_CONFIG.STORAGE_KEYS.DISMISSED_COUNT, (count + 1).toString());
+    }
+    
+    // Intercept and control popunder ads
+    function interceptPopunderAds() {
+        // Store original functions
+        if (window._sfxyz) {
+            originalPopunderFunctions._sfxyz = window._sfxyz;
+        }
+        if (window._iamkeom) {
+            originalPopunderFunctions._iamkeom = window._iamkeom;
+        }
+        
+        // Override the popunder functions
+        window._sfxyz = function() {
+            if (reviewPopupActive) {
+                console.log('Watch2D: Popunder blocked - review popup active');
+                return false;
+            }
+            return originalPopunderFunctions._sfxyz ? originalPopunderFunctions._sfxyz.apply(this, arguments) : true;
+        };
+        
+        window._iamkeom = function() {
+            if (reviewPopupActive) {
+                console.log('Watch2D: Popunder blocked - review popup active');
+                return false;
+            }
+            return originalPopunderFunctions._iamkeom ? originalPopunderFunctions._iamkeom.apply(this, arguments) : true;
+        };
+    }
+    
+    // Show the non-intrusive review popup
+    function showReviewPopup() {
+        if (popupShownThisSession || reviewPopupActive) return;
+        
+        popupShownThisSession = true;
+        reviewPopupActive = true;
+        
+        // Create popup container (positioned, not overlay)
+        const popup = document.createElement('div');
+        popup.id = 'watch2d-review-popup';
+        popup.innerHTML = createPopupHTML();
+        
+        // Add styles
+        const style = document.createElement('style');
+        style.textContent = getPopupStyles();
+        document.head.appendChild(style);
+        
+        document.body.appendChild(popup);
+        
+        // Add event listeners
+        setupPopupEvents(popup);
+        
+        // Auto-minimize after 15 seconds if no interaction
+        setTimeout(() => {
+            const popupElement = document.getElementById('watch2d-review-popup');
+            if (popupElement && !popupElement.classList.contains('minimized')) {
+                minimizePopup();
+            }
+        }, 15000);
+        
+        // Auto-close after 60 seconds total
+        setTimeout(() => {
+            if (document.getElementById('watch2d-review-popup')) {
+                closeReviewPopup(true); // true = auto-dismissed
+            }
+        }, 60000);
+    }
+    
+    // Create popup HTML based on user status
+    function createPopupHTML() {
+        const hasReviewed = hasReviewedBefore();
+        const reviewDate = hasReviewed ? new Date(localStorage.getItem(WATCH2D_CONFIG.STORAGE_KEYS.REVIEW_DATE)) : null;
+        
+        if (hasReviewed) {
+            // Returning user popup
+            return `
+                <div class="watch2d-popup-container returning-user">
+                    <div class="watch2d-popup-header">
+                        <span class="watch2d-popup-icon">👋</span>
+                        <button class="watch2d-popup-close" onclick="closeReviewPopup()">&times;</button>
+                        <button class="watch2d-popup-minimize" onclick="minimizePopup()">−</button>
+                    </div>
+                    <div class="watch2d-popup-content">
+                        <h3>Welcome Back!</h3>
+                        <p>Thanks for your review on ${reviewDate ? reviewDate.toLocaleDateString() : 'your previous visit'}!</p>
+                        <div class="watch2d-popup-actions">
+                            <a href="${WATCH2D_CONFIG.REVIEW_URL}" target="_blank" class="watch2d-btn watch2d-btn-primary" onclick="handleReviewClick()">
+                                📝 Update Review
+                            </a>
+                            <button class="watch2d-btn watch2d-btn-secondary" onclick="closeReviewPopup()">
+                                Close
+                            </button>
+                        </div>
+                    </div>
+                    <div class="watch2d-popup-minimized">
+                        <span class="watch2d-popup-icon">👋</span>
+                        <span>Welcome back!</span>
+                    </div>
+                </div>
+            `;
+        } else {
+            // First-time user popup
+            return `
+                <div class="watch2d-popup-container">
+                    <div class="watch2d-popup-header">
+                        <span class="watch2d-popup-icon">⭐</span>
+                        <button class="watch2d-popup-close" onclick="closeReviewPopup()">&times;</button>
+                        <button class="watch2d-popup-minimize" onclick="minimizePopup()">−</button>
+                    </div>
+                    <div class="watch2d-popup-content">
+                        <h3>Loving ${WATCH2D_CONFIG.BUSINESS_NAME}?</h3>
+                        <p>Quick 30-second review? It helps us grow! 🎬</p>
+                        <div class="watch2d-popup-actions">
+                            <a href="${WATCH2D_CONFIG.REVIEW_URL}" target="_blank" class="watch2d-btn watch2d-btn-primary" onclick="handleReviewClick()">
+                                ⭐ Leave Review
+                            </a>
+                            <button class="watch2d-btn watch2d-btn-secondary" onclick="closeReviewPopup()">
+                                Not Now
+                            </button>
+                        </div>
+                    </div>
+                    <div class="watch2d-popup-minimized">
+                        <span class="watch2d-popup-icon">⭐</span>
+                        <span>Review us?</span>
+                    </div>
+                </div>
+            `;
+        }
+    }
+    
+    // Get popup styles - Non-intrusive positioning
+    function getPopupStyles() {
+        return `
+            #watch2d-review-popup {
+                position: fixed;
+                bottom: 20px;
+                right: 20px;
+                z-index: 999999;
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                pointer-events: auto;
+            }
+            
+            .watch2d-popup-container {
+                background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+                border-radius: 12px;
+                width: 320px;
+                color: white;
+                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+                border: 2px solid #4a90e2;
+                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                animation: watch2d-slideInRight 0.4s ease;
+                overflow: hidden;
+            }
+            
+            .watch2d-popup-container.returning-user {
+                background: linear-gradient(135deg, #2d1b69 0%, #11998e 100%);
+                border-color: #11998e;
+            }
+            
+            .watch2d-popup-container.minimized {
+                width: 160px;
+                cursor: pointer;
+            }
+            
+            .watch2d-popup-container.minimized .watch2d-popup-content {
+                display: none;
+            }
+            
+            .watch2d-popup-container:not(.minimized) .watch2d-popup-minimized {
+                display: none;
+            }
+            
+            .watch2d-popup-header {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                padding: 12px 15px 8px;
+                background: rgba(255, 255, 255, 0.1);
+                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            }
+            
+            .watch2d-popup-icon {
+                font-size: 18px;
+                font-weight: bold;
+            }
+            
+            .watch2d-popup-close,
+            .watch2d-popup-minimize {
+                background: none;
+                border: none;
+                color: white;
+                font-size: 18px;
+                cursor: pointer;
+                width: 24px;
+                height: 24px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border-radius: 4px;
+                transition: background 0.2s ease;
+                margin-left: 5px;
+            }
+            
+            .watch2d-popup-close:hover,
+            .watch2d-popup-minimize:hover {
+                background: rgba(255, 255, 255, 0.2);
+            }
+            
+            .watch2d-popup-content {
+                padding: 15px;
+            }
+            
+            .watch2d-popup-content h3 {
+                margin: 0 0 8px 0;
+                font-size: 16px;
+                color: #4a90e2;
+                font-weight: 600;
+            }
+            
+            .returning-user .watch2d-popup-content h3 {
+                color: #11998e;
+            }
+            
+            .watch2d-popup-content p {
+                margin: 0 0 15px 0;
+                line-height: 1.4;
+                font-size: 13px;
+                opacity: 0.9;
+            }
+            
+            .watch2d-popup-actions {
+                display: flex;
+                gap: 8px;
+                flex-direction: column;
+            }
+            
+            .watch2d-btn {
+                padding: 8px 12px;
+                border: none;
+                border-radius: 6px;
+                font-size: 12px;
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.2s ease;
+                text-decoration: none;
+                text-align: center;
+                display: block;
+            }
+            
+            .watch2d-btn-primary {
+                background: linear-gradient(45deg, #4a90e2, #357abd);
+                color: white;
+                box-shadow: 0 2px 8px rgba(74, 144, 226, 0.3);
+            }
+            
+            .watch2d-btn-primary:hover {
+                transform: translateY(-1px);
+                box-shadow: 0 4px 12px rgba(74, 144, 226, 0.4);
+            }
+            
+            .returning-user .watch2d-btn-primary {
+                background: linear-gradient(45deg, #11998e, #0f7a70);
+                box-shadow: 0 2px 8px rgba(17, 153, 142, 0.3);
+            }
+            
+            .returning-user .watch2d-btn-primary:hover {
+                box-shadow: 0 4px 12px rgba(17, 153, 142, 0.4);
+            }
+            
+            .watch2d-btn-secondary {
+                background: rgba(255, 255, 255, 0.1);
+                color: white;
+                border: 1px solid rgba(255, 255, 255, 0.3);
+            }
+            
+            .watch2d-btn-secondary:hover {
+                background: rgba(255, 255, 255, 0.2);
+            }
+            
+            .watch2d-popup-minimized {
+                padding: 12px 15px;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                font-size: 13px;
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.2s ease;
+            }
+            
+            .watch2d-popup-minimized:hover {
+                background: rgba(255, 255, 255, 0.1);
+            }
+            
+            @keyframes watch2d-slideInRight {
+                from { 
+                    transform: translateX(100%); 
+                    opacity: 0; 
+                }
+                to { 
+                    transform: translateX(0); 
+                    opacity: 1; 
+                }
+            }
+            
+            @keyframes watch2d-bounce {
+                0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+                40% { transform: translateY(-5px); }
+                60% { transform: translateY(-3px); }
+            }
+            
+            /* Attention grabber animation */
+            .watch2d-popup-container:not(.minimized) {
+                animation: watch2d-slideInRight 0.4s ease, watch2d-bounce 2s ease 5s;
+            }
+            
+            /* Mobile responsiveness */
+            @media (max-width: 480px) {
+                #watch2d-review-popup {
+                    bottom: 10px;
+                    right: 10px;
+                    left: 10px;
+                }
+                
+                .watch2d-popup-container {
+                    width: auto;
+                    max-width: none;
+                }
+                
+                .watch2d-popup-container.minimized {
+                    width: 140px;
+                    margin-left: auto;
+                }
+            }
+            
+            /* Ensure popup doesn't interfere with page content */
+            body {
+                /* Add bottom padding only when popup is active */
+            }
+            
+            .watch2d-popup-container {
+                /* Ensure popup stays above everything */
+                isolation: isolate;
+            }
+        `;
+    }
+    
+    // Setup popup event listeners
+    function setupPopupEvents(popup) {
+        // Click on minimized popup to expand
+        popup.addEventListener('click', function(e) {
+            if (popup.classList.contains('minimized') && !e.target.classList.contains('watch2d-popup-close')) {
+                expandPopup();
+            }
+        });
+    }
+    
+    // Minimize popup
+    window.minimizePopup = function() {
+        const popup = document.getElementById('watch2d-review-popup');
+        if (popup) {
+            popup.firstElementChild.classList.add('minimized');
+        }
+    };
+    
+    // Expand popup
+    function expandPopup() {
+        const popup = document.getElementById('watch2d-review-popup');
+        if (popup) {
+            popup.firstElementChild.classList.remove('minimized');
+            // Auto-minimize again after 10 seconds
+            setTimeout(() => {
+                if (popup && !popup.firstElementChild.classList.contains('minimized')) {
+                    minimizePopup();
+                }
+            }, 10000);
+        }
+    }
+    
+    // Handle review button click
+    window.handleReviewClick = function() {
+        markAsReviewed();
+        closeReviewPopup();
+        
+        // Optional: Track for analytics
+        if (typeof gtag !== 'undefined') {
+            gtag('event', 'review_click', {
+                'event_category': 'engagement',
+                'event_label': 'google_review'
+            });
+        }
+        
+        console.log('Watch2D: User clicked to leave a review');
+    };
+    
+    // Close popup and restore ad functionality
+    window.closeReviewPopup = function(autoDismissed = false) {
+        const popup = document.getElementById('watch2d-review-popup');
+        if (popup) {
+            popup.style.animation = 'watch2d-slideOutRight 0.3s ease forwards';
+            setTimeout(() => {
+                popup.remove();
+            }, 300);
+        }
+        
+        reviewPopupActive = false;
+        
+        // Increment dismissed count only if manually closed
+        if (!autoDismissed && !hasReviewedBefore()) {
+            incrementDismissedCount();
+        }
+        
+        // Show thank you message for returning users
+        if (hasReviewedBefore()) {
+            showThankYouMessage();
+        }
+        
+        console.log('Watch2D: Review popup closed, ads restored');
+    };
+    
+    // Add slide out animation
+    const additionalStyles = `
+        @keyframes watch2d-slideOutRight {
+            from { 
+                transform: translateX(0); 
+                opacity: 1; 
+            }
+            to { 
+                transform: translateX(100%); 
+                opacity: 0; 
+            }
+        }
+    `;
+    
+    // Show thank you message
+    function showThankYouMessage() {
+        const thankYou = document.createElement('div');
+        thankYou.innerHTML = `
+            <div style="
+                position: fixed; 
+                bottom: 20px; 
+                right: 20px; 
+                background: linear-gradient(45deg, #11998e, #0f7a70);
+                color: white; 
+                padding: 12px 16px;
+                border-radius: 8px; 
+                box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+                font-weight: 600;
+                z-index: 999998;
+                animation: watch2d-slideInRight 0.3s ease;
+                max-width: 280px;
+                font-size: 13px;
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            ">
+                ✅ Thanks for supporting ${WATCH2D_CONFIG.BUSINESS_NAME}! 🎬
+            </div>
+        `;
+        
+        document.body.appendChild(thankYou);
+        
+        // Auto-remove after 4 seconds
+        setTimeout(() => {
+            thankYou.firstElementChild.style.animation = 'watch2d-slideOutRight 0.3s ease forwards';
+            setTimeout(() => thankYou.remove(), 300);
+        }, 4000);
+    }
+    
+    // Manual trigger for testing (Ctrl+Shift+R)
+    document.addEventListener('keydown', function(e) {
+        if (e.ctrlKey && e.shiftKey && e.key === 'R') {
+            e.preventDefault();
+            popupShownThisSession = false;
+            showReviewPopup();
+            console.log('Watch2D: Manual review popup triggered for testing');
+        }
+    });
+    
+    // Initialize when DOM is ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initializeReviewSystem);
+    } else {
+        initializeReviewSystem();
+    }
+    
+    // Debug info (remove in production)
+    window.WATCH2D_DEBUG = {
+        getTimeOnSite: () => Math.floor(timeOnSite / 1000) + ' seconds',
+        hasReviewed: hasReviewedBefore,
+        isPopupActive: () => reviewPopupActive,
+        forceShowPopup: () => {
+            popupShownThisSession = false;
+            showReviewPopup();
+        },
+        resetReviewStatus: () => {
+            Object.values(WATCH2D_CONFIG.STORAGE_KEYS).forEach(key => {
+                localStorage.removeItem(key);
+            });
+            console.log('Watch2D: Review status reset');
+        },
+        getDismissedCount: () => localStorage.getItem(WATCH2D_CONFIG.STORAGE_KEYS.DISMISSED_COUNT) || '0'
+    };
+    
+})();
+</script>
+
+</head>
+
+<body class="bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-gray-900 dark:via-slate-900 dark:to-gray-800 text-gray-900 dark:text-gray-100 min-h-screen font-sans">
+  
+  {# Header / Navbar #}
+  <header class="sticky top-0 z-50 backdrop-blur-xl bg-white/90 dark:bg-gray-900/90 border-b border-gray-200/50 dark:border-gray-700/50 shadow-lg">
+    <div class="container mx-auto px-4 lg:px-6">
+      
+      {# Main Navigation Bar #}
+      <nav class="flex justify-between items-center py-4">
+        {# Logo Section #}
+        <div class="flex items-center space-x-3">
+          <a href="{% url 'home' %}" class="flex items-center space-x-3 group">
+            <div class="relative">
+              <img src="{% static 'img/logo.png' %}" alt="Watch2D Logo" class="h-12 w-12 rounded-2xl shadow-lg ring-2 ring-primary-500/20 group-hover:ring-primary-500/40 transition-all duration-300" />
+              <div class="absolute inset-0 rounded-2xl bg-gradient-to-r from-primary-500/20 to-accent-500/20 opacity-0 group-hover:opacity-100 transition-all duration-300"></div>
+            </div>
+            <div>
+              <h1 class="text-2xl lg:text-3xl font-bold bg-gradient-to-r from-primary-600 via-blue-600 to-accent-600 bg-clip-text text-transparent">
+                Watch2D
+              </h1>
+              <p class="text-xs text-gray-500 dark:text-gray-400 font-medium">Movies.Unlimited</p>
+            </div>
+          </a>
+        </div>
+
+        {# Search & Controls #}
+        <div class="flex items-center space-x-2 lg:space-x-4">
+          
+          {# Desktop Search #}
+          <div class="hidden lg:block relative">
+            <form action="{% url 'movies:search_results' %}" method="get" class="relative">
+              <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                <i class="fas fa-search text-gray-400 text-sm"></i>
+              </div>
+              <input type="text" name="q" placeholder="Search movies, series, anime..." required
+                     class="w-80 pl-12 pr-4 py-3 bg-gray-100/80 dark:bg-gray-800/80 backdrop-blur-sm border border-gray-200 dark:border-gray-700 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500 transition-all duration-300 text-sm placeholder-gray-500 dark:placeholder-gray-400" />
+              <button type="submit" class="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
+                <i class="fas fa-arrow-right text-sm"></i>
+              </button>
+            </form>
+          </div>
+
+          {# Mobile Search Toggle #}
+          <button class="lg:hidden p-3 rounded-2xl hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" onclick="toggleMobileSearch()">
+            <i class="fas fa-search text-gray-600 dark:text-gray-400"></i>
+          </button>
+
+          {# PWA Install Button (Hidden by default, shown by PWA script) #}
+          <button id="pwa-install-button" class="hidden p-3 rounded-2xl bg-primary-500 hover:bg-primary-600 text-white transition-all duration-300 group" title="Install Watch2D App">
+            <i class="fas fa-download group-hover:scale-110 transition-transform"></i>
+          </button>
+
+          {# Theme Toggle #}
+          <button id="theme-toggle" onclick="toggleTheme()"
+                  class="p-3 rounded-2xl hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-300 group">
+            <i class="fas fa-moon text-gray-600 dark:text-yellow-400 group-hover:scale-110 transition-transform"></i>
+          </button>
+
+          {# Mobile Menu Toggle #}
+          <button class="lg:hidden p-3 rounded-2xl hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors relative" onclick="toggleMobileMenu()">
+            <i id="mobile-menu-icon" class="fas fa-bars text-gray-600 dark:text-gray-400"></i>
+            <div id="menu-indicator" class="absolute -top-1 -right-1 w-2 h-2 bg-primary-500 rounded-full opacity-0 transition-opacity duration-300"></div>
+          </button>
+        </div>
+      </nav>
+
+      {# Mobile Search #}
+      <div id="mobile-search" class="hidden lg:hidden pb-4 animate-slide-down">
+        <form action="{% url 'movies:search_results' %}" method="get" class="relative">
+          <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+            <i class="fas fa-search text-gray-400 text-sm"></i>
+          </div>
+          <input type="text" name="q" placeholder="Search movies, series, anime..." required
+                 class="w-full pl-12 pr-4 py-3 bg-gray-100/80 dark:bg-gray-800/80 backdrop-blur-sm border border-gray-200 dark:border-gray-700 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500 transition-all duration-300 text-sm placeholder-gray-500 dark:placeholder-gray-400" />
+          <button type="submit" class="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
+            <i class="fas fa-arrow-right text-sm"></i>
+          </button>
+        </form>
+      </div>
+
+      {# Categories Navigation #}
+      <div class="border-t border-gray-200/50 dark:border-gray-700/50 bg-gradient-to-r from-transparent via-white/50 to-transparent dark:via-gray-800/50">
+        
+        {# Desktop Categories #}
+        <nav class="hidden lg:block py-4">
+          <div class="flex items-center justify-center space-x-2">
+            <a href="{% url 'home' %}" class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}">
+              <i class="fas fa-home mr-2"></i>
+              <span>Home</span>
+            </a>
+            
+            {# Dynamic Categories #}
+            {% for category in categories %}
+              <a href="{% url 'movies:category_movies' category.id %}" 
+                 class="nav-link {% if request.resolver_match.kwargs.category_id == category.id %}active{% endif %}">
+                <i class="fas fa-film mr-2"></i>
+                <span>{{ category.name }}</span>
+              </a>
+            {% empty %}
+              {# Fallback static categories #}
+              <a href="/movies/hollywood/" class="nav-link">
+                <i class="fas fa-star mr-2"></i>Hollywood
+              </a>
+              <a href="/movies/nollywood/" class="nav-link">
+                <i class="fas fa-flag mr-2"></i>Nollywood
+              </a>
+              <a href="/movies/k-drama/" class="nav-link">
+                <i class="fas fa-heart mr-2"></i>K-Drama
+              </a>
+              <a href="/movies/anime/" class="nav-link">
+                <i class="fas fa-magic mr-2"></i>Anime
+              </a>
+              <a href="/movies/bollywood/" class="nav-link">
+                <i class="fas fa-theater-masks mr-2"></i>Bollywood
+              </a>
+              <a href="/movies/chinese/" class="nav-link">
+                <i class="fas fa-dragon mr-2"></i>Chinese
+              </a>
+              <a href="/movies/series/" class="nav-link">
+                <i class="fas fa-tv mr-2"></i>TV Series
+              </a>
+            {% endfor %}
+          </div>
+        </nav>
+
+        {# Enhanced Mobile Categories Dropdown Menu #}
+        <div id="mobile-menu" class="lg:hidden absolute left-0 right-0 z-50 hidden">
+          <div class="bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border border-gray-200/50 dark:border-gray-700/50 rounded-2xl mx-4 mt-2 shadow-2xl animate-slide-down">
+            <div class="p-4">
+              <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
+                  <i class="fas fa-compass mr-2 text-primary-500"></i>
+                  Browse Categories
+                </h3>
+                <button onclick="toggleMobileMenu()" class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+                  <i class="fas fa-times text-gray-500 dark:text-gray-400"></i>
+                </button>
+              </div>
+              
+              {# PWA Install in Mobile Menu #}
+              <div id="mobile-pwa-install" class="hidden mb-4 p-3 bg-gradient-to-r from-primary-500/10 to-accent-500/10 rounded-xl border border-primary-200 dark:border-primary-800">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center">
+                    <div class="w-10 h-10 bg-gradient-to-r from-primary-500 to-accent-500 rounded-xl flex items-center justify-center mr-3">
+                      <i class="fas fa-mobile-alt text-white text-sm"></i>
+                    </div>
+                    <div>
+                      <span class="font-medium text-primary-700 dark:text-primary-300">Install App</span>
+                      <p class="text-xs text-primary-600 dark:text-primary-400">Get the full experience</p>
+                    </div>
+                  </div>
+                  <button id="mobile-install-btn" class="px-3 py-1 bg-primary-500 text-white rounded-lg text-sm hover:bg-primary-600 transition-colors">
+                    Install
+                  </button>
+                </div>
+              </div>
+              
+              {# Scrollable Menu Container #}
+              <div class="max-h-[60vh] overflow-y-auto custom-scrollbar">
+                <nav class="space-y-1">
+                  <a href="{% url 'home' %}" class="mobile-nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}">
+                    <div class="flex items-center">
+                      <div class="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl flex items-center justify-center mr-3">
+                        <i class="fas fa-home text-white text-sm"></i>
+                      </div>
+                      <div>
+                        <span class="font-medium">Home</span>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">Latest releases</p>
+                      </div>
+                    </div>
+                    <i class="fas fa-chevron-right text-gray-400"></i>
+                  </a>
+                  
+                  {# Dynamic Categories Mobile #}
+                  {% for category in categories %}
+                    <a href="{% url 'movies:category_movies' category.id %}" 
+                       class="mobile-nav-link {% if request.resolver_match.kwargs.category_id == category.id %}active{% endif %}">
+                      <div class="flex items-center">
+                        <div class="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-600 rounded-xl flex items-center justify-center mr-3">
+                          <i class="fas fa-film text-white text-sm"></i>
+                        </div>
+                        <div>
+                          <span class="font-medium">{{ category.name }}</span>
+                          <p class="text-xs text-gray-500 dark:text-gray-400">Popular {{ category.name|lower }}</p>
+                        </div>
+                      </div>
+                      <i class="fas fa-chevron-right text-gray-400"></i>
+                    </a>
+                  {% empty %}
+                    {# Fallback static categories with enhanced styling #}
+                    <a href="/movies/hollywood/" class="mobile-nav-link">
+                      <div class="flex items-center">
+                        <div class="w-10 h-10 bg-gradient-to-r from-red-500 to-orange-600 rounded-xl flex items-center justify-center mr-3">
+                          <i class="fas fa-star text-white text-sm"></i>
+                        </div>
+                        <div>
+                          <span class="font-medium">Hollywood</span>
+                          <p class="text-xs text-gray-500 dark:text-gray-400">Blockbuster movies</p>
+                        </div>
+                      </div>
+                      <i class="fas fa-chevron-right text-gray-400"></i>
+                    </a>
+                    
+                    <a href="/movies/nollywood/" class="mobile-nav-link">
+                      <div class="flex items-center">
+                        <div class="w-10 h-10 bg-gradient-to-r from-green-500 to-teal-600 rounded-xl flex items-center justify-center mr-3">
+                          <i class="fas fa-flag text-white text-sm"></i>
+                        </div>
+                        <div>
+                          <span class="font-medium">Nollywood</span>
+                          <p class="text-xs text-gray-500 dark:text-gray-400">Nigerian cinema</p>
+                        </div>
+                      </div>
+                      <i class="fas fa-chevron-right text-gray-400"></i>
+                    </a>
+                    
+                    <a href="/movies/k-drama/" class="mobile-nav-link">
+                      <div class="flex items-center">
+                        <div class="w-10 h-10 bg-gradient-to-r from-pink-500 to-rose-600 rounded-xl flex items-center justify-center mr-3">
+                          <i class="fas fa-heart text-white text-sm"></i>
+                        </div>
+                        <div>
+                          <span class="font-medium">K-Drama</span>
+                          <p class="text-xs text-gray-500 dark:text-gray-400">Korean romance</p>
+                        </div>
+                      </div>
+                      <i class="fas fa-chevron-right text-gray-400"></i>
+                    </a>
+                    
+                    <a href="/movies/anime/" class="mobile-nav-link">
+                      <div class="flex items-center">
+                        <div class="w-10 h-10 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center mr-3">
+                          <i class="fas fa-magic text-white text-sm"></i>
+                        </div>
+                        <div>
+                          <span class="font-medium">Anime</span>
+                          <p class="text-xs text-gray-500 dark:text-gray-400">Japanese animation</p>
+                        </div>
+                      </div>
+                      <i class="fas fa-chevron-right text-gray-400"></i>
+                    </a>
+                    
+                    <a href="/movies/bollywood/" class="mobile-nav-link">
+                      <div class="flex items-center">
+                        <div class="w-10 h-10 bg-gradient-to-r from-yellow-500 to-orange-600 rounded-xl flex items-center justify-center mr-3">
+                          <i class="fas fa-theater-masks text-white text-sm"></i>
+                        </div>
+                        <div>
+                          <span class="font-medium">Bollywood</span>
+                          <p class="text-xs text-gray-500 dark:text-gray-400">Indian cinema</p>
+                        </div>
+                      </div>
+                      <i class="fas fa-chevron-right text-gray-400"></i>
+                    </a>
+                    
+                    <a href="/movies/chinese/" class="mobile-nav-link">
+                      <div class="flex items-center">
+                        <div class="w-10 h-10 bg-gradient-to-r from-red-600 to-yellow-600 rounded-xl flex items-center justify-center mr-3">
+                          <i class="fas fa-dragon text-white text-sm"></i>
+                        </div>
+                        <div>
+                          <span class="font-medium">Chinese</span>
+                          <p class="text-xs text-gray-500 dark:text-gray-400">Asian cinema</p>
+                        </div>
+                      </div>
+                      <i class="fas fa-chevron-right text-gray-400"></i>
+                    </a>
+                    
+                    <a href="/movies/series/" class="mobile-nav-link">
+                      <div class="flex items-center">
+                        <div class="w-10 h-10 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-xl flex items-center justify-center mr-3">
+                          <i class="fas fa-tv text-white text-sm"></i>
+                        </div>
+                        <div>
+                          <span class="font-medium">TV Series</span>
+                          <p class="text-xs text-gray-500 dark:text-gray-400">Binge-worthy shows</p>
+                        </div>
+                      </div>
+                      <i class="fas fa-chevron-right text-gray-400"></i>
+                    </a>
+                  {% endfor %}
+                  
+                  {# Special Telegram Link #}
+                </nav>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+    <div class="text-center mt-8">
+    <a href="{% url 'anime:list' %}" 
+      class="inline-block bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 hover:from-purple-600 hover:via-pink-600 hover:to-orange-600 text-white px-8 py-3 rounded-full font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg">
+      <i class="fas fa-arrow-right mr-2"></i>
+      Click to Stream Anime Free
+    </a>
+    
+  </div>
+
+<!-- FLOATING BUTTON VERSION - Add this anywhere in your templates for a floating switch -->
+
+<div class="fixed bottom-6 right-6 z-40 flex flex-col gap-3">
+  <!-- Social Media Buttons -->
+  <div class="flex flex-col gap-2">
+    <!-- Telegram Button -->
+    <a href="https://t.me/watch2dchats" 
+       target="_blank"
+       rel="noopener noreferrer"
+       class="group relative flex items-center px-4 py-2.5 bg-gradient-to-r from-sky-400 via-blue-500 to-blue-600 hover:from-sky-500 hover:via-blue-600 hover:to-blue-700 text-white rounded-full shadow-lg hover:shadow-2xl transform hover:scale-105 transition-all duration-300">
+      <!-- Glow effect -->
+      <div class="absolute inset-0 bg-gradient-to-r from-sky-300 via-blue-400 to-blue-500 rounded-full blur-md opacity-40 group-hover:opacity-60 transition-opacity duration-300"></div>
+      <div class="relative flex items-center justify-center w-full">
+        <i class="fab fa-telegram-plane mr-2 text-lg group-hover:translate-x-1 transition-transform duration-300"></i>
+        <span class="hidden sm:inline font-semibold text-sm">Join Our Telegram Community</span>
+        <span class="sm:hidden font-semibold text-sm">Telegram 💬</span>
+      </div>
+    </a>
+    
+    <!-- WhatsApp Button -->
+    <a href="https://whatsapp.com/channel/0029VavDAbsEFeXpbo2lEg3f" 
+       target="_blank"
+       rel="noopener noreferrer"
+       class="group relative flex items-center px-4 py-2.5 bg-gradient-to-r from-green-400 via-emerald-500 to-green-600 hover:from-green-500 hover:via-emerald-600 hover:to-green-700 text-white rounded-full shadow-lg hover:shadow-2xl transform hover:scale-105 transition-all duration-300">
+      <!-- Glow effect -->
+      <div class="absolute inset-0 bg-gradient-to-r from-green-300 via-emerald-400 to-green-500 rounded-full blur-md opacity-40 group-hover:opacity-60 transition-opacity duration-300"></div>
+      <div class="relative flex items-center justify-center w-full">
+        <i class="fab fa-whatsapp mr-2 text-lg group-hover:scale-110 transition-transform duration-300"></i>
+        <span class="hidden sm:inline font-semibold text-sm">Join Our WhatsApp Channel</span>
+        <span class="sm:hidden font-semibold text-sm">WhatsApp 📱</span>
+      </div>
+    </a>
+  </div>
+
+  <!-- Toggle Button (Movies/Anime) -->
+  {% if 'anime' in request.path %}
+    <a href="{% url 'home' %}" 
+       class="group relative flex items-center px-4 py-3 bg-gradient-to-r from-blue-500 via-indigo-500 to-cyan-500 hover:from-blue-600 hover:via-indigo-600 hover:to-cyan-600 text-white rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 animate-pulse hover:animate-none">
+      <!-- Subtle glow effect -->
+      <div class="absolute inset-0 bg-gradient-to-r from-blue-400 via-indigo-400 to-cyan-400 rounded-full blur-sm opacity-30 group-hover:opacity-50 transition-opacity duration-300"></div>
+      <div class="relative flex items-center">
+        <i class="fas fa-film mr-2 group-hover:rotate-12 transition-transform duration-300"></i>
+        <span class="hidden sm:inline font-medium">Switch to Movies</span>
+        <span class="sm:hidden">🎬</span>
+      </div>
+    </a>
+  {% else %}
+    <!-- For Movies pages -->
+    <a href="{% url 'anime:list' %}" 
+       class="group relative flex items-center px-4 py-3 bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 hover:from-purple-600 hover:via-pink-600 hover:to-orange-600 text-white rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 animate-pulse hover:animate-none">
+      <!-- Subtle glow effect -->
+      <div class="absolute inset-0 bg-gradient-to-r from-purple-400 via-pink-400 to-orange-400 rounded-full blur-sm opacity-30 group-hover:opacity-50 transition-opacity duration-300"></div>
+      <div class="relative flex items-center">
+        <i class="fas fa-magic mr-2 group-hover:rotate-12 transition-transform duration-300"></i>
+        <span class="hidden sm:inline font-medium">Switch to Anime</span>
+        <span class="sm:hidden">✨</span>
+      </div>
+    </a>
+  {% endif %}
+</div>
+
+
+  {# Mobile Menu Overlay #}
+  <div id="mobile-menu-overlay" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 hidden lg:hidden" onclick="toggleMobileMenu()"></div>
+
+  {# Main Content #}
+  <main class="relative">
+    {# Django messages #}
+    {% if messages %}
+      <div class="container mx-auto px-4 lg:px-6 pt-6">
+        {% for msg in messages %}
+          <div class="mb-4 p-4 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 text-green-800 dark:text-green-200 rounded-2xl border border-green-200 dark:border-green-700 animate-fade-in">
+            <i class="fas fa-check-circle mr-2"></i>
+            {{ msg }}
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    {# Page Content #}
+    <div class="animate-fade-in">
+      {% block content %}{% endblock %}
+    </div>
+  </main>
+
+
+  {# Footer #}
+  <footer class="bg-gradient-to-r from-gray-900 via-slate-900 to-gray-900 text-white mt-20">
+    <div class="container mx-auto px-4 lg:px-6 py-12">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        
+        {# About Section #}
+        <div class="space-y-4">
+          <div class="flex items-center space-x-3">
+            <img src="{% static 'img/logo.png' %}" alt="Watch2D Logo" class="h-10 w-10 rounded-xl" />
+            <h3 class="text-xl font-bold bg-gradient-to-r from-primary-400 to-accent-400 bg-clip-text text-transparent">Watch2D</h3>
+          </div>
+          <p class="text-gray-300 text-sm leading-relaxed">
+            Your ultimate destination for streaming and downloading movies, series, anime, and more. 
+            Fresh content updated daily in high quality.
+          </p>
+          {# PWA Info in Footer #}
+          <div class="pt-4 border-t border-gray-700">
+            <p class="text-xs text-gray-400 flex items-center">
+              <i class="fas fa-mobile-alt mr-2 text-primary-400"></i>
+              Available as a mobile app - Install for offline access
+            </p>
+          </div>
+        </div>
+
+        {# Social & Contact #}
+        <div class="space-y-4">
+          <h4 class="font-semibold text-white">Connect With Us</h4>
+          <div class="flex space-x-4">
+            <a href="https://t.me/watch2dchats" 
+              target="_blank"
+              rel="noopener noreferrer"
+              class="p-3 bg-gradient-to-r from-sky-400 to-blue-600 rounded-xl hover:from-sky-500 hover:to-blue-700 transition-all duration-300 transform hover:scale-110 shadow-lg">
+              <i class="fab fa-telegram-plane text-white text-lg"></i>
+            </a>
+            <a href="https://whatsapp.com/channel/0029VavDAbsEFeXpbo2lEg3f" 
+              target="_blank"
+              rel="noopener noreferrer"
+              class="p-3 bg-gradient-to-r from-green-400 to-emerald-600 rounded-xl hover:from-green-500 hover:to-emerald-700 transition-all duration-300 transform hover:scale-110 shadow-lg">
+              <i class="fab fa-whatsapp text-white text-lg"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+      
+      <div class="border-t border-gray-700 mt-8 pt-8 text-center text-sm text-gray-400">
+        <p>&copy; Watch2D. All rights reserved. | Made with ❤️ for movie lovers</p>
+        <p class="mt-2">Disclaimer: We do not host any movie files. All content is linked from third-party sources.</p>
+      </div>
+    </div>
+  </footer>
+
+  {# Custom Styles #}
+  <style>
+    /* Navigation Links */
+    .nav-link {
+      @apply flex items-center px-4 py-2.5 rounded-2xl text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-white/60 dark:hover:bg-gray-800/60 transition-all duration-300 whitespace-nowrap backdrop-blur-sm border border-transparent hover:border-primary-200 dark:hover:border-primary-800;
+    }
+    
+    .nav-link.active {
+      @apply bg-gradient-to-r from-primary-500/10 to-accent-500/10 text-primary-700 dark:text-primary-300 border-primary-200 dark:border-primary-800 shadow-md;
+    }
+
+    .nav-link.special-link {
+      @apply bg-gradient-to-r from-accent-500/10 to-pink-500/10 text-accent-700 dark:text-accent-300 border-accent-200 dark:border-accent-800;
+    }
+
+    /* Mobile Navigation Links */
+    .mobile-nav-link {
+      @apply flex items-center px-4 py-3 rounded-2xl text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 hover:bg-white/60 dark:hover:bg-gray-800/60 transition-all duration-300 backdrop-blur-sm border border-transparent hover:border-primary-200 dark:hover:border-primary-800;
+    }
+    
+    .mobile-nav-link.active {
+      @apply bg-gradient-to-r from-primary-500/10 to-accent-500/10 text-primary-700 dark:text-primary-300 border-primary-200 dark:border-primary-800 shadow-md;
+    }
+
+    /* Telegram Float */
+    .telegram-float {
+      @apply relative block;
+    }
+    
+    .telegram-icon {
+      @apply w-16 h-16 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full flex items-center justify-center shadow-2xl relative z-10 hover:shadow-blue-500/25 transition-all duration-300;
+    }
+    
+    .pulse-ring {
+      @apply absolute w-16 h-16 bg-blue-500/30 rounded-full animate-pulse-slow;
+    }
+
+    /* PWA Specific Styles */
+    .pwa-installed {
+      padding-top: env(safe-area-inset-top);
+      padding-bottom: env(safe-area-inset-bottom);
+      padding-left: env(safe-area-inset-left);
+      padding-right: env(safe-area-inset-right);
+    }
+
+    /* Scrollbar Styling */
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+    
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    
+    ::-webkit-scrollbar-thumb {
+      background: linear-gradient(to bottom, #3b82f6, #8b5cf6);
+      border-radius: 3px;
+    }
+    
+    ::-webkit-scrollbar-thumb:hover {
+      background: linear-gradient(to bottom, #2563eb, #7c3aed);
+    }
+
+    /* Custom Animations */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .animate-fade-in {
+      animation: fadeIn 0.6s ease-out;
+    }
+
+    /* Offline Styles */
+    body.offline {
+      filter: grayscale(10%);
+    }
+
+    /* PWA Install Button Animation */
+    #pwa-install-button {
+      animation: bounceGentle 3s ease-in-out infinite;
+    }
+
+    /* Safe Area Insets for PWA */
+    @supports (padding: env(safe-area-inset-top)) {
+      .pwa-safe-top {
+        padding-top: env(safe-area-inset-top);
+      }
+      
+      .pwa-safe-bottom {
+        padding-bottom: env(safe-area-inset-bottom);
+      }
+    }
+  </style>
+
+  {# JavaScript #}
+  <script>
+    // Theme Toggle
+    function toggleTheme() {
+      const html = document.documentElement;
+      const themeToggle = document.getElementById('theme-toggle');
+      const icon = themeToggle.querySelector('i');
+      
+      if (html.classList.contains('dark')) {
+        html.classList.remove('dark');
+        icon.className = 'fas fa-moon text-gray-600 group-hover:scale-110 transition-transform';
+        localStorage.setItem('theme', 'light');
+      } else {
+        html.classList.add('dark');
+        icon.className = 'fas fa-sun text-yellow-400 group-hover:scale-110 transition-transform';
+        localStorage.setItem('theme', 'dark');
+      }
+    }
+
+    // Mobile Search Toggle
+    function toggleMobileSearch() {
+      const mobileSearch = document.getElementById('mobile-search');
+      mobileSearch.classList.toggle('hidden');
+    }
+
+    // Mobile Menu Toggle
+    function toggleMobileMenu() {
+      const mobileMenu = document.getElementById('mobile-menu');
+      const icon = document.getElementById('mobile-menu-icon');
+      
+      mobileMenu.classList.toggle('hidden');
+      
+      if (mobileMenu.classList.contains('hidden')) {
+        icon.className = 'fas fa-bars text-gray-600 dark:text-gray-400';
+      } else {
+        icon.className = 'fas fa-times text-gray-600 dark:text-gray-400';
+      }
+    }
+
+    // Initialize theme and PWA features
+    document.addEventListener('DOMContentLoaded', function() {
+      // Theme initialization
+      const savedTheme = localStorage.getItem('theme');
+      const themeToggle = document.getElementById('theme-toggle');
+      const icon = themeToggle.querySelector('i');
+      
+      if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        document.documentElement.classList.add('dark');
+        icon.className = 'fas fa-sun text-yellow-400 group-hover:scale-110 transition-transform';
+      } else {
+        icon.className = 'fas fa-moon text-gray-600 group-hover:scale-110 transition-transform';
+      }
+
+      // PWA Detection
+      const isPWA = window.matchMedia('(display-mode: standalone)').matches || 
+                    window.navigator.standalone === true ||
+                    document.referrer.includes('android-app://');
+      
+      if (isPWA) {
+        document.body.classList.add('pwa-installed');
+        console.log('Running as PWA');
+      }
+
+      // Add smooth scroll behavior
+      document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+          e.preventDefault();
+          const target = document.querySelector(this.getAttribute('href'));
+          if (target) {
+            target.scrollIntoView({
+              behavior: 'smooth',
+              block: 'start'
+            });
+          }
+        });
+      });
+
+      // Close mobile menu when clicking outside
+      document.addEventListener('click', function(event) {
+        const mobileMenu = document.getElementById('mobile-menu');
+        const menuButton = event.target.closest('button[onclick="toggleMobileMenu()"]');
+        
+        if (!mobileMenu.contains(event.target) && !menuButton && !mobileMenu.classList.contains('hidden')) {
+          toggleMobileMenu();
+        }
+      });
+
+      // Enhanced form interactions for offline support
+      const forms = document.querySelectorAll('form');
+      forms.forEach(form => {
+        // Add offline action attributes to forms
+        const searchForms = form.querySelector('input[name="q"]');
+        if (searchForms) {
+          form.setAttribute('data-offline-action', 'search');
+        }
+        
+        // Add like/watchlist buttons offline support
+        const likeButtons = document.querySelectorAll('[href*="/like/"]');
+        const watchlistButtons = document.querySelectorAll('[href*="/watchlist/"]');
+        
+        likeButtons.forEach(btn => {
+          btn.setAttribute('data-offline-action', 'like');
+          btn.setAttribute('data-url', btn.href);
+        });
+        
+        watchlistButtons.forEach(btn => {
+          btn.setAttribute('data-offline-action', 'watchlist');
+          btn.setAttribute('data-url', btn.href);
+        });
+      });
+
+      // Network status indicator
+      function updateNetworkStatus() {
+        if (!navigator.onLine) {
+          document.body.classList.add('offline');
+        } else {
+          document.body.classList.remove('offline');
+        }
+      }
+
+      window.addEventListener('online', updateNetworkStatus);
+      window.addEventListener('offline', updateNetworkStatus);
+      updateNetworkStatus();
+    });
+
+    // Smooth page transitions
+    window.addEventListener('beforeunload', function() {
+      document.body.style.opacity = '0.8';
+      document.body.style.transition = 'opacity 0.2s ease-out';
+    });
+
+    // PWA Install Button Handler
+    document.addEventListener('DOMContentLoaded', function() {
+      const installButton = document.getElementById('pwa-install-button');
+      const mobileInstallSection = document.getElementById('mobile-pwa-install');
+      const mobileInstallBtn = document.getElementById('mobile-install-btn');
+      
+      // Show install button when PWA is available
+      window.addEventListener('beforeinstallprompt', (event) => {
+        event.preventDefault();
+        window.deferredPrompt = event;
+        
+        if (installButton) {
+          installButton.classList.remove('hidden');
+        }
+        
+        if (mobileInstallSection) {
+          mobileInstallSection.classList.remove('hidden');
+        }
+      });
+
+      // Handle install button click
+      if (installButton) {
+        installButton.addEventListener('click', installPWA);
+      }
+      
+      if (mobileInstallBtn) {
+        mobileInstallBtn.addEventListener('click', installPWA);
+      }
+    });
+
+    // PWA Install Function
+    async function installPWA() {
+      if (window.deferredPrompt) {
+        try {
+          const result = await window.deferredPrompt.prompt();
+          console.log('PWA install result:', result);
+          window.deferredPrompt = null;
+          
+          // Hide install buttons
+          const installButton = document.getElementById('pwa-install-button');
+          const mobileInstallSection = document.getElementById('mobile-pwa-install');
+          
+          if (installButton) installButton.classList.add('hidden');
+          if (mobileInstallSection) mobileInstallSection.classList.add('hidden');
+          
+        } catch (error) {
+          console.error('PWA installation failed:', error);
+        }
+      }
+    }
+
+    // Service Worker Registration (Basic)
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', async () => {
+        try {
+          const registration = await navigator.serviceWorker.register('/static/js/sw.js');
+          console.log('SW registered: ', registration);
+        } catch (registrationError) {
+          console.log('SW registration failed: ', registrationError);
+        }
+      });
+    }
+
+    // Handle App Installed Event
+    window.addEventListener('appinstalled', () => {
+      console.log('Watch2D PWA was installed');
+      
+      // Hide install prompts
+      const installButton = document.getElementById('pwa-install-button');
+      const mobileInstallSection = document.getElementById('mobile-pwa-install');
+      
+      if (installButton) installButton.style.display = 'none';
+      if (mobileInstallSection) mobileInstallSection.style.display = 'none';
+      
+      // Track installation
+      if (typeof gtag !== 'undefined') {
+        gtag('event', 'pwa_installed', {
+          event_category: 'PWA',
+          event_label: 'Watch2D App Installed'
+        });
+      }
+    });
+
+    // Add to Home Screen prompt for iOS
+    function isIOS() {
+      return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    }
+
+    // Show iOS install instructions
+    if (isIOS() && !window.navigator.standalone) {
+      // You can show custom iOS install instructions here
+      console.log('iOS user - can show install instructions');
+    }
+  </script>
+
+  {# PWA Scripts - Load PWA functionality #}
+  <script src="{% static 'js/pwa.js' %}" defer></script>
+  
+  {# Extra JavaScript per-page #}
+  {% block extra_js %}{% endblock %}
+
+</body>
+</html>

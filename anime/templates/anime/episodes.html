@@ -1,0 +1,169 @@
+{% extends 'anime/base.html' %}
+{% load static %}
+
+{% block title %}{{ anime.title }} Episodes - Watch All Episodes | Watch2D{% endblock %}
+
+{% block content %}
+<!-- Anime Header -->
+<section class="bg-gradient-to-r from-indigo-900 via-purple-900 to-pink-900 text-white py-12">
+  <div class="container mx-auto px-4 lg:px-6">
+    <div class="flex flex-col md:flex-row gap-8 items-center">
+      
+      <!-- Poster -->
+      <div class="flex-shrink-0">
+        <div class="w-32 md:w-48 aspect-[3/4] rounded-2xl overflow-hidden shadow-2xl">
+          {% if anime.poster_url %}
+            <img src="{{ anime.poster_url }}" alt="{{ anime.title }}" class="w-full h-full object-cover" />
+          {% else %}
+            <div class="w-full h-full bg-gradient-to-br from-primary-500 to-accent-500 flex items-center justify-center">
+              <i class="fas fa-image text-4xl text-white/60"></i>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+      
+      <!-- Info -->
+      <div class="flex-1 text-center md:text-left">
+        <h1 class="text-3xl md:text-5xl font-bold mb-4">{{ anime.title }}</h1>
+        <p class="text-xl text-gray-300 mb-6">All Episodes</p>
+        
+        <div class="flex flex-wrap justify-center md:justify-start gap-6 text-lg">
+          <span class="flex items-center">
+            <i class="fas fa-film mr-2 text-blue-400"></i>{{ episodes.paginator.count }} Episodes
+          </span>
+          
+          {% if anime.status %}
+            <span class="flex items-center">
+              <i class="fas fa-info-circle mr-2 text-green-400"></i>{{ anime.get_status_display }}
+            </span>
+          {% endif %}
+          
+          {% if anime.year %}
+            <span class="flex items-center">
+              <i class="fas fa-calendar mr-2 text-purple-400"></i>{{ anime.year }}
+            </span>
+          {% endif %}
+        </div>
+        
+        <div class="mt-6">
+          <a href="{{ anime.get_absolute_url }}" class="px-6 py-3 bg-primary-500 hover:bg-primary-600 text-white rounded-2xl font-semibold transition-all duration-300 transform hover:scale-105">
+            <i class="fas fa-arrow-left mr-2"></i>Back to Anime Details
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Episodes Grid -->
+<section class="container mx-auto px-4 lg:px-6 py-12">
+  {% if episodes %}
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      {% for episode in episodes %}
+        <div class="episode-card bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 group">
+          <a href="{{ episode.get_absolute_url }}" class="block">
+            
+            <!-- Thumbnail -->
+            <div class="relative aspect-video bg-gray-200 dark:bg-gray-700">
+              {% if episode.snapshot_url %}
+                <img src="{{ episode.snapshot_url }}" alt="Episode {{ episode.episode_number }}" 
+                     class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+              {% else %}
+                <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary-400 to-accent-400">
+                  <i class="fas fa-play text-4xl text-white/60"></i>
+                </div>
+              {% endif %}
+              
+              <!-- Play Button Overlay -->
+              <div class="absolute inset-0 flex items-center justify-center bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <div class="w-16 h-16 bg-primary-500/90 backdrop-blur-sm rounded-full flex items-center justify-center">
+                  <i class="fas fa-play text-xl text-white ml-1"></i>
+                </div>
+              </div>
+              
+              <!-- Episode Number -->
+              <div class="absolute top-3 left-3 bg-black/70 text-white px-3 py-1 rounded-lg text-sm font-bold">
+                EP {{ episode.episode_number }}
+              </div>
+              
+              <!-- Status Badges -->
+              <div class="absolute top-3 right-3 flex gap-1">
+                {% if episode.is_completed %}
+                  <div class="bg-green-500 text-white px-2 py-1 rounded text-xs font-medium">
+                    <i class="fas fa-check mr-1"></i>Complete
+                  </div>
+                {% endif %}
+                
+                {% if episode.is_filler %}
+                  <div class="bg-yellow-500 text-white px-2 py-1 rounded text-xs font-medium">
+                    Filler
+                  </div>
+                {% endif %}
+              </div>
+            </div>
+            
+            <!-- Info -->
+            <div class="p-4">
+              <h3 class="font-semibold text-gray-900 dark:text-white mb-2 line-clamp-2">
+                {{ episode.display_title }}
+              </h3>
+              
+              <div class="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400">
+                <div class="flex items-center space-x-3">
+                  {% if episode.fansub %}
+                    <span class="bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">{{ episode.fansub }}</span>
+                  {% endif %}
+                  
+                  {% if episode.views %}
+                    <span class="flex items-center">
+                      <i class="fas fa-eye mr-1"></i>{{ episode.views }}
+                    </span>
+                  {% endif %}
+                </div>
+                
+                <span>{{ episode.created_at|date:"M j" }}</span>
+              </div>
+            </div>
+          </a>
+        </div>
+      {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if is_paginated %}
+      <div class="flex justify-center mt-12">
+        <nav class="flex items-center space-x-2">
+          {% if page_obj.has_previous %}
+            <a href="?page=1" class="px-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+              <i class="fas fa-angle-double-left"></i>
+            </a>
+            <a href="?page={{ page_obj.previous_page_number }}" class="px-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+              <i class="fas fa-angle-left"></i>
+            </a>
+          {% endif %}
+          
+          <span class="px-4 py-2 bg-primary-500 text-white rounded-xl font-medium">
+            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+          </span>
+          
+          {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}" class="px-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+              <i class="fas fa-angle-right"></i>
+            </a>
+            <a href="?page={{ page_obj.paginator.num_pages }}" class="px-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+              <i class="fas fa-angle-double-right"></i>
+            </a>
+          {% endif %}
+        </nav>
+      </div>
+    {% endif %}
+
+  {% else %}
+    <div class="text-center py-20">
+      <i class="fas fa-film text-6xl text-gray-300 dark:text-gray-600 mb-8"></i>
+      <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">No Episodes Available</h3>
+      <p class="text-gray-600 dark:text-gray-400">Episodes will appear here once they are scraped from AnimePahe.</p>
+    </div>
+  {% endif %}
+</section>
+{% endblock %}

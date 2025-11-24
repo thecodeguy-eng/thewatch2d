@@ -1,0 +1,81 @@
+<!-- ==================== trending.html ==================== -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Trending Manga - Watch2D{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 lg:px-6 py-8">
+    <div class="mb-8">
+        <h1 class="text-4xl font-bold text-gray-900 dark:text-white mb-2">
+            <i class="fas fa-fire text-red-500"></i> Trending Manga
+        </h1>
+        <p class="text-gray-600 dark:text-gray-400">Most popular manga right now</p>
+    </div>
+    
+    {% if mangas %}
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-6 mb-8">
+        {% for manga in mangas %}
+        <a href="{{ manga.get_absolute_url }}" class="group">
+            <div class="glass-effect rounded-2xl overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2">
+                <div class="relative aspect-[3/4] overflow-hidden">
+                    <img src="{{ manga.cover_url }}" alt="{{ manga.title }}" 
+                         class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                         onerror="this.src='{% static 'img/placeholder.png' %}'">
+                    <div class="absolute top-2 left-2">
+                        <span class="bg-red-500 text-white px-2 py-1 rounded text-xs font-bold">
+                            <i class="fas fa-fire"></i> Trending
+                        </span>
+                    </div>
+                    {% if manga.rating %}
+                    <div class="absolute bottom-2 left-2">
+                        <span class="bg-green-500 text-white px-2 py-1 rounded-lg text-xs font-bold">
+                            <i class="fas fa-star"></i> {{ manga.rating }}
+                        </span>
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="p-4">
+                    <h3 class="font-bold text-gray-900 dark:text-white mb-2 line-clamp-2 group-hover:text-primary-600 dark:group-hover:text-primary-400">
+                        {{ manga.title }}
+                    </h3>
+                    <div class="flex items-center justify-between text-sm text-gray-600 dark:text-gray-400">
+                        <span><i class="fas fa-book mr-1"></i>{{ manga.total_chapters }}</span>
+                        <span><i class="fas fa-eye mr-1"></i>{{ manga.views|default:0 }}</span>
+                    </div>
+                </div>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+    
+    {% if is_paginated %}
+    <div class="flex justify-center items-center gap-2">
+        {% if page_obj.has_previous %}
+        <a href="?page={{ page_obj.previous_page_number }}" 
+           class="px-4 py-2 bg-white dark:bg-gray-800 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
+            <i class="fas fa-angle-left"></i>
+        </a>
+        {% endif %}
+        
+        <span class="px-4 py-2 bg-primary-600 text-white rounded-lg font-semibold">
+            {{ page_obj.number }}
+        </span>
+        
+        {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}" 
+           class="px-4 py-2 bg-white dark:bg-gray-800 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
+            <i class="fas fa-angle-right"></i>
+        </a>
+        {% endif %}
+    </div>
+    {% endif %}
+    
+    {% else %}
+    <div class="glass-effect rounded-2xl p-12 text-center">
+        <i class="fas fa-inbox text-6xl text-gray-400 mb-4"></i>
+        <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">No trending manga</h3>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

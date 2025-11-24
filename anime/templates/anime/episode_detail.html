@@ -1,0 +1,620 @@
+{% extends 'anime/base.html' %}
+{% load static %}
+
+{% block title %}{{ anime.title }} {{ episode.display_title }} - Watch2D{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 lg:px-6 py-6">
+  <!-- Breadcrumb -->
+  <nav class="flex items-center space-x-2 text-sm mb-6">
+    <a href="{% url 'anime:list' %}" class="text-primary-500 hover:text-primary-600">Anime</a>
+    <i class="fas fa-chevron-right text-gray-400"></i>
+    <a href="{{ anime.get_absolute_url }}" class="text-primary-500 hover:text-primary-600">{{ anime.title }}</a>
+    <i class="fas fa-chevron-right text-gray-400"></i>
+    <span class="text-gray-600 dark:text-gray-400">{{ episode.display_title }}</span>
+  </nav>
+
+  <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+    <!-- Main Video Section -->
+    <div class="lg:col-span-3">
+      <!-- Episode Title -->
+      <div class="mb-6">
+        <h1 class="text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white mb-2">
+          {{ anime.title }}
+        </h1>
+        <h2 class="text-lg lg:text-xl text-primary-500 font-semibold">
+          {{ episode.display_title }}
+        </h2>
+        
+        <!-- Episode Info -->
+        <div class="flex items-center space-x-4 mt-4 text-sm text-gray-600 dark:text-gray-400">
+          <span class="flex items-center">
+            <i class="fas fa-calendar mr-1"></i>
+            {{ episode.created_at|date:"M d, Y" }}
+          </span>
+          <span class="flex items-center">
+            <i class="fas fa-eye mr-1"></i>
+            {{ episode.views|floatformat:0 }} views
+          </span>
+          {% if episode.fansub %}
+          <span class="flex items-center">
+            <i class="fas fa-closed-captioning mr-1"></i>
+            {{ episode.fansub }}
+          </span>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Enhanced Video Player -->
+      <div class="relative bg-black rounded-2xl overflow-hidden mb-6 aspect-video" id="videoContainer">
+        <!-- Default placeholder -->
+        <div id="videoPlaceholder" class="absolute inset-0 flex items-center justify-center">
+          <div class="text-center text-white">
+            <div class="w-16 h-16 bg-primary-500 rounded-full flex items-center justify-center mx-auto mb-4">
+              <i class="fas fa-play text-2xl"></i>
+            </div>
+            <h3 class="text-xl font-semibold mb-2">Ready to Watch</h3>
+            <p class="text-gray-300 mb-4">Choose a server below to start streaming</p>
+            <!-- {% if download_links %}
+            <div class="flex flex-wrap justify-center gap-2">
+              {% for link in download_links %}
+              <button onclick="loadStream('{{ link.url }}', '{{ link.quality }}', '{{ link.host_name }}')" 
+                      class="px-4 py-2 bg-primary-500 hover:bg-primary-600 rounded-lg font-semibold transition-colors">
+                {{ link.quality }} - {{ link.host_name|title }}
+              </button>
+              {% endfor %}
+            </div>
+            {% endif %} -->
+          </div>
+        </div>
+        
+        <!-- Video Player (initially hidden) -->
+        <div id="videoPlayer" class="absolute inset-0 hidden">
+          <video id="mainVideo" class="w-full h-full" controls preload="metadata" poster="{{ anime.poster_url }}">
+            <source id="videoSource" src="" type="video/mp4">
+            <p class="text-white text-center">Your browser doesn't support HTML5 video. <a href="#" class="text-primary-400">Download the video</a> instead.</p>
+          </video>
+          
+          <!-- Loading overlay -->
+          <div id="videoLoading" class="absolute inset-0 bg-black/80 flex items-center justify-center hidden">
+            <div class="text-center text-white">
+              <div class="animate-spin w-8 h-8 border-4 border-primary-500 border-t-transparent rounded-full mx-auto mb-4"></div>
+              <p>Loading video...</p>
+            </div>
+          </div>
+          
+          <!-- Error overlay -->
+          <div id="videoError" class="absolute inset-0 bg-black/80 flex items-center justify-center hidden">
+            <div class="text-center text-white">
+              <div class="w-12 h-12 bg-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-exclamation-triangle"></i>
+              </div>
+              <h3 class="text-lg font-semibold mb-2">Video Load Error</h3>
+              <p class="text-gray-300 mb-4">Unable to load this video source</p>
+              <button onclick="showVideoPlaceholder()" class="px-4 py-2 bg-primary-500 hover:bg-primary-600 rounded-lg">
+                Choose Different Server
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Iframe Player (for embedded sources) -->
+        <div id="iframePlayer" class="absolute inset-0 hidden">
+          <iframe id="mainIframe" class="w-full h-full" frameborder="0" allowfullscreen></iframe>
+        </div>
+      </div>
+
+      <!-- Server Selection -->
+      {% if download_links %}
+      <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 mb-6">
+        <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center">
+          <i class="fas fa-server text-primary-500 mr-3"></i>
+          Select Server
+        </h3>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+          {% for link in download_links %}
+          <button onclick="loadStream('{{ link.url }}', '{{ link.quality }}', '{{ link.host_name }}')" 
+                  class="server-btn flex items-center justify-between p-4 border-2 border-gray-200 dark:border-gray-600 rounded-xl hover:border-primary-500 hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-all">
+            <div class="flex items-center">
+              <div class="w-10 h-10 bg-primary-100 dark:bg-primary-900 rounded-full flex items-center justify-center mr-3">
+                {% if link.host_name == 'vidstreaming' %}
+                  <i class="fas fa-video text-primary-500"></i>
+                {% elif link.host_name == 'mega' %}
+                  <i class="fab fa-mega text-primary-500"></i>
+                {% elif link.host_name == 'gdrive' %}
+                  <i class="fab fa-google-drive text-primary-500"></i>
+                {% else %}
+                  <i class="fas fa-play text-primary-500"></i>
+                {% endif %}
+              </div>
+              <div class="text-left">
+                <h4 class="font-semibold text-gray-900 dark:text-white">{{ link.quality }}</h4>
+                <p class="text-sm text-gray-600 dark:text-gray-400">{{ link.host_name|title }}</p>
+              </div>
+            </div>
+            <div class="text-xs text-gray-500">
+              <i class="fas fa-play"></i>
+            </div>
+          </button>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- Navigation Controls -->
+      <div class="flex items-center justify-between mb-6 p-4 bg-white dark:bg-gray-800 rounded-2xl shadow-lg">
+        <div>
+          {% if prev_episode %}
+          <a href="{{ prev_episode.get_absolute_url }}" 
+             class="inline-flex items-center px-4 py-2 bg-primary-500 text-white rounded-xl hover:bg-primary-600 transition-colors">
+            <i class="fas fa-chevron-left mr-2"></i>
+            Previous Episode
+          </a>
+          {% endif %}
+        </div>
+        
+        <div class="text-center">
+          <span class="text-sm text-gray-600 dark:text-gray-400">Episode</span>
+          <div class="text-2xl font-bold text-primary-500">{{ episode.episode_number }}</div>
+        </div>
+        
+        <div>
+          {% if next_episode %}
+          <a href="{{ next_episode.get_absolute_url }}" 
+             class="inline-flex items-center px-4 py-2 bg-primary-500 text-white rounded-xl hover:bg-primary-600 transition-colors">
+            Next Episode
+            <i class="fas fa-chevron-right ml-2"></i>
+          </a>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Download Section -->
+      <!-- {% if download_links %}
+      <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 mb-6">
+        <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center">
+          <i class="fas fa-download text-green-500 mr-3"></i>
+          Download Options
+        </h3>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {% for link in download_links %}
+          <div class="border border-gray-200 dark:border-gray-600 rounded-xl p-4">
+            <div class="flex items-center justify-between mb-3">
+              <div class="flex items-center">
+                <div class="w-10 h-10 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center mr-3">
+                  <i class="fas fa-download text-green-500"></i>
+                </div>
+                <div>
+                  <h4 class="font-semibold text-gray-900 dark:text-white">{{ link.quality }}</h4>
+                  <p class="text-sm text-gray-600 dark:text-gray-400">{{ link.host_name|title }}</p>
+                </div>
+              </div>
+            </div>
+            
+            <a href="{{ link.url }}" 
+               target="_blank" 
+               rel="noopener noreferrer"
+               onclick="trackDownload({{ episode.id }}, '{{ link.quality }}')"
+               class="block w-full text-center py-2 bg-green-500 text-white rounded-lg font-semibold hover:bg-green-600 transition-colors">
+              Download {{ link.quality }}
+            </a>
+          </div>
+          {% endfor %}
+        </div>
+        
+        <div class="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl">
+          <div class="flex items-start">
+            <i class="fas fa-info-circle text-blue-500 mt-1 mr-3"></i>
+            <div class="text-sm text-blue-700 dark:text-blue-300">
+              <p class="font-semibold mb-1">Download Tips:</p>
+              <ul class="list-disc list-inside space-y-1 text-xs">
+                <li>Higher quality files are larger in size</li>
+                <li>Some links may require you to wait before downloading</li>
+                <li>If a link doesn't work, try another quality option</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endif %} -->
+
+      <!-- Anime Description -->
+      {% if anime.description %}
+      <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6">
+        <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-4">About This Anime</h3>
+        <p class="text-gray-700 dark:text-gray-300 leading-relaxed">
+          {{ anime.description|truncatewords:50 }}
+        </p>
+        <a href="{{ anime.get_absolute_url }}" class="inline-flex items-center mt-4 text-primary-500 hover:text-primary-600 font-semibold">
+          View Full Details
+          <i class="fas fa-arrow-right ml-2"></i>
+        </a>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- Sidebar -->
+    <div class="lg:col-span-1">
+      <!-- Episode List -->
+      <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 mb-6">
+        <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4 flex items-center">
+          <i class="fas fa-list text-primary-500 mr-2"></i>
+          Episodes
+        </h3>
+        
+        <div class="max-h-96 overflow-y-auto space-y-2">
+          {% for ep in episodes %}
+          <div class="{% if ep.id == episode.id %}bg-primary-50 dark:bg-primary-900/20 border-primary-500{% else %}bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-600{% endif %} border rounded-xl p-3 transition-colors">
+            <div class="flex items-center justify-between">
+              <div class="flex-1">
+                <a href="{{ ep.get_absolute_url }}" 
+                   class="{% if ep.id == episode.id %}text-primary-600 dark:text-primary-400{% else %}text-gray-900 dark:text-white hover:text-primary-500{% endif %} font-semibold block">
+                  Episode {{ ep.episode_number }}
+                </a>
+                {% if ep.title and ep.title != "Episode "|add:ep.episode_number %}
+                <p class="text-xs text-gray-600 dark:text-gray-400 mt-1">{{ ep.title|truncatechars:30 }}</p>
+                {% endif %}
+              </div>
+              
+              <div class="flex items-center space-x-2 ml-3">
+                {% if ep.id == episode.id %}
+                <span class="w-2 h-2 bg-primary-500 rounded-full"></span>
+                {% endif %}
+                
+                {% if ep.is_completed %}
+                <i class="fas fa-check-circle text-green-500 text-sm"></i>
+                {% else %}
+                <i class="fas fa-clock text-yellow-500 text-sm"></i>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        
+        <div class="mt-4 text-center">
+          <a href="{{ anime.get_absolute_url }}" 
+             class="inline-flex items-center text-primary-500 hover:text-primary-600 font-semibold text-sm">
+            <i class="fas fa-info-circle mr-2"></i>
+            View Anime Details
+          </a>
+        </div>
+      </div>
+
+      <!-- Anime Info Card -->
+      <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 mb-6">
+        <div class="text-center mb-4">
+          {% if anime.poster_url %}
+          <img src="{{ anime.poster_url }}" 
+               alt="{{ anime.title }}" 
+               class="w-24 h-32 object-cover rounded-xl mx-auto mb-3 shadow-lg">
+          {% endif %}
+          <h4 class="font-bold text-gray-900 dark:text-white">{{ anime.title }}</h4>
+        </div>
+        
+        <div class="space-y-3 text-sm">
+          <div class="flex justify-between">
+            <span class="text-gray-600 dark:text-gray-400">Status:</span>
+            <span class="status-badge status-{{ anime.status }}">{{ anime.get_status_display }}</span>
+          </div>
+          
+          {% if anime.total_episodes > 0 %}
+          <div class="flex justify-between">
+            <span class="text-gray-600 dark:text-gray-400">Episodes:</span>
+            <span class="font-semibold text-gray-900 dark:text-white">{{ anime.total_episodes }}</span>
+          </div>
+          {% endif %}
+          
+          {% if anime.year %}
+          <div class="flex justify-between">
+            <span class="text-gray-600 dark:text-gray-400">Year:</span>
+            <span class="font-semibold text-gray-900 dark:text-white">{{ anime.year }}</span>
+          </div>
+          {% endif %}
+          
+          {% if anime.studio %}
+          <div class="flex justify-between">
+            <span class="text-gray-600 dark:text-gray-400">Studio:</span>
+            <span class="font-semibold text-gray-900 dark:text-white">{{ anime.studio }}</span>
+          </div>
+          {% endif %}
+          
+          <div class="flex justify-between">
+            <span class="text-gray-600 dark:text-gray-400">Views:</span>
+            <span class="font-semibold text-gray-900 dark:text-white">{{ anime.views|floatformat:0 }}</span>
+          </div>
+          
+          {% if anime.rating %}
+          <div class="flex justify-between">
+            <span class="text-gray-600 dark:text-gray-400">Rating:</span>
+            <span class="flex items-center font-semibold text-yellow-500">
+              <i class="fas fa-star mr-1"></i>
+              {{ anime.rating }}/10
+            </span>
+          </div>
+          {% endif %}
+        </div>
+        
+        <!-- Action Buttons -->
+        <div class="mt-6 space-y-2">
+          <!-- <button onclick="likeAnime({{ anime.id }})" 
+                  class="w-full flex items-center justify-center py-2 border border-red-500 text-red-500 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">
+            <i class="fas fa-heart mr-2"></i>
+            <span class="like-count">{{ anime.likes }}</span> Likes
+          </button> -->
+          
+          <!-- <button onclick="addToWatchlist({{ anime.id }})" 
+                  class="w-full flex items-center justify-center py-2 border border-primary-500 text-primary-500 rounded-lg hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-colors">
+            <i class="fas fa-bookmark mr-2"></i>
+            Add to Watchlist
+          </button> -->
+        </div>
+      </div>
+
+      <!-- Genres -->
+      {% if anime.genres.exists %}
+      <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6">
+        <h4 class="font-bold text-gray-900 dark:text-white mb-3">Genres</h4>
+        <div class="flex flex-wrap gap-2">
+          {% for genre in anime.genres.all %}
+          <a href="{% url 'anime:genre_detail' genre.slug %}" 
+             class="genre-tag">
+            {{ genre.name }}
+          </a>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let currentVideo = null;
+let currentQuality = null;
+
+// Enhanced video loading function
+function loadStream(url, quality, hostName) {
+  console.log('Loading stream:', { url, quality, hostName });
+  
+  const videoContainer = document.getElementById('videoContainer');
+  const videoPlaceholder = document.getElementById('videoPlaceholder');
+  const videoPlayer = document.getElementById('videoPlayer');
+  const iframePlayer = document.getElementById('iframePlayer');
+  const videoLoading = document.getElementById('videoLoading');
+  const videoError = document.getElementById('videoError');
+  const mainVideo = document.getElementById('mainVideo');
+  const mainIframe = document.getElementById('mainIframe');
+  const videoSource = document.getElementById('videoSource');
+  
+  // Show loading state
+  videoPlaceholder.classList.add('hidden');
+  videoPlayer.classList.add('hidden');
+  iframePlayer.classList.add('hidden');
+  videoLoading.classList.remove('hidden');
+  videoError.classList.add('hidden');
+  
+  // Update server button states
+  document.querySelectorAll('.server-btn').forEach(btn => {
+    btn.classList.remove('border-primary-500', 'bg-primary-50', 'dark:bg-primary-900/20');
+    btn.classList.add('border-gray-200', 'dark:border-gray-600');
+  });
+  
+  // Highlight active server
+  event.target.closest('.server-btn').classList.remove('border-gray-200', 'dark:border-gray-600');
+  event.target.closest('.server-btn').classList.add('border-primary-500', 'bg-primary-50', 'dark:bg-primary-900/20');
+  
+  currentQuality = quality;
+  
+  // Determine if this should be loaded as video or iframe
+  const isDirectVideo = url.includes('.mp4') || url.includes('.m3u8') || url.includes('.mkv');
+  const isEmbedded = hostName === 'mega' || hostName === 'gdrive' || url.includes('iframe') || url.includes('embed');
+  
+  if (isDirectVideo && !isEmbedded) {
+    // Load as direct video
+    loadDirectVideo(url, quality);
+  } else {
+    // Load as iframe
+    loadIframeVideo(url, quality);
+  }
+}
+
+function loadDirectVideo(url, quality) {
+  const videoPlayer = document.getElementById('videoPlayer');
+  const videoLoading = document.getElementById('videoLoading');
+  const videoError = document.getElementById('videoError');
+  const mainVideo = document.getElementById('mainVideo');
+  const videoSource = document.getElementById('videoSource');
+  
+  // Set up video source
+  videoSource.src = url;
+  videoSource.type = getVideoType(url);
+  
+  // Load the video
+  mainVideo.load();
+  
+  // Video event listeners
+  mainVideo.onloadstart = function() {
+    console.log('Video loading started');
+  };
+  
+  mainVideo.oncanplay = function() {
+    console.log('Video can start playing');
+    videoLoading.classList.add('hidden');
+    videoPlayer.classList.remove('hidden');
+    currentVideo = mainVideo;
+    
+    // Track video load
+    trackVideoLoad(quality);
+  };
+  
+  mainVideo.onerror = function(e) {
+    console.error('Video loading error:', e);
+    showVideoError();
+  };
+  
+  mainVideo.onended = function() {
+    // Auto-advance to next episode if available
+    autoAdvanceToNextEpisode();
+  };
+}
+
+function loadIframeVideo(url, quality) {
+  const iframePlayer = document.getElementById('iframePlayer');
+  const videoLoading = document.getElementById('videoLoading');
+  const mainIframe = document.getElementById('mainIframe');
+  
+  // Set iframe source
+  mainIframe.src = url;
+  
+  // Show iframe player after a short delay
+  setTimeout(() => {
+    videoLoading.classList.add('hidden');
+    iframePlayer.classList.remove('hidden');
+    currentVideo = mainIframe;
+    
+    // Track video load
+    trackVideoLoad(quality);
+  }, 2000);
+}
+
+function getVideoType(url) {
+  if (url.includes('.m3u8')) {
+    return 'application/x-mpegURL';
+  } else if (url.includes('.mkv')) {
+    return 'video/x-matroska';
+  } else {
+    return 'video/mp4';
+  }
+}
+
+function showVideoError() {
+  const videoLoading = document.getElementById('videoLoading');
+  const videoError = document.getElementById('videoError');
+  
+  videoLoading.classList.add('hidden');
+  videoError.classList.remove('hidden');
+}
+
+function showVideoPlaceholder() {
+  const videoPlaceholder = document.getElementById('videoPlaceholder');
+  const videoPlayer = document.getElementById('videoPlayer');
+  const iframePlayer = document.getElementById('iframePlayer');
+  const videoError = document.getElementById('videoError');
+  
+  videoPlayer.classList.add('hidden');
+  iframePlayer.classList.add('hidden');
+  videoError.classList.add('hidden');
+  videoPlaceholder.classList.remove('hidden');
+  
+  // Reset server button states
+  document.querySelectorAll('.server-btn').forEach(btn => {
+    btn.classList.remove('border-primary-500', 'bg-primary-50', 'dark:bg-primary-900/20');
+    btn.classList.add('border-gray-200', 'dark:border-gray-600');
+  });
+}
+
+// Track download clicks
+function trackDownload(episodeId, quality) {
+  fetch(`/anime/ajax/episode/${episodeId}/increment-views/`, {
+    method: 'POST',
+    headers: {
+      'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]')?.value || '',
+      'X-Requested-With': 'XMLHttpRequest',
+    }
+  }).catch(error => console.log('Tracking error:', error));
+}
+
+// Track video loads
+function trackVideoLoad(quality) {
+  console.log('Video loaded:', quality);
+  // You can add analytics tracking here
+}
+
+// Auto-advance functionality
+function autoAdvanceToNextEpisode() {
+  const nextEpisodeLink = document.querySelector('a[href*="episode/{{ next_episode.episode_number }}"]');
+  if (nextEpisodeLink) {
+    setTimeout(() => {
+      if (confirm('Episode finished! Advance to next episode?')) {
+        window.location.href = nextEpisodeLink.href;
+      }
+    }, 5000);
+  }
+}
+
+// Keyboard shortcuts
+document.addEventListener('keydown', function(e) {
+  // Space for play/pause (only if video is active)
+  if (e.code === 'Space' && currentVideo && currentVideo.tagName === 'VIDEO') {
+    e.preventDefault();
+    if (currentVideo.paused) {
+      currentVideo.play();
+    } else {
+      currentVideo.pause();
+    }
+  }
+  
+  // Left arrow for previous episode
+  if (e.key === 'ArrowLeft' && e.ctrlKey) {
+    const prevLink = document.querySelector('a[href*="episode/{{ prev_episode.episode_number }}"]');
+    if (prevLink) {
+      window.location.href = prevLink.href;
+    }
+  }
+  
+  // Right arrow for next episode
+  if (e.key === 'ArrowRight' && e.ctrlKey) {
+    const nextLink = document.querySelector('a[href*="episode/{{ next_episode.episode_number }}"]');
+    if (nextLink) {
+      window.location.href = nextLink.href;
+    }
+  }
+  
+  // Escape to go back to anime page
+  if (e.key === 'Escape') {
+    window.location.href = '{{ anime.get_absolute_url }}';
+  }
+});
+
+// Initialize page
+document.addEventListener('DOMContentLoaded', function() {
+  console.log('Episode detail page loaded');
+  
+  // Auto-load first server if available
+  const firstServerBtn = document.querySelector('.server-btn');
+  if (firstServerBtn) {
+    // You can uncomment this to auto-load the first server
+    // firstServerBtn.click();
+  }
+});
+
+// Like anime function (from base template)
+function likeAnime(animeId) {
+  fetch(`/anime/ajax/anime/${animeId}/like/`, {
+    method: 'POST',
+    headers: {
+      'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]')?.value || '',
+      'X-Requested-With': 'XMLHttpRequest',
+    }
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.success) {
+      document.querySelector('.like-count').textContent = data.likes;
+    }
+  })
+  .catch(error => console.log('Like error:', error));
+}
+
+// Add to watchlist function (placeholder)
+function addToWatchlist(animeId) {
+  // This would connect to your watchlist system when implemented
+  alert('Watchlist feature coming soon!');
+}
+</script>
+{% endblock %}

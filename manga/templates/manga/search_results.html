@@ -1,0 +1,71 @@
+<!-- search_results.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Search Results for "{{ search_query }}" - Watch2D{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 lg:px-6 py-8">
+    <div class="mb-8">
+        <h1 class="text-4xl font-bold text-gray-900 dark:text-white mb-2">
+            <i class="fas fa-search text-primary-600"></i> Search Results
+        </h1>
+        <p class="text-gray-600 dark:text-gray-400">
+            {% if search_query %}
+            Found {{ page_obj.paginator.count }} results for "<strong>{{ search_query }}</strong>"
+            {% else %}
+            Please enter a search term
+            {% endif %}
+        </p>
+    </div>
+    
+    <!-- Search Form -->
+    <div class="glass-effect rounded-2xl p-6 mb-8">
+        <form method="get" action="{% url 'manga:search' %}" class="flex gap-4">
+            <input type="text" name="q" value="{{ search_query }}" placeholder="Search manga, author, artist..." 
+                   class="flex-1 px-6 py-4 rounded-xl bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-primary-500 text-gray-900 dark:text-white text-lg">
+            <button type="submit" class="px-8 py-4 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-xl hover:from-blue-600 hover:to-cyan-600 transition-all duration-300 font-semibold">
+                <i class="fas fa-search mr-2"></i>Search
+            </button>
+        </form>
+    </div>
+    
+    {% if mangas %}
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-6 mb-8">
+        {% for manga in mangas %}
+        {% include 'manga/includes/manga_card.html' %}
+        {% endfor %}
+    </div>
+    
+    <!-- Pagination -->
+    {% if is_paginated %}
+    <div class="flex justify-center items-center gap-2">
+        {% if page_obj.has_previous %}
+        <a href="?q={{ search_query }}&page={{ page_obj.previous_page_number }}" 
+           class="px-4 py-2 bg-white dark:bg-gray-800 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
+            <i class="fas fa-angle-left"></i>
+        </a>
+        {% endif %}
+        
+        <span class="px-4 py-2 bg-primary-600 text-white rounded-lg font-semibold">
+            {{ page_obj.number }}
+        </span>
+        
+        {% if page_obj.has_next %}
+        <a href="?q={{ search_query }}&page={{ page_obj.next_page_number }}" 
+           class="px-4 py-2 bg-white dark:bg-gray-800 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
+            <i class="fas fa-angle-right"></i>
+        </a>
+        {% endif %}
+    </div>
+    {% endif %}
+    
+    {% else %}
+    <div class="glass-effect rounded-2xl p-12 text-center">
+        <i class="fas fa-search text-6xl text-gray-400 mb-4"></i>
+        <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">No results found</h3>
+        <p class="text-gray-600 dark:text-gray-400">Try different keywords or check your spelling</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

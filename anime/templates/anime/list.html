@@ -1,0 +1,297 @@
+{% extends 'anime/base.html' %}
+{% load static %}
+
+{% block title %}Anime - Watch2D{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 lg:px-6 py-8">
+  <!-- Page Header -->
+  <div class="text-center mb-12">
+    <h1 class="text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white mb-4">
+      All Anime
+    </h1>
+    <p class="text-lg text-gray-600 dark:text-gray-400">
+      Discover and stream your favorite anime series
+    </p>
+  </div>
+
+  <!-- Filters Section -->
+  <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 mb-8">
+    <form method="get" class="space-y-4">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+        
+        <!-- Category Filter -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Category</label>
+          <select name="category" class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500">
+            <option value="">All Categories</option>
+            {% for category in categories %}
+              <option value="{{ category.slug }}" {% if current_filters.category == category.slug %}selected{% endif %}>
+                {{ category.name }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <!-- Status Filter -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Status</label>
+          <select name="status" class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500">
+            <option value="">All Status</option>
+            {% for status_key, status_label in status_choices %}
+              <option value="{{ status_key }}" {% if current_filters.status == status_key %}selected{% endif %}>
+                {{ status_label }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <!-- Sort Filter -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Sort By</label>
+          <select name="order_by" class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500">
+            <option value="-created_at" {% if current_filters.order_by == "-created_at" %}selected{% endif %}>Latest</option>
+            <option value="-views" {% if current_filters.order_by == "-views" %}selected{% endif %}>Most Viewed</option>
+            <option value="-likes" {% if current_filters.order_by == "-likes" %}selected{% endif %}>Most Liked</option>
+            <option value="-rating" {% if current_filters.order_by == "-rating" %}selected{% endif %}>Highest Rated</option>
+            <option value="title" {% if current_filters.order_by == "title" %}selected{% endif %}>A-Z</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="flex flex-col sm:flex-row gap-4">
+        <button type="submit" class="px-6 py-3 bg-primary-500 text-white font-semibold rounded-xl hover:bg-primary-600 transition-colors">
+          <i class="fas fa-filter mr-2"></i>Apply Filters
+        </button>
+        <a href="{% url 'anime:list' %}" class="px-6 py-3 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 font-semibold rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-center">
+          <i class="fas fa-times mr-2"></i>Clear All
+        </a>
+      </div>
+    </form>
+  </div>
+
+  <!-- Results Info -->
+  {% if animes %}
+  <div class="flex items-center justify-between mb-6">
+    <p class="text-gray-600 dark:text-gray-400">
+      Showing {{ animes|length }} of {{ paginator.count }} anime
+    </p>
+    
+    <!-- View Toggle (Grid/List) -->
+    <div class="flex items-center space-x-2">
+      <button onclick="toggleView('grid')" id="grid-view" class="p-2 bg-primary-500 text-white rounded-lg">
+        <i class="fas fa-th"></i>
+      </button>
+      <button onclick="toggleView('list')" id="list-view" class="p-2 bg-gray-300 dark:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-lg">
+        <i class="fas fa-list"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Anime Grid -->
+  <div id="anime-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-6">
+    {% for anime in animes %}
+    <div class="anime-card bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-lg group">
+      <div class="relative aspect-[3/4] overflow-hidden">
+        {% if anime.poster_url %}
+          <img src="{{ anime.poster_url }}" 
+               alt="{{ anime.title }}" 
+               class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110">
+        {% else %}
+          <div class="w-full h-full bg-gradient-to-br from-primary-500 to-accent-500 flex items-center justify-center">
+            <i class="fas fa-play text-white text-3xl"></i>
+          </div>
+        {% endif %}
+        
+        <!-- Status Badge -->
+        <div class="absolute top-2 left-2 status-badge status-{{ anime.status }}">
+          {{ anime.get_status_display }}
+        </div>
+        
+        <!-- Episode Count Badge -->
+        {% if anime.total_episodes > 0 %}
+        <div class="absolute top-2 right-2 bg-black/70 text-white px-2 py-1 rounded text-xs">
+          EP {{ anime.total_episodes }}
+        </div>
+        {% endif %}
+        
+        <!-- Overlay -->
+        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+          <div class="absolute bottom-3 left-3 right-3">
+            <div class="flex space-x-2 mb-2">
+              <!-- <button onclick="likeAnime({{ anime.id }})" 
+                      class="p-2 bg-white/20 backdrop-blur-sm rounded-full text-white hover:bg-white/30 transition-colors">
+                <i class="fas fa-heart"></i>
+              </button> -->
+              <!-- <button onclick="addToWatchlist({{ anime.id }})" 
+                      class="p-2 bg-white/20 backdrop-blur-sm rounded-full text-white hover:bg-white/30 transition-colors">
+                <i class="fas fa-bookmark"></i>
+              </button> -->
+            </div>
+            <a href="{{ anime.get_absolute_url }}" 
+               class="block text-center py-2 bg-primary-500 text-white rounded-lg font-semibold hover:bg-primary-600 transition-colors">
+              Watch Now
+            </a>
+          </div>
+        </div>
+      </div>
+      
+      <div class="p-4">
+        <h3 class="font-semibold text-gray-900 dark:text-white mb-2 line-clamp-2">
+          <a href="{{ anime.get_absolute_url }}" class="hover:text-primary-500">
+            {{ anime.title }}
+          </a>
+        </h3>
+        
+        <!-- Stats -->
+        <!-- <div class="flex items-center justify-between text-sm text-gray-600 dark:text-gray-400 mb-3">
+          <span class="flex items-center">
+            <i class="fas fa-eye mr-1"></i>
+            {{ anime.views|floatformat:0 }}
+          </span>
+          <span class="flex items-center">
+            <i class="fas fa-heart mr-1"></i>
+            {{ anime.likes|floatformat:0 }}
+          </span>
+          {% if anime.rating %}
+          <span class="flex items-center text-yellow-500">
+            <i class="fas fa-star mr-1"></i>
+            {{ anime.rating }}
+          </span>
+          {% endif %}
+        </div> -->
+        
+         <!-- Genres -->
+        {% if anime.genres.exists %}
+        <div class="flex flex-wrap gap-1">
+          {% for genre in anime.genres.all|slice:":2" %}
+            <a href="{% url 'anime:genre_detail' genre.slug %}" 
+               class="inline-block px-2 py-1 text-xs font-medium bg-primary-100 dark:bg-primary-900 text-primary-600 dark:text-primary-400 rounded hover:bg-primary-200 dark:hover:bg-primary-800 transition-colors">
+              {{ genre.name }}
+            </a>
+          {% endfor %}
+        </div>
+        {% endif %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- Pagination -->
+  {% if is_paginated %}
+  <div class="flex justify-center mt-12">
+    <nav class="flex items-center space-x-1">
+      {% if page_obj.has_previous %}
+        <a href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page=1" 
+           class="px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700">
+          <i class="fas fa-angle-double-left"></i>
+        </a>
+        <a href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ page_obj.previous_page_number }}" 
+           class="px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700">
+          <i class="fas fa-angle-left"></i>
+        </a>
+      {% endif %}
+
+      <span class="px-4 py-2 bg-primary-500 text-white rounded-lg font-semibold">
+        {{ page_obj.number }}
+      </span>
+
+      {% if page_obj.has_next %}
+        <a href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ page_obj.next_page_number }}" 
+           class="px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700">
+          <i class="fas fa-angle-right"></i>
+        </a>
+        <a href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ paginator.num_pages }}" 
+           class="px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700">
+          <i class="fas fa-angle-double-right"></i>
+        </a>
+      {% endif %}
+    </nav>
+  </div>
+  {% endif %}
+
+  {% else %}
+  <!-- No Results -->
+  <div class="text-center py-16">
+    <div class="max-w-md mx-auto">
+      <div class="w-24 h-24 bg-gray-200 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-6">
+        <i class="fas fa-search text-3xl text-gray-400"></i>
+      </div>
+      <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">No Anime Found</h3>
+      <p class="text-gray-600 dark:text-gray-400 mb-6">
+        We couldn't find any anime matching your criteria. Try adjusting your filters or search terms.
+      </p>
+      <a href="{% url 'anime:list' %}" 
+         class="inline-flex items-center px-6 py-3 bg-primary-500 text-white font-semibold rounded-xl hover:bg-primary-600 transition-colors">
+        <i class="fas fa-refresh mr-2"></i>View All Anime
+      </a>
+    </div>
+  </div>
+  {% endif %}
+
+  <div class="text-center mt-8">
+    <a href="{% url 'home' %}" 
+      class="inline-block bg-gradient-to-r from-blue-500 via-indigo-500 to-cyan-500 hover:from-blue-600 hover:via-indigo-600 hover:to-cyan-600 text-white px-8 py-3 rounded-full font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg">
+        <i class="fas fa-arrow-right mr-2"></i>
+          Click to Download and Stream Movies 
+    </a>
+    
+    <!-- Social Media Buttons -->
+    <div class="flex flex-col sm:flex-row gap-4 justify-center mt-6">
+      <!-- Telegram Button -->
+      <a href="https://t.me/watch2dchats" 
+        target="_blank"
+        rel="noopener noreferrer"
+        class="group relative inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-sky-400 via-blue-500 to-blue-600 hover:from-sky-500 hover:via-blue-600 hover:to-blue-700 text-white rounded-full shadow-lg hover:shadow-2xl transform hover:scale-105 transition-all duration-300">
+        <!-- Glow effect -->
+        <div class="absolute inset-0 bg-gradient-to-r from-sky-300 via-blue-400 to-blue-500 rounded-full blur-md opacity-40 group-hover:opacity-60 transition-opacity duration-300"></div>
+        <div class="relative flex items-center">
+          <i class="fab fa-telegram-plane mr-2 text-lg group-hover:translate-x-1 transition-transform duration-300"></i>
+          <span class="font-semibold">Join Our Telegram Community</span>
+        </div>
+      </a>
+      
+      <!-- WhatsApp Button -->
+      <a href="https://whatsapp.com/channel/0029VavDAbsEFeXpbo2lEg3f" 
+        target="_blank"
+        rel="noopener noreferrer"
+        class="group relative inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-green-400 via-emerald-500 to-green-600 hover:from-green-500 hover:via-emerald-600 hover:to-green-700 text-white rounded-full shadow-lg hover:shadow-2xl transform hover:scale-105 transition-all duration-300">
+        <!-- Glow effect -->
+        <div class="absolute inset-0 bg-gradient-to-r from-green-300 via-emerald-400 to-green-500 rounded-full blur-md opacity-40 group-hover:opacity-60 transition-opacity duration-300"></div>
+        <div class="relative flex items-center">
+          <i class="fab fa-whatsapp mr-2 text-lg group-hover:scale-110 transition-transform duration-300"></i>
+          <span class="font-semibold">Join Our WhatsApp Channel</span>
+        </div>
+      </a>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function toggleView(view) {
+  const grid = document.getElementById('anime-grid');
+  const gridBtn = document.getElementById('grid-view');
+  const listBtn = document.getElementById('list-view');
+  
+  if (view === 'grid') {
+    grid.className = 'grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-6';
+    gridBtn.className = 'p-2 bg-primary-500 text-white rounded-lg';
+    listBtn.className = 'p-2 bg-gray-300 dark:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-lg';
+  } else {
+    grid.className = 'space-y-4';
+    gridBtn.className = 'p-2 bg-gray-300 dark:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-lg';
+    listBtn.className = 'p-2 bg-primary-500 text-white rounded-lg';
+  }
+  
+  localStorage.setItem('anime-view', view);
+}
+
+// Load saved view preference
+document.addEventListener('DOMContentLoaded', function() {
+  const savedView = localStorage.getItem('anime-view') || 'grid';
+  toggleView(savedView);
+});
+</script>
+{% endblock %}

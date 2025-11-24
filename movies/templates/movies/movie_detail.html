@@ -1,0 +1,674 @@
+{% extends 'movies/base.html' %}
+{% load movie_extras %}
+{% load static %}
+
+{# SEO Meta Tags #}
+{% block title %}{{ movie.title }}{% if movie.year %} ({{ movie.year }}){% endif %} – Watch2D{% endblock %}
+
+{% block meta_description %}
+  {% with desc=movie.description|default_if_none:"" %}
+    {{ desc|truncatechars:150 }}{% if movie.completed %} Complete Series{% else %} Movie{% endif %}. Stream & Download in HD on Watch2D.
+  {% endwith %}
+{% endblock %}
+
+{% block meta_keywords %}
+  {{ movie.title }}, download {{ movie.title }}, watch {{ movie.title }} online, {{ movie.title }} HD, free movie streaming
+{% endblock %}
+
+{% block canonical_block %}
+  <link rel="canonical" href="{{ request.build_absolute_uri }}" />
+{% endblock %}
+
+{% block og_type %}video.movie{% endblock %}
+{% block og_title %}{{ movie.title }}{% if movie.year %} ({{ movie.year }}){% endif %} – Watch2D{% endblock %}
+{% block og_description %}
+  {% with desc=movie.description|default_if_none:"" %}
+    {{ desc|truncatechars:150 }}{% if movie.completed %} Complete{% else %} Movie{% endif %}
+  {% endwith %}
+{% endblock %}
+{% block og_url %}{{ request.build_absolute_uri }}{% endblock %}
+{% block og_image %}
+  {% if movie.image_url %}{{ movie.image_url }}{% else %}{% static 'images/default-poster.jpg' %}{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+  
+  {# Hero Section #}
+  <div class="relative overflow-hidden">
+    <div class="absolute inset-0 bg-gradient-to-r from-blue-600/10 to-purple-600/10"></div>
+    <div class="container mx-auto px-4 py-8 relative">
+      
+      {# Movie Header #}
+      <div class="flex flex-col lg:flex-row gap-8 items-start">
+        
+        {# Movie Poster #}
+        <div class="flex-shrink-0 mx-auto lg:mx-0">
+          <div class="relative group">
+            <div class="absolute inset-0 bg-gradient-to-br from-blue-400 to-purple-600 rounded-2xl blur opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
+            <div class="relative bg-white dark:bg-gray-800 p-2 rounded-2xl">
+              {% if movie.image_url %}
+                <img src="{{ movie.image_url }}" 
+                     alt="{{ movie.title }}" 
+                     class="w-72 h-96 object-cover rounded-xl shadow-2xl"
+                     loading="lazy">
+              {% else %}
+                <div class="w-72 h-96 bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600 rounded-xl flex items-center justify-center">
+                  <i class="fas fa-film text-6xl text-gray-400"></i>
+                </div>
+              {% endif %}
+                                  
+                    {# Fallback icon #}
+                    <div class="fallback-icon w-full h-full flex items-center justify-center {% if episode.image_url %}hidden{% endif %}">
+                      <i class="fas fa-film text-gray-400 text-3xl"></i>
+                    </div>
+                    
+                    {# Overlay #}
+                    <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                      <div class="bg-white/90 rounded-full p-3 transform scale-75 group-hover:scale-100 transition-transform duration-300">
+                        <i class="fas fa-play text-red-600 text-xl"></i>
+                      </div>
+                    </div>
+                                    
+                      {# Quality Badge #}
+                      <div class="absolute top-2 right-2 bg-green-500 text-white text-xs px-2 py-1 rounded opacity-100 group-hover:opacity-100 transition-opacity duration-300">
+                        HD
+                      </div>
+
+                                    
+                    {# New Badge (if recently added) #}
+                    {% if movie.created_at|is_recent %}
+                      <div class="absolute top-3 left-3 bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs px-2 py-1 rounded-full opacity-90 group-hover:opacity-100 transition-opacity duration-300">
+                        <i class="fas fa-star mr-1"></i>
+                        NEW
+                      </div>
+                    {% endif %}
+                    </div>
+          </div>
+        </div>
+        
+        {# Movie Info #}
+        <div class="flex-1 text-center lg:text-left">
+          <div class="mb-4">
+            <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 dark:text-white mb-2 leading-tight">
+              {{ movie.title }}
+            </h1>
+            {% if movie.title_b %}
+              <h2 class="text-xl md:text-2xl text-gray-600 dark:text-gray-300 mb-4">
+                {{ movie.title_b }}
+              </h2>
+            {% endif %}
+            {% if movie.year %}
+              <div class="inline-block bg-gradient-to-r from-blue-500 to-purple-500 text-white px-4 py-2 rounded-full text-sm font-semibold">
+                {{ movie.year }}
+              </div>
+            {% endif %}
+          </div>
+          
+          {# Categories #}
+          {% if movie.categories.all %}
+            <div class="flex flex-wrap gap-2 justify-center lg:justify-start mb-6">
+              {% for cat in movie.categories.all %}
+                <a href="{% url 'movies:category_movies' cat.id %}" 
+                   class="px-3 py-1 bg-white/80 dark:bg-gray-700/80 backdrop-blur-sm border border-gray-200 dark:border-gray-600 rounded-full text-sm text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-gray-600 transition-all duration-300 hover:scale-105">
+                  {{ cat.name }}
+                </a>
+              {% endfor %}
+            </div>
+          {% endif %}
+          
+          {# Description #}
+          {% if movie.description %}
+            <div class="bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm rounded-2xl p-6 mb-6 border border-gray-200 dark:border-gray-700">
+              <p class="text-gray-700 dark:text-gray-300 text-lg leading-relaxed">
+                {{ movie.description }}
+              </p>
+            </div>
+          {% endif %}
+          
+          {# Action Buttons #}
+          <div class="flex flex-wrap gap-4 justify-center lg:justify-start">
+            <button onclick="scrollToTrailer()" 
+                    class="group flex items-center px-8 py-4 bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white rounded-full font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl">
+              <i class="fas fa-play mr-3 group-hover:scale-110 transition-transform"></i>
+              Watch Trailer
+            </button>
+
+            <button onclick="scrollToPlayer()" 
+                    class="group flex items-center px-8 py-4 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white rounded-full font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl">
+              <i class="fas fa-play mr-3 group-hover:scale-110 transition-transform"></i>
+              Stream Now
+            </button>
+            
+            <button onclick="scrollToDownload()" 
+              class="group flex items-center px-8 py-4 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white rounded-full font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl">
+              <i class="fas fa-download mr-3 group-hover:scale-110 transition-transform"></i>
+              Download
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {# Trailer Section #}
+  <div id="trailer-section" class="container mx-auto px-4 py-12">
+    <div class="max-w-4xl mx-auto">
+      
+      {# Section Header #}
+      <div class="text-center mb-8">
+        <div class="inline-flex items-center justify-center mb-4">
+          <div class="w-12 h-12 bg-gradient-to-r from-red-500 to-pink-500 rounded-full flex items-center justify-center">
+            <i class="fas fa-play text-white text-xl"></i>
+          </div>
+        </div>
+        <h2 class="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-2">
+          Watch Trailer
+        </h2>
+        <p class="text-gray-600 dark:text-gray-400">
+          Get a preview of what's coming
+        </p>
+      </div>
+      
+      {# Trailer Notice #}
+      <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-2xl p-6 mb-8">
+        <div class="flex items-start">
+          <div class="flex-shrink-0 w-8 h-8 bg-blue-100 dark:bg-blue-800 rounded-full flex items-center justify-center mr-4">
+            <i class="fas fa-info-circle text-blue-600 dark:text-blue-400"></i>
+          </div>
+          <div>
+            <h3 class="font-semibold text-blue-800 dark:text-blue-200 mb-2">Trailer Preview</h3>
+            <p class="text-blue-700 dark:text-blue-300 text-sm">
+              Watch the official trailer to get a sneak peek of <strong>{{ movie.title }}</strong>.
+            </p>
+          </div>
+        </div>
+      </div>
+      
+      {# Video Player #}
+      <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl overflow-hidden border border-gray-200 dark:border-gray-700">
+        {% if movie.video_url %}
+          {# Check if it's a YouTube URL #}
+          {% if "youtube.com" in movie.video_url or "youtu.be" in movie.video_url %}
+            <div class="w-full aspect-video bg-black">
+              <iframe class="w-full h-full" 
+                      src="{{ movie.video_url }}" 
+                      title="Movie Trailer"
+                      frameborder="0" 
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                      allowfullscreen>
+              </iframe>
+            </div>
+          
+          {# Check if it's a Vimeo URL #}
+          {% elif "vimeo.com" in movie.video_url %}
+            <div class="w-full aspect-video bg-black">
+              <iframe class="w-full h-full" 
+                      src="{{ movie.video_url }}" 
+                      title="Movie Trailer"
+                      frameborder="0" 
+                      allow="autoplay; fullscreen; picture-in-picture" 
+                      allowfullscreen>
+              </iframe>
+            </div>
+          
+          {# Direct video file #}
+          {% else %}
+            {% with video_lower=movie.video_url|lower %}
+              {% if ".mp4" in video_lower or ".webm" in video_lower or ".mov" in video_lower %}
+                <video class="w-full aspect-video bg-black" 
+                       controls 
+                       playsinline 
+                       poster="{{ movie.image_url }}">
+                  <source src="{{ movie.video_url }}" type="video/mp4">
+                  <p class="text-white p-4">Your browser does not support the video tag.</p>
+                </video>
+              {% else %}
+                {# Generic embed (for other platforms) #}
+                <div class="w-full aspect-video bg-black">
+                  <iframe class="w-full h-full" 
+                          src="{{ movie.video_url }}" 
+                          title="Movie Trailer"
+                          frameborder="0" 
+                          allowfullscreen>
+                  </iframe>
+                </div>
+              {% endif %}
+            {% endwith %}
+          {% endif %}
+          
+        {% else %}
+          <div class="p-12 text-center">
+            <i class="fas fa-film text-gray-400 text-4xl mb-4"></i>
+            <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+              No Trailer Available
+            </h3>
+            <p class="text-gray-600 dark:text-gray-400">
+              Trailer will be available soon. Check back later for updates.
+            </p>
+          </div>
+        {% endif %}
+      </div>
+      
+      {# Additional Trailer Info #}
+      {% if movie.video_url %}
+        <div class="mt-6 text-center">
+          <p class="text-sm text-gray-500 dark:text-gray-400">
+            <i class="fas fa-clock mr-1"></i>
+            Trailer may contain content not suitable for all audiences
+          </p>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+  
+  {# Streaming Section #}
+  <div id="streaming-section" class="container mx-auto px-4 py-12">
+    <div class="max-w-4xl mx-auto">
+      
+      {# Section Header #}
+      <div class="text-center mb-8">
+        <div class="inline-flex items-center justify-center mb-4">
+          <div class="w-12 h-12 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center">
+            <i class="fas fa-play text-white text-xl"></i>
+          </div>
+        </div>
+        <h2 class="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-2">
+          {% if movie.completed %}Watch Complete Series{% else %}Stream Movie{% endif %}
+        </h2>
+        <p class="text-gray-600 dark:text-gray-400">
+          High-quality streaming with adaptive playback
+        </p>
+      </div>
+      
+      {# Streaming Notice #}
+      <div class="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-2xl p-6 mb-8">
+        <div class="flex items-start">
+          <div class="flex-shrink-0 w-8 h-8 bg-amber-100 dark:bg-amber-800 rounded-full flex items-center justify-center mr-4">
+            <i class="fas fa-info-circle text-amber-600 dark:text-amber-400"></i>
+          </div>
+          <div>
+            <h3 class="font-semibold text-amber-800 dark:text-amber-200 mb-2">Streaming Notice</h3>
+            <p class="text-amber-700 dark:text-amber-300 text-sm">
+              A stable internet connection is recommended for smooth HD playback. 
+              If streaming doesn't work, try downloading for offline viewing.
+            </p>
+          </div>
+        </div>
+      </div>
+      
+      {# Video Player #}
+      <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl overflow-hidden border border-gray-200 dark:border-gray-700">
+        {% if movie.hls_manifest %}
+          {# HLS Streaming #}
+          <video id="hlsPlayer" 
+                 class="w-full aspect-video bg-black"
+                 controls 
+                 playsinline 
+                 poster="{{ movie.image_url }}">
+            <source src="{{ movie.hls_manifest.url }}" type="application/vnd.apple.mpegurl" />
+            <p class="text-white p-4">Your browser doesn't support adaptive streaming.</p>
+          </video>
+          
+        {% elif movie.download_links.exists %}
+          {# Episode Selection #}
+          <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+            <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+              <label class="text-sm font-medium text-gray-700 dark:text-gray-300">
+                <i class="fas fa-list mr-2"></i>Select Episode:
+              </label>
+              <select id="episodeSelect" 
+                      class="flex-1 p-3 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 dark:text-gray-100">
+                {% for link in movie.download_links.all %}
+                  {% with url=link.url|lower %}
+                    {% if ".mp4" in url or ".mkv" in url %}
+                      <option value="{{ link.url }}">{{ link.label|default:"Episode" }}</option>
+                    {% endif %}
+                  {% endwith %}
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+          
+          <video id="episodePlayer" 
+                 class="w-full aspect-video bg-black" 
+                 controls 
+                 playsinline 
+                 poster="{{ movie.image_url }}">
+            <source src="{{ movie.download_links.first.url }}" type="video/mp4">
+            <p class="text-white p-4">Your browser does not support the video tag.</p>
+          </video>
+          
+        {% elif movie.download_url %}
+          {# Single Video #}
+          {% with dl=movie.download_url|lower %}
+            {% if ".mp4" in dl or ".mkv" in dl %}
+              <video class="w-full aspect-video bg-black" 
+                     controls 
+                     playsinline 
+                     poster="{{ movie.image_url }}">
+                <source src="{{ movie.download_url }}" type="video/mp4">
+                <p class="text-white p-4">Your browser does not support the video tag.</p>
+              </video>
+            {% else %}
+              <div class="p-12 text-center">
+                <i class="fas fa-exclamation-triangle text-amber-500 text-4xl mb-4"></i>
+                <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+                  Streaming Unavailable
+                </h3>
+                <p class="text-gray-600 dark:text-gray-400">
+                  This content isn't available for direct streaming. Please use the download links below.
+                </p>
+              </div>
+            {% endif %}
+          {% endwith %}
+          
+        {% else %}
+          <div class="p-12 text-center">
+            <i class="fas fa-video-slash text-gray-400 text-4xl mb-4"></i>
+            <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+              No Streaming Available
+            </h3>
+            <p class="text-gray-600 dark:text-gray-400">
+              Streaming links are not available for this content yet.
+            </p>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  
+  {# Download Section #}
+  <div id="download-section" class="bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm py-12">
+    <div class="container mx-auto px-4">
+      <div class="max-w-4xl mx-auto">
+        
+        {# Section Header #}
+        <div class="text-center mb-8">
+          <div class="inline-flex items-center justify-center mb-4">
+            <div class="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
+              <i class="fas fa-download text-white text-xl"></i>
+            </div>
+          </div>
+          <h2 class="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-2">
+            Download Links
+          </h2>
+          <p class="text-gray-600 dark:text-gray-400">
+            Download for offline viewing in various qualities
+          </p>
+        </div>
+        
+        {# Download Links #}
+        <div id="download" class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+          {% if movie.download_links.exists %}
+            <div class="p-8">
+              <div class="grid gap-4">
+                {% for link in movie.download_links.all %}
+                  <a href="{{ link.url }}" 
+                    target="_blank"
+                    class="group flex items-center justify-between p-4 bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-600 rounded-xl hover:from-blue-50 hover:to-purple-50 dark:hover:from-gray-600 dark:hover:to-gray-500 transition-all duration-300 transform hover:scale-105 hover:shadow-lg">
+                    <div class="flex items-center">
+                      <div class="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center mr-4">
+                        <i class="fas fa-download text-white"></i>
+                      </div>
+                      <div>
+                        <h3 class="font-semibold text-gray-900 dark:text-white">
+                          {{ link.label|default:"Download" }}
+                        </h3>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">
+                          Click to download
+                        </p>
+                      </div>
+                    </div>
+                    <i class="fas fa-arrow-right text-gray-400 group-hover:text-blue-500 transition-colors"></i>
+                  </a>
+                {% endfor %}
+
+                {# Add Monetag SmartLink as an Alternate Mirror #}
+                <a href="https://otieu.com/4/9893460" 
+                  target="_blank" 
+                  rel="nofollow"
+                  class="group flex items-center justify-between p-4 bg-gradient-to-r from-yellow-50 to-orange-50 dark:from-gray-700 dark:to-gray-600 rounded-xl hover:from-yellow-100 hover:to-orange-100 dark:hover:from-gray-600 dark:hover:to-gray-500 transition-all duration-300 transform hover:scale-105 hover:shadow-lg">
+                  <div class="flex items-center">
+                    <div class="w-10 h-10 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full flex items-center justify-center mr-4">
+                      <i class="fas fa-external-link-alt text-white"></i>
+                    </div>
+                    <div>
+                      <h3 class="font-semibold text-gray-900 dark:text-white">
+                        Alternate Download (Faster + HD + Ads)
+                      </h3>
+                      <p class="text-sm text-gray-500 dark:text-gray-400">
+                        May include ads — works better on slower networks
+                      </p>
+                    </div>
+                  </div>
+                  <i class="fas fa-arrow-right text-gray-400 group-hover:text-yellow-500 transition-colors"></i>
+                </a>
+
+              </div>
+            </div>
+            
+          {% elif movie.download_url %}
+            <div class="p-8 text-center">
+              <a href="{{ movie.download_url }}" 
+                target="_blank"
+                class="inline-flex items-center px-8 py-4 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white rounded-full font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl">
+                <i class="fas fa-download mr-3"></i>
+                Download {{ movie.title }}
+              </a>
+
+              {# Add Monetag SmartLink under single download too #}
+              <div class="mt-6">
+                <a href="https://otieu.com/4/9893460" 
+                  target="_blank" 
+                  rel="nofollow"
+                  class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600 text-white rounded-full font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl">
+                  <i class="fas fa-external-link-alt mr-2"></i>
+                  Alternate Download (Mirror)
+                </a>
+              </div>
+            </div>
+            
+          {% else %}
+            <div class="p-12 text-center">
+              <i class="fas fa-download text-gray-400 text-4xl mb-4"></i>
+              <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+                No Downloads Available
+              </h3>
+              <p class="text-gray-600 dark:text-gray-400">
+                Download links are not available for this content yet.
+              </p>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  
+  {# Related Movies Section #}
+  {% if related_movies %}
+    <div class="container mx-auto px-4 py-12">
+      <div class="max-w-6xl mx-auto">
+        <div class="text-center mb-12">
+          <h2 class="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
+            You Might Also Like
+          </h2>
+          <p class="text-gray-600 dark:text-gray-400">
+            More great content to explore
+          </p>
+        </div>
+        
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
+          {% for rel in related_movies %}
+            <a href="{{ rel.get_absolute_url }}" 
+               class="group block bg-white dark:bg-gray-800 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105 border border-gray-200 dark:border-gray-700 overflow-hidden">
+              <div class="aspect-[3/4] overflow-hidden">
+                {% if rel.image_url %}
+                  <img src="{{ rel.image_url }}" 
+                       alt="{{ rel.title }}" 
+                       class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300">
+                {% else %}
+                  <div class="w-full h-full bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600 flex items-center justify-center">
+                    <i class="fas fa-film text-gray-400 text-2xl"></i>
+                  </div>
+                {% endif %}
+                                    
+                    {# Fallback icon #}
+                    <div class="fallback-icon w-full h-full flex items-center justify-center {% if episode.image_url %}hidden{% endif %}">
+                      <i class="fas fa-film text-gray-400 text-3xl"></i>
+                    </div>
+                    
+                    {# Overlay #}
+                    <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                      <div class="bg-white/90 rounded-full p-3 transform scale-75 group-hover:scale-100 transition-transform duration-300">
+                        <i class="fas fa-play text-red-600 text-xl"></i>
+                      </div>
+                    </div>
+                                    
+                      {# Quality Badge #}
+                      <div class="absolute top-2 right-2 bg-green-500 text-white text-xs px-2 py-1 rounded opacity-100 group-hover:opacity-100 transition-opacity duration-300">
+                        HD
+                      </div>
+                    </div>
+              <div class="p-4">
+                <h3 class="font-semibold text-gray-900 dark:text-white text-sm line-clamp-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                  {{ rel.title }}
+                </h3>
+              </div>
+            </a>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  {% endif %}
+</div>
+
+{# External Libraries #}
+<link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
+<script src="https://cdn.plyr.io/3.7.8/plyr.polyfilled.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+
+{# Custom Styles #}
+<style>
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  
+  .aspect-video {
+    aspect-ratio: 16 / 9;
+  }
+  
+  .backdrop-blur-sm {
+    backdrop-filter: blur(4px);
+  }
+  
+  /* Smooth scrolling */
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    background: #f1f1f1;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, #3b82f6, #8b5cf6);
+    border-radius: 4px;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, #2563eb, #7c3aed);
+  }
+</style>
+
+{# JavaScript #}
+<script>
+  // Smooth scroll functions
+  function scrollToTrailer() {
+    document.getElementById('trailer-section').scrollIntoView({
+      behavior: 'smooth',
+      block: 'start'
+    });
+  }
+
+  function scrollToPlayer() {
+    document.getElementById('streaming-section').scrollIntoView({
+      behavior: 'smooth',
+      block: 'start'
+    });
+  }
+  
+  function scrollToDownload() {
+    document.getElementById('download-section').scrollIntoView({
+      behavior: 'smooth',
+      block: 'start'
+    });
+  }
+  
+  // Initialize video players
+  document.addEventListener('DOMContentLoaded', function() {
+    
+    // HLS Player Setup
+    const hlsPlayer = document.getElementById('hlsPlayer');
+    if (hlsPlayer) {
+      const src = hlsPlayer.querySelector('source').src;
+      
+      if (Hls.isSupported()) {
+        const hls = new Hls();
+        hls.loadSource(src);
+        hls.attachMedia(hlsPlayer);
+        
+        hls.on(Hls.Events.MANIFEST_PARSED, function() {
+          new Plyr(hlsPlayer, {
+            controls: ['play', 'progress', 'current-time', 'mute', 'volume', 'fullscreen'],
+            settings: ['quality', 'speed'],
+            quality: {
+              default: 'auto',
+              options: hls.levels.map((level, index) => index),
+              forced: true,
+              onChange: (quality) => {
+                hls.currentLevel = quality;
+              }
+            }
+          });
+        });
+      } else if (hlsPlayer.canPlayType('application/vnd.apple.mpegurl')) {
+        new Plyr(hlsPlayer);
+      }
+    }
+    
+    // Episode Player Setup
+    const episodePlayer = document.getElementById('episodePlayer');
+    const episodeSelect = document.getElementById('episodeSelect');
+    
+    if (episodePlayer && episodeSelect) {
+      const player = new Plyr(episodePlayer);
+      
+      episodeSelect.addEventListener('change', function() {
+        player.source = {
+          type: 'video',
+          sources: [{
+            src: this.value,
+            type: 'video/mp4'
+          }]
+        };
+      });
+    }
+    
+    // Initialize other video players
+    const videoElements = document.querySelectorAll('video:not(#hlsPlayer):not(#episodePlayer)');
+    videoElements.forEach(video => {
+      new Plyr(video);
+    });
+  });
+</script>
+{% endblock %}

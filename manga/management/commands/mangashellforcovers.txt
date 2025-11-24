@@ -1,0 +1,154 @@
+#!/usr/bin/env python
+"""
+Update all manga covers via Django shell
+Usage: python manage.py shell < update_all_covers.py
+OR: Copy and paste into: python manage.py shell
+"""
+
+from manga.models import Manga
+from bs4 import BeautifulSoup
+import cloudscraper
+import time
+import random
+
+print("\n" + "="*70)
+print("🎨 UPDATING ALL MANGA COVERS")
+print("="*70 + "\n")
+
+# Create scraper
+scraper = cloudscraper.create_scraper()
+scraper.headers.update({
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+})
+
+def extract_cover_url(img):
+    """Extract cover URL from img element"""
+    if not img:
+        return None
+    
+    # Try data-src first (lazy loading), then src
+    url = img.get('data-src') or img.get('data-lazy-src') or img.get('src')
+    
+    if url:
+        # Skip placeholder images
+        if any(skip in url.lower() for skip in ['dflazy', 'placeholder', 'loading']):
+            return None
+        
+        # Fix protocol-relative URLs
+        if url.startswith('//'):
+            url = 'https:' + url
+        
+        # Must be valid image URL
+        if url.startswith('http'):
+            return url
+    
+    return None
+
+# Get ALL manga without covers
+manga_list = Manga.objects.filter(cover_url__in=['', None]).order_by('id')
+total = manga_list.count()
+
+print(f"📊 Found {total} manga without covers")
+print(f"⏱️  Estimated time: ~{total * 3} seconds ({total * 3 / 60:.1f} minutes)\n")
+
+confirm = input("Continue? (y/n): ")
+if confirm.lower() != 'y':
+    print("❌ Cancelled")
+    exit()
+
+print("\n🚀 Starting...\n")
+
+updated = 0
+failed = 0
+skipped = 0
+
+for idx, manga in enumerate(manga_list, 1):
+    print(f"[{idx}/{total}] 📖 {manga.title}")
+    
+    # Try multiple URL patterns
+    urls_to_try = []
+    
+    if manga.wp_link:
+        urls_to_try.append(manga.wp_link)
+    
+    urls_to_try.append(f'https://manhuaplus.com/manga/{manga.slug}/')
+    
+    cover_found = False
+    
+    for url in urls_to_try:
+        if cover_found:
+            break
+        
+        try:
+            print(f"   🌐 {url[:60]}...")
+            response = scraper.get(url, timeout=15)
+            
+            if response.status_code != 200:
+                continue
+            
+            soup = BeautifulSoup(response.text, 'html.parser')
+            
+            # Try multiple selectors
+            selectors = [
+                '.summary_image img',
+                '.tab-summary img',
+                'div.summary_image img',
+                'img[data-src*="wp-content/uploads"]',
+            ]
+            
+            for selector in selectors:
+                if cover_found:
+                    break
+                
+                img = soup.select_one(selector)
+                if img:
+                    cover_url = extract_cover_url(img)
+                    
+                    if cover_url and 'wp-content/uploads' in cover_url:
+                        manga.cover_url = cover_url
+                        manga.save(update_fields=['cover_url'])
+                        updated += 1
+                        cover_found = True
+                        print(f"   ✅ Updated: {cover_url[:50]}...")
+                        break
+            
+            if not cover_found:
+                # Fallback: try any image with data-src
+                all_imgs = soup.select('img[data-src]')
+                for img in all_imgs:
+                    cover_url = extract_cover_url(img)
+                    if cover_url and 'wp-content/uploads' in cover_url:
+                        # Check if it looks like a cover
+                        if any(s in cover_url for s in ['193x278', '300x428', 'thumb', 'cover']):
+                            manga.cover_url = cover_url
+                            manga.save(update_fields=['cover_url'])
+                            updated += 1
+                            cover_found = True
+                            print(f"   ✅ Updated (fallback): {cover_url[:50]}...")
+                            break
+        
+        except Exception as e:
+            print(f"   ⚠️  Error: {e}")
+            continue
+    
+    if not cover_found:
+        failed += 1
+        print(f"   ❌ No cover found")
+    
+    # Rate limiting - be nice to the server
+    if idx < total:
+        delay = random.uniform(2, 4)
+        time.sleep(delay)
+    
+    # Progress checkpoint every 10 manga
+    if idx % 10 == 0:
+        print(f"\n📊 Progress: {idx}/{total} | ✅ {updated} | ❌ {failed}\n")
+
+# Final report
+print("\n" + "="*70)
+print("🎉 COMPLETED!")
+print("="*70)
+print(f"✅ Updated: {updated}")
+print(f"❌ Failed: {failed}")
+print(f"📊 Total processed: {updated + failed}")
+print(f"📈 Success rate: {(updated / (updated + failed) * 100):.1f}%\n")
