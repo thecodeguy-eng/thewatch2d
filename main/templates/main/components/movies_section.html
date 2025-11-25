@@ -1,0 +1,95 @@
+{% load static %}
+
+<section class="container mx-auto px-4 lg:px-6 py-12">
+  {# Section Header #}
+  <div class="flex items-center justify-between mb-8">
+    <div class="flex items-center space-x-4">
+      <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center">
+        <i class="fas fa-film text-2xl text-white"></i>
+      </div>
+      <div>
+        <h2 class="text-3xl font-black text-gray-900 dark:text-white">
+          Movies
+        </h2>
+        <p class="text-sm text-gray-500 dark:text-gray-400">Latest blockbusters and classics</p>
+      </div>
+    </div>
+    <a href="{% url 'home' %}" class="flex items-center space-x-2 text-primary-600 dark:text-primary-400 hover:underline font-semibold">
+      <span>View All</span>
+      <i class="fas fa-arrow-right"></i>
+    </a>
+  </div>
+
+  {# Featured Movies (Large Cards) #}
+  {% if featured_movies %}
+  <div class="mb-12">
+    <h3 class="text-xl font-bold mb-4 text-gray-800 dark:text-gray-200">
+      <i class="fas fa-star text-yellow-500 mr-2"></i>Featured Blockbusters
+    </h3>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+      {% for movie in featured_movies %}
+      <a href="{% url 'movies:movie_detail' movie.pk %}" class="app-card group">
+        <div class="relative rounded-2xl overflow-hidden bg-gray-200 dark:bg-gray-800 aspect-[2/3]">
+          <img src="{{ movie.image_url }}" 
+               alt="{{ movie.title }}"
+               class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+               loading="lazy" />
+          <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
+            <div class="absolute bottom-0 left-0 right-0 p-4">
+              <h4 class="text-white font-bold text-sm mb-1 line-clamp-2">{{ movie.title }}</h4>
+              <div class="flex items-center space-x-2 text-xs text-white/80">
+                <span><i class="fas fa-eye mr-1"></i>{{ movie.views|default:"0" }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  {# Trending Movies (Horizontal Scroll) #}
+  {% if trending_movies %}
+  <div class="mb-12">
+    <h3 class="text-xl font-bold mb-4 text-gray-800 dark:text-gray-200">
+      <i class="fas fa-fire text-red-500 mr-2"></i>Trending Now
+    </h3>
+    <div class="horizontal-scroll flex space-x-4 pb-4">
+      {% for movie in trending_movies %}
+      <a href="{% url 'movies:movie_detail' movie.pk %}" class="app-card flex-shrink-0 w-40 group">
+        <div class="relative rounded-xl overflow-hidden bg-gray-200 dark:bg-gray-800 aspect-[2/3] mb-2">
+          <img src="{{ movie.image_url }}" 
+               alt="{{ movie.title }}"
+               class="w-full h-full object-cover group-hover:scale-110 transition-transform"
+               loading="lazy" />
+        </div>
+        <h4 class="font-semibold text-sm text-gray-900 dark:text-white line-clamp-2 px-2">{{ movie.title }}</h4>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  {# Latest Movies (Grid) #}
+  {% if latest_movies %}
+  <div>
+    <h3 class="text-xl font-bold mb-4 text-gray-800 dark:text-gray-200">
+      <i class="fas fa-clock text-blue-500 mr-2"></i>Latest Releases
+    </h3>
+    <div class="grid grid-cols-3 md:grid-cols-6 gap-3">
+      {% for movie in latest_movies %}
+      <a href="{% url 'movies:movie_detail' movie.pk %}" class="app-card group">
+        <div class="relative rounded-xl overflow-hidden bg-gray-200 dark:bg-gray-800 aspect-[2/3] mb-2">
+          <img src="{{ movie.image_url }}" 
+               alt="{{ movie.title }}"
+               class="w-full h-full object-cover group-hover:scale-110 transition-transform"
+               loading="lazy" />
+        </div>
+        <h4 class="font-medium text-xs text-gray-900 dark:text-white line-clamp-2">{{ movie.title }}</h4>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+</section>

@@ -66,28 +66,26 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'movies',             # Our app
-    'anime',             # Our anime app
-    'manga',             # Our manga app
-    'main',             # Our main app
-    'django_crontab',  # 👈 Add this line 
-
+    
+    # Your apps (in this order)
+    'main',              # ⭐ Main unified homepage app
+    'movies',            # Movies app
+    'anime',             # Anime app
+    'manga',             # Manga app
+    'apk_store',         # APK Store app
+    
+    # Other apps
+    'django_crontab',
     'crispy_forms',
-    'crispy_bootstrap5',  # or another template pack like 'crispy_tailwind'
-
-    # site map apps
+    'crispy_bootstrap5',
     'django.contrib.sites',
     'django.contrib.sitemaps',
-
     'allauth',
     'allauth.account',
-
-    # Optional -- requires install using `django-allauth[socialaccount]`.
     'allauth.socialaccount',
-
     'allauth.socialaccount.providers.google',
-
 ]
+
 
 SITE_ID = 1
 
@@ -120,17 +118,25 @@ SOCIALACCOUNT_PROVIDERS = {
 }
 
 ROOT_URLCONF = 'master.urls'
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'movies' / 'templates'],  # Template directory
+        'DIRS': [
+            BASE_DIR / 'main' / 'templates',      # ⭐ Add this line
+            BASE_DIR / 'movies' / 'templates',
+            BASE_DIR / 'anime' / 'templates',     # Optional: if you have custom templates
+            BASE_DIR / 'manga' / 'templates',     # Optional: if you have custom templates
+            BASE_DIR / 'apk_store' / 'templates', # Optional: if you have custom templates
+        ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
+                'django.template.context_processors.debug',
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'movies.context_processors.categories_processor',  # ✅ Added this line
+                'movies.context_processors.categories_processor',  # Keep this
             ],
         },
     },
@@ -147,11 +153,12 @@ AUTHENTICATION_BACKENDS = [
 ]
 WSGI_APPLICATION = 'master.wsgi.application'
 
+
 PWA_SETTINGS = {
-    'name': 'Watch2D - Movies & Series',
+    'name': 'Watch2D - Movies, Anime, Manga & Apps',
     'short_name': 'Watch2D',
-    'description': 'Stream and download movies, series, anime, K-Dramas and more.',
-    'theme_color': '#0ea5e9',
+    'description': 'All entertainment in one place. Stream movies, watch anime, read manga, and download premium APKs.',
+    'theme_color': '#3b82f6',
     'background_color': '#ffffff',
     'display': 'standalone',
     'scope': '/',
@@ -170,7 +177,6 @@ PWA_SETTINGS = {
         }
     ]
 }
-
 
 # Security settings for PWA
 SECURE_REFERRER_POLICY = 'same-origin'
@@ -246,8 +252,22 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 # Optional: only if you also have extra static folders (e.g., in apps)
 STATICFILES_DIRS = [
-    BASE_DIR / 'movies' / 'static',  # this is fine
+    BASE_DIR / 'movies' / 'static',
+    BASE_DIR / 'main' / 'static',      # ⭐ Add this if you have static files in main
+    BASE_DIR / 'pwa_static',           # Keep this
 ]
+
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'watch2d-cache',
+        'OPTIONS': {
+            'MAX_ENTRIES': 1000
+        }
+    }
+}
+
 
 # PWA Caching headers
 CACHE_CONTROL_MAX_AGE = 31536000  # 1 year for static files

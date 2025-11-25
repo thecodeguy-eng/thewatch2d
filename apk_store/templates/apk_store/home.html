@@ -1,0 +1,153 @@
+{% extends 'apk_store/base.html' %}
+
+{% block title %}Home - APK Store{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="content-wrapper text-center">
+    <h1 class="display-4 mb-4">
+        <i class="fas fa-download"></i> Download Modded Games & Premium Apps
+    </h1>
+    <p class="lead mb-4">Get the latest MOD APKs, Premium Apps, and Unlocked Games for Free!</p>
+    
+    <div class="row justify-content-center mb-4">
+        <div class="col-md-3 col-6 mb-3">
+            <a href="{% url 'apk_store:games_list' %}" class="btn btn-lg btn-primary w-100">
+                <i class="fas fa-gamepad"></i><br>Games
+            </a>
+        </div>
+        <div class="col-md-3 col-6 mb-3">
+            <a href="{% url 'apk_store:apps_list' %}" class="btn btn-lg btn-info w-100">
+                <i class="fas fa-mobile"></i><br>Apps
+            </a>
+        </div>
+        <div class="col-md-3 col-6 mb-3">
+            <a href="{% url 'apk_store:apk_list' %}?status=modded" class="btn btn-lg btn-danger w-100">
+                <i class="fas fa-fire"></i><br>Modded
+            </a>
+        </div>
+        <div class="col-md-3 col-6 mb-3">
+            <a href="{% url 'apk_store:apk_list' %}?status=premium" class="btn btn-lg btn-warning w-100">
+                <i class="fas fa-crown"></i><br>Premium
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Featured APKs -->
+{% if featured_apks %}
+<div class="content-wrapper">
+    <h2 class="mb-4">
+        <i class="fas fa-star"></i> Featured APKs
+    </h2>
+    <div class="row">
+        {% for apk in featured_apks %}
+        <div class="col-lg-4 col-md-6 mb-4">
+            <div class="card apk-card">
+                <img src="{{ apk.icon_url }}" alt="{{ apk.title }}" onerror="this.src='https://via.placeholder.com/200x200?text=No+Image'">
+                <div class="card-body">
+                    <h5 class="card-title">{{ apk.title|truncatewords:5 }}</h5>
+                    <div class="mb-2">
+                        <span class="badge {% if apk.apk_type == 'game' %}badge-game{% else %}badge-app{% endif %}">
+                            {% if apk.apk_type == 'game' %}<i class="fas fa-gamepad"></i>{% else %}<i class="fas fa-mobile"></i>{% endif %}
+                            {{ apk.get_apk_type_display }}
+                        </span>
+                        <span class="badge badge-{{ apk.status }}">
+                            {{ apk.get_status_display }}
+                        </span>
+                    </div>
+                    <p class="card-text small">{{ apk.description|truncatewords:15 }}</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="text-muted small">
+                            <i class="fas fa-download"></i> {{ apk.version }}
+                        </span>
+                        <a href="{% url 'apk_store:apk_detail' apk.slug %}" class="btn btn-sm btn-primary">View</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+<!-- Latest Games -->
+<div class="content-wrapper">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>
+            <i class="fas fa-gamepad"></i> Latest Games
+        </h2>
+        <a href="{% url 'apk_store:games_list' %}" class="btn btn-outline-primary">
+            View All <i class="fas fa-arrow-right"></i>
+        </a>
+    </div>
+    <div class="row">
+        {% for game in latest_games %}
+        <div class="col-lg-2 col-md-3 col-sm-4 col-6 mb-4">
+            <div class="card apk-card">
+                <a href="{% url 'apk_store:apk_detail' game.slug %}">
+                    <img src="{{ game.icon_url }}" alt="{{ game.title }}" onerror="this.src='https://via.placeholder.com/200x200?text=No+Image'">
+                </a>
+                <div class="card-body p-2">
+                    <h6 class="card-title small mb-1">{{ game.title|truncatewords:3 }}</h6>
+                    <span class="badge badge-{{ game.status }} small">{{ game.get_status_display }}</span>
+                    <div class="mt-2">
+                        <a href="{% url 'apk_store:apk_detail' game.slug %}" class="btn btn-sm btn-primary w-100">
+                            <i class="fas fa-download"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Latest Apps -->
+<div class="content-wrapper">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>
+            <i class="fas fa-mobile"></i> Latest Apps
+        </h2>
+        <a href="{% url 'apk_store:apps_list' %}" class="btn btn-outline-info">
+            View All <i class="fas fa-arrow-right"></i>
+        </a>
+    </div>
+    <div class="row">
+        {% for app in latest_apps %}
+        <div class="col-lg-2 col-md-3 col-sm-4 col-6 mb-4">
+            <div class="card apk-card">
+                <a href="{% url 'apk_store:apk_detail' app.slug %}">
+                    <img src="{{ app.icon_url }}" alt="{{ app.title }}" onerror="this.src='https://via.placeholder.com/200x200?text=No+Image'">
+                </a>
+                <div class="card-body p-2">
+                    <h6 class="card-title small mb-1">{{ app.title|truncatewords:3 }}</h6>
+                    <span class="badge badge-{{ app.status }} small">{{ app.get_status_display }}</span>
+                    <div class="mt-2">
+                        <a href="{% url 'apk_store:apk_detail' app.slug %}" class="btn btn-sm btn-info w-100">
+                            <i class="fas fa-download"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Categories -->
+{% if categories %}
+<div class="content-wrapper text-center">
+    <h2 class="mb-4">
+        <i class="fas fa-folder"></i> Browse by Category
+    </h2>
+    <div>
+        {% for category in categories %}
+        <a href="{% url 'apk_store:category_detail' category.slug %}" class="category-badge">
+            {{ category.name }} ({{ category.apk_count }})
+        </a>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+{% endblock %}

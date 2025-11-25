@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en" class="h-full scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  {# SEO Meta Tags #}
+  <title>{% block title %}Watch2D - Movies, Anime, Manga & APK Downloads{% endblock %}</title>
+  <meta name="description" content="{% block meta_description %}Watch2D - Your ultimate entertainment hub. Stream movies, watch anime, read manga, and download premium APKs - all in one place!{% endblock %}" />
+  <meta name="keywords" content="{% block meta_keywords %}Watch2D, movies, anime, manga, APK downloads, entertainment, streaming{% endblock %}" />
+  
+  {# Favicon #}
+  <link rel="icon" type="image/png" href="{% static 'img/favicon.png' %}" />
+  
+  {# Tailwind CSS #}
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            primary: {
+              50: '#eff6ff', 100: '#dbeafe', 200: '#bfdbfe', 300: '#93c5fd',
+              400: '#60a5fa', 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8',
+              800: '#1e40af', 900: '#1e3a8a'
+            },
+            accent: {
+              50: '#fdf2f8', 100: '#fce7f3', 200: '#fbcfe8', 300: '#f9a8d4',
+              400: '#f472b6', 500: '#ec4899', 600: '#db2777', 700: '#be185d',
+              800: '#9d174d', 900: '#831843'
+            }
+          },
+          animation: {
+            'fade-in': 'fadeIn 0.6s ease-out',
+            'slide-up': 'slideUp 0.4s ease-out',
+            'slide-in': 'slideIn 0.5s ease-out',
+            'scale-in': 'scaleIn 0.3s ease-out',
+            'float': 'float 3s ease-in-out infinite',
+          },
+          keyframes: {
+            fadeIn: {
+              '0%': { opacity: '0', transform: 'translateY(20px)' },
+              '100%': { opacity: '1', transform: 'translateY(0)' }
+            },
+            slideUp: {
+              '0%': { transform: 'translateY(100%)' },
+              '100%': { transform: 'translateY(0)' }
+            },
+            slideIn: {
+              '0%': { transform: 'translateX(-100%)' },
+              '100%': { transform: 'translateX(0)' }
+            },
+            scaleIn: {
+              '0%': { transform: 'scale(0.9)', opacity: '0' },
+              '100%': { transform: 'scale(1)', opacity: '1' }
+            },
+            float: {
+              '0%, 100%': { transform: 'translateY(0)' },
+              '50%': { transform: 'translateY(-10px)' }
+            }
+          }
+        }
+      }
+    };
+  </script>
+  
+  {# Font Awesome #}
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  
+  {# Google Fonts #}
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    
+    .glass-effect {
+      backdrop-filter: blur(16px) saturate(180%);
+      background-color: rgba(255, 255, 255, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+    
+    .dark .glass-effect {
+      background-color: rgba(17, 25, 40, 0.75);
+      border: 1px solid rgba(255, 255, 255, 0.125);
+    }
+    
+    .app-card {
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .app-card:hover {
+      transform: translateY(-8px);
+    }
+    
+    .horizontal-scroll {
+      overflow-x: auto;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(59, 130, 246, 0.5) transparent;
+    }
+    
+    .horizontal-scroll::-webkit-scrollbar {
+      height: 6px;
+    }
+    
+    .horizontal-scroll::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    
+    .horizontal-scroll::-webkit-scrollbar-thumb {
+      background: rgba(59, 130, 246, 0.5);
+      border-radius: 3px;
+    }
+    
+    .horizontal-scroll::-webkit-scrollbar-thumb:hover {
+      background: rgba(59, 130, 246, 0.8);
+    }
+  </style>
+  
+  {% block extra_css %}{% endblock %}
+</head>
+
+<body class="bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-gray-900 dark:via-slate-900 dark:to-gray-800 text-gray-900 dark:text-gray-100">
+  
+  {# Top Navigation #}
+  <header class="sticky top-0 z-50 glass-effect shadow-lg">
+    <div class="container mx-auto px-4 lg:px-6">
+      <nav class="flex justify-between items-center py-4">
+        
+        {# Logo #}
+        <a href="{% url 'main:home' %}" class="flex items-center space-x-3 group">
+          <div class="relative">
+            <div class="w-12 h-12 bg-gradient-to-br from-primary-500 via-purple-500 to-accent-500 rounded-2xl flex items-center justify-center shadow-lg ring-2 ring-primary-500/20 group-hover:ring-primary-500/40 transition-all">
+              <span class="text-2xl font-black text-white">W2D</span>
+            </div>
+          </div>
+          <div>
+            <h1 class="text-2xl lg:text-3xl font-black bg-gradient-to-r from-primary-600 via-purple-600 to-accent-600 bg-clip-text text-transparent">
+              Watch2D
+            </h1>
+            <p class="text-xs text-gray-500 dark:text-gray-400 font-semibold">All Entertainment. One Place.</p>
+          </div>
+        </a>
+
+        {# Desktop Navigation #}
+        <div class="hidden lg:flex items-center space-x-6">
+          <a href="{% url 'home' %}" class="flex items-center space-x-2 px-4 py-2 rounded-xl hover:bg-white/50 dark:hover:bg-gray-700/50 transition-all">
+            <i class="fas fa-film text-blue-500"></i>
+            <span class="font-semibold">Movies</span>
+          </a>
+          <a href="{% url 'anime:list' %}" class="flex items-center space-x-2 px-4 py-2 rounded-xl hover:bg-white/50 dark:hover:bg-gray-700/50 transition-all">
+            <i class="fas fa-play-circle text-purple-500"></i>
+            <span class="font-semibold">Anime</span>
+          </a>
+          <a href="{% url 'manga:list' %}" class="flex items-center space-x-2 px-4 py-2 rounded-xl hover:bg-white/50 dark:hover:bg-gray-700/50 transition-all">
+            <i class="fas fa-book text-pink-500"></i>
+            <span class="font-semibold">Manga</span>
+          </a>
+          <a href="{% url 'apk_store:home' %}" class="flex items-center space-x-2 px-4 py-2 rounded-xl hover:bg-white/50 dark:hover:bg-gray-700/50 transition-all">
+            <i class="fas fa-mobile-alt text-green-500"></i>
+            <span class="font-semibold">APK Store</span>
+          </a>
+        </div>
+
+        {# Theme Toggle #}
+        <button id="theme-toggle" class="p-3 rounded-xl glass-effect hover:scale-110 transition-all">
+          <i class="fas fa-moon text-gray-600 dark:text-yellow-400"></i>
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  {# Main Content #}
+  <main class="min-h-screen">
+    {% block content %}{% endblock %}
+  </main>
+
+  {# Bottom Navigation (Mobile) #}
+  {% include 'main/components/bottom_nav.html' %}
+
+  {# Footer #}
+  <footer class="bg-gradient-to-r from-gray-900 via-slate-900 to-gray-900 text-white mt-20">
+    <div class="container mx-auto px-4 lg:px-6 py-12">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div class="md:col-span-2">
+          <h3 class="text-2xl font-bold mb-4 bg-gradient-to-r from-primary-400 to-accent-400 bg-clip-text text-transparent">
+            Watch2D
+          </h3>
+          <p class="text-gray-400 mb-4">
+            Your all-in-one entertainment platform. Stream movies, watch anime, read manga, and download premium APKs.
+          </p>
+          <div class="flex space-x-4">
+            <a href="https://t.me/watch2dchats" target="_blank" class="p-3 bg-sky-500 rounded-xl hover:bg-sky-600 transition-all">
+              <i class="fab fa-telegram-plane"></i>
+            </a>
+            <a href="https://whatsapp.com/channel/0029VavDAbsEFeXpbo2lEg3f" target="_blank" class="p-3 bg-green-500 rounded-xl hover:bg-green-600 transition-all">
+              <i class="fab fa-whatsapp"></i>
+            </a>
+          </div>
+        </div>
+        
+        <div>
+          <h4 class="font-bold mb-4">Quick Links</h4>
+          <ul class="space-y-2 text-sm text-gray-400">
+            <li><a href="{% url 'home' %}" class="hover:text-white transition-colors">Movies</a></li>
+            <li><a href="{% url 'anime:list' %}" class="hover:text-white transition-colors">Anime</a></li>
+            <li><a href="{% url 'manga:list' %}" class="hover:text-white transition-colors">Manga</a></li>
+            <li><a href="{% url 'apk_store:home' %}" class="hover:text-white transition-colors">APK Store</a></li>
+          </ul>
+        </div>
+      </div>
+      
+      <div class="border-t border-gray-700 mt-8 pt-8 text-center text-sm text-gray-400">
+        <p>&copy; 2024 Watch2D. All rights reserved. Made with ❤️ for entertainment lovers.</p>
+      </div>
+    </div>
+  </footer>
+
+  {# Scripts #}
+  <script>
+    // Theme Toggle
+    const themeToggle = document.getElementById('theme-toggle');
+    const html = document.documentElement;
+    
+    const currentTheme = localStorage.getItem('theme') || 'light';
+    if (currentTheme === 'dark') {
+      html.classList.add('dark');
+    }
+    
+    themeToggle?.addEventListener('click', () => {
+      html.classList.toggle('dark');
+      localStorage.setItem('theme', html.classList.contains('dark') ? 'dark' : 'light');
+    });
+  </script>
+  
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

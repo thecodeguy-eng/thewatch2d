@@ -1,0 +1,165 @@
+{% load static %}
+
+<section class="container mx-auto px-4 lg:px-6 py-12 bg-gradient-to-br from-green-50/50 to-emerald-50/50 dark:from-green-900/10 dark:to-emerald-900/10 rounded-3xl">
+  {# Section Header #}
+  <div class="flex items-center justify-between mb-8">
+    <div class="flex items-center space-x-4">
+      <div class="w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center">
+        <i class="fas fa-mobile-alt text-2xl text-white"></i>
+      </div>
+      <div>
+        <h2 class="text-3xl font-black text-gray-900 dark:text-white">
+          APK Store
+        </h2>
+        <p class="text-sm text-gray-500 dark:text-gray-400">Premium games & apps</p>
+      </div>
+    </div>
+    <a href="{% url 'apk_store:home' %}" class="flex items-center space-x-2 text-green-600 dark:text-green-400 hover:underline font-semibold">
+      <span>View All</span>
+      <i class="fas fa-arrow-right"></i>
+    </a>
+  </div>
+
+  {# Featured APKs (Large Cards) #}
+  {% if featured_apks %}
+  <div class="mb-12">
+    <h3 class="text-xl font-bold mb-4 text-gray-800 dark:text-gray-200">
+      <i class="fas fa-star text-yellow-500 mr-2"></i>Featured Apps
+    </h3>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+      {% for apk in featured_apks %}
+      <a href="{% url 'apk_store:apk_detail' apk.slug %}" class="app-card group">
+        <div class="relative glass-effect rounded-2xl p-4">
+          <div class="w-full aspect-square rounded-xl overflow-hidden bg-gray-200 dark:bg-gray-800 mb-3">
+            {% if apk.icon_url %}
+            <img src="{{ apk.icon_url }}" 
+                 alt="{{ apk.title }}"
+                 class="w-full h-full object-cover group-hover:scale-110 transition-transform"
+                 loading="lazy" />
+            {% else %}
+            <div class="w-full h-full bg-gradient-to-br from-green-400 to-emerald-400 flex items-center justify-center">
+              <i class="fas fa-android text-white text-4xl opacity-50"></i>
+            </div>
+            {% endif %}
+          </div>
+          
+          <div class="absolute top-6 right-6">
+            <span class="px-2 py-1 {% if apk.apk_type == 'game' %}bg-blue-500{% else %}bg-purple-500{% endif %} text-white text-xs font-bold rounded-lg">
+              {{ apk.get_apk_type_display }}
+            </span>
+          </div>
+          
+          <h4 class="font-bold text-sm text-gray-900 dark:text-white mb-1 line-clamp-2">
+            {{ apk.title }}
+          </h4>
+          
+          <div class="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
+            <span class="flex items-center">
+              <i class="fas fa-download mr-1"></i>
+              {{ apk.downloads_count|default:"1M+" }}
+            </span>
+            {% if apk.rating %}
+            <span class="flex items-center">
+              <i class="fas fa-star mr-1 text-yellow-500"></i>
+              {{ apk.rating }}
+            </span>
+            {% endif %}
+          </div>
+          
+          <div class="mt-2">
+            <span class="px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 text-xs font-semibold rounded-lg">
+              {{ apk.get_status_display }}
+            </span>
+          </div>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  {# Latest Games & Apps (Two Columns) #}
+  <div class="grid md:grid-cols-2 gap-8">
+    {# Latest Games #}
+    {% if latest_games %}
+    <div>
+      <h3 class="text-lg font-bold mb-4 text-gray-800 dark:text-gray-200 flex items-center">
+        <i class="fas fa-gamepad text-blue-500 mr-2"></i>
+        Latest Games
+      </h3>
+      <div class="space-y-3">
+        {% for game in latest_games|slice:":6" %}
+        <a href="{% url 'apk_store:apk_detail' game.slug %}" class="app-card flex items-center space-x-3 glass-effect rounded-xl p-3 group">
+          <div class="w-16 h-16 rounded-xl overflow-hidden bg-gray-200 dark:bg-gray-800 flex-shrink-0">
+            {% if game.icon_url %}
+            <img src="{{ game.icon_url }}" 
+                 alt="{{ game.title }}"
+                 class="w-full h-full object-cover group-hover:scale-110 transition-transform"
+                 loading="lazy" />
+            {% else %}
+            <div class="w-full h-full bg-gradient-to-br from-blue-400 to-indigo-400 flex items-center justify-center">
+              <i class="fas fa-gamepad text-white text-xl"></i>
+            </div>
+            {% endif %}
+          </div>
+          <div class="flex-1 min-w-0">
+            <h4 class="font-semibold text-sm text-gray-900 dark:text-white truncate">
+              {{ game.title }}
+            </h4>
+            <div class="flex items-center space-x-2 text-xs text-gray-500 dark:text-gray-400 mt-1">
+              <span>{{ game.size|default:"Varies" }}</span>
+              <span>•</span>
+              <span class="px-1.5 py-0.5 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded">
+                {{ game.get_status_display }}
+              </span>
+            </div>
+          </div>
+          <i class="fas fa-download text-green-500 group-hover:scale-110 transition-transform"></i>
+        </a>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
+    {# Latest Apps #}
+    {% if latest_apps %}
+    <div>
+      <h3 class="text-lg font-bold mb-4 text-gray-800 dark:text-gray-200 flex items-center">
+        <i class="fas fa-mobile text-purple-500 mr-2"></i>
+        Latest Apps
+      </h3>
+      <div class="space-y-3">
+        {% for app in latest_apps|slice:":6" %}
+        <a href="{% url 'apk_store:apk_detail' app.slug %}" class="app-card flex items-center space-x-3 glass-effect rounded-xl p-3 group">
+          <div class="w-16 h-16 rounded-xl overflow-hidden bg-gray-200 dark:bg-gray-800 flex-shrink-0">
+            {% if app.icon_url %}
+            <img src="{{ app.icon_url }}" 
+                 alt="{{ app.title }}"
+                 class="w-full h-full object-cover group-hover:scale-110 transition-transform"
+                 loading="lazy" />
+            {% else %}
+            <div class="w-full h-full bg-gradient-to-br from-purple-400 to-pink-400 flex items-center justify-center">
+              <i class="fas fa-mobile text-white text-xl"></i>
+            </div>
+            {% endif %}
+          </div>
+          <div class="flex-1 min-w-0">
+            <h4 class="font-semibold text-sm text-gray-900 dark:text-white truncate">
+              {{ app.title }}
+            </h4>
+            <div class="flex items-center space-x-2 text-xs text-gray-500 dark:text-gray-400 mt-1">
+              <span>{{ app.size|default:"Varies" }}</span>
+              <span>•</span>
+              <span class="px-1.5 py-0.5 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 rounded">
+                {{ app.get_status_display }}
+              </span>
+            </div>
+          </div>
+          <i class="fas fa-download text-green-500 group-hover:scale-110 transition-transform"></i>
+        </a>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</section>

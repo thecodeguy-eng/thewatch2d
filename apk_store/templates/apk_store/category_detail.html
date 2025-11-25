@@ -1,0 +1,136 @@
+{% extends 'apk_store/base.html' %}
+
+{% block title %}{{ category.name }} - APK Store{% endblock %}
+
+{% block content %}
+<div class="content-wrapper">
+    <!-- Category Header -->
+    <div class="text-center mb-4 p-4 bg-gradient rounded" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+        <h1 class="text-white mb-2">
+            {% if category.icon %}
+            <i class="{{ category.icon }}"></i>
+            {% else %}
+            <i class="fas fa-folder"></i>
+            {% endif %}
+            {{ category.name }}
+        </h1>
+        {% if category.description %}
+        <p class="text-white-50 mb-0">{{ category.description }}</p>
+        {% endif %}
+        <span class="badge bg-light text-dark mt-2">{{ page_obj.paginator.count }} APKs</span>
+    </div>
+
+    <!-- Back Button -->
+    <div class="mb-3">
+        <a href="{% url 'apk_store:home' %}" class="btn btn-outline-secondary btn-sm">
+            <i class="fas fa-arrow-left"></i> Back to Home
+        </a>
+    </div>
+
+    <!-- Filters -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="filter-section p-3 bg-light rounded">
+                <form method="get" class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold">Type</label>
+                        <select name="type" class="form-select" onchange="this.form.submit()">
+                            <option value="all" {% if current_type == 'all' %}selected{% endif %}>All Types</option>
+                            <option value="game" {% if current_type == 'game' %}selected{% endif %}>
+                                <i class="fas fa-gamepad"></i> Games
+                            </option>
+                            <option value="app" {% if current_type == 'app' %}selected{% endif %}>
+                                <i class="fas fa-mobile"></i> Apps
+                            </option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold">Sort By</label>
+                        <select name="order" class="form-select" onchange="this.form.submit()">
+                            <option value="-created_at">Latest</option>
+                            <option value="title">Name (A-Z)</option>
+                            <option value="-rating">Highest Rated</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- APKs Grid -->
+    {% if apks %}
+    <div class="row">
+        {% for apk in apks %}
+        <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+            <div class="card apk-card">
+                <a href="{% url 'apk_store:apk_detail' apk.slug %}">
+                    <img src="{{ apk.icon_url }}" alt="{{ apk.title }}" onerror="this.src='https://via.placeholder.com/200x200?text=No+Image'">
+                </a>
+                <div class="card-body">
+                    <h6 class="card-title mb-2">{{ apk.title|truncatewords:4 }}</h6>
+                    <div class="mb-2">
+                        <span class="badge {% if apk.apk_type == 'game' %}badge-game{% else %}badge-app{% endif %} small">
+                            {% if apk.apk_type == 'game' %}<i class="fas fa-gamepad"></i>{% else %}<i class="fas fa-mobile"></i>{% endif %}
+                            {{ apk.get_apk_type_display }}
+                        </span>
+                        <span class="badge badge-{{ apk.status }} small">
+                            {{ apk.get_status_display }}
+                        </span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <small class="text-muted">
+                            <i class="fas fa-box"></i> {{ apk.version|default:"N/A" }}
+                        </small>
+                        {% if apk.rating %}
+                        <small class="text-warning">
+                            <i class="fas fa-star"></i> {{ apk.rating }}
+                        </small>
+                        {% endif %}
+                    </div>
+                    <a href="{% url 'apk_store:apk_detail' apk.slug %}" class="btn btn-sm btn-primary w-100 mt-2">
+                        <i class="fas fa-eye"></i> View Details
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if page_obj.has_other_pages %}
+    <nav aria-label="Page navigation">
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if current_type != 'all' %}&type={{ current_type }}{% endif %}">
+                    <i class="fas fa-chevron-left"></i>
+                </a>
+            </li>
+            {% endif %}
+
+            <li class="page-item active">
+                <span class="page-link">{{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+            </li>
+
+            {% if page_obj.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if current_type != 'all' %}&type={{ current_type }}{% endif %}">
+                    <i class="fas fa-chevron-right"></i>
+                </a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+    {% else %}
+    <div class="text-center py-5">
+        <i class="fas fa-inbox fa-4x text-muted mb-3"></i>
+        <h4 class="text-muted">No APKs Found in This Category</h4>
+        <p>Check back later for new additions!</p>
+        <a href="{% url 'apk_store:home' %}" class="btn btn-primary">
+            <i class="fas fa-home"></i> Back to Home
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

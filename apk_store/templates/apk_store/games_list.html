@@ -1,0 +1,130 @@
+{% extends 'apk_store/base.html' %}
+
+{% block title %}Games - APK Store{% endblock %}
+
+{% block content %}
+<div class="content-wrapper">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>
+            <i class="fas fa-gamepad"></i> Games
+        </h2>
+        <span class="badge bg-primary">{{ page_obj.paginator.count }} Games</span>
+    </div>
+
+    <!-- Filters -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="filter-section p-3 bg-light rounded">
+                <form method="get" class="row g-3">
+                    <div class="col-md-4">
+                        <label class="form-label small fw-bold">Status</label>
+                        <select name="status" class="form-select" onchange="this.form.submit()">
+                            <option value="">All Status</option>
+                            <option value="modded" {% if current_status == 'modded' %}selected{% endif %}>Modded</option>
+                            <option value="premium" {% if current_status == 'premium' %}selected{% endif %}>Premium</option>
+                            <option value="pro" {% if current_status == 'pro' %}selected{% endif %}>Pro</option>
+                            <option value="unlocked" {% if current_status == 'unlocked' %}selected{% endif %}>Unlocked</option>
+                            <option value="paid" {% if current_status == 'paid' %}selected{% endif %}>Paid</option>
+                            <option value="original" {% if current_status == 'original' %}selected{% endif %}>Original</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label small fw-bold">Category</label>
+                        <select name="category" class="form-select" onchange="this.form.submit()">
+                            <option value="">All Categories</option>
+                            {% for category in categories %}
+                            <option value="{{ category.slug }}" {% if current_category == category.slug %}selected{% endif %}>
+                                {{ category.name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label small fw-bold">Sort By</label>
+                        <select name="order" class="form-select" onchange="this.form.submit()">
+                            <option value="-created_at">Latest</option>
+                            <option value="title">Name (A-Z)</option>
+                            <option value="-rating">Highest Rated</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Games Grid -->
+    {% if games %}
+    <div class="row">
+        {% for game in games %}
+        <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+            <div class="card apk-card">
+                <a href="{% url 'apk_store:apk_detail' game.slug %}">
+                    <img src="{{ game.icon_url }}" alt="{{ game.title }}" onerror="this.src='https://via.placeholder.com/200x200?text=No+Image'">
+                </a>
+                <div class="card-body">
+                    <h6 class="card-title mb-2">{{ game.title|truncatewords:4 }}</h6>
+                    <div class="mb-2">
+                        <span class="badge badge-game small">
+                            <i class="fas fa-gamepad"></i> Game
+                        </span>
+                        <span class="badge badge-{{ game.status }} small">
+                            {{ game.get_status_display }}
+                        </span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <small class="text-muted">
+                            <i class="fas fa-box"></i> {{ game.version|default:"N/A" }}
+                        </small>
+                        {% if game.rating %}
+                        <small class="text-warning">
+                            <i class="fas fa-star"></i> {{ game.rating }}
+                        </small>
+                        {% endif %}
+                    </div>
+                    <a href="{% url 'apk_store:apk_detail' game.slug %}" class="btn btn-sm btn-primary w-100 mt-2">
+                        <i class="fas fa-download"></i> Download
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if page_obj.has_other_pages %}
+    <nav aria-label="Page navigation">
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if current_status %}&status={{ current_status }}{% endif %}{% if current_category %}&category={{ current_category }}{% endif %}{% if query %}&q={{ query }}{% endif %}">
+                    <i class="fas fa-chevron-left"></i>
+                </a>
+            </li>
+            {% endif %}
+
+            <li class="page-item active">
+                <span class="page-link">{{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+            </li>
+
+            {% if page_obj.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if current_status %}&status={{ current_status }}{% endif %}{% if current_category %}&category={{ current_category }}{% endif %}{% if query %}&q={{ query }}{% endif %}">
+                    <i class="fas fa-chevron-right"></i>
+                </a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+    {% else %}
+    <div class="text-center py-5">
+        <i class="fas fa-gamepad fa-4x text-muted mb-3"></i>
+        <h4 class="text-muted">No Games Found</h4>
+        <p>Try adjusting your filters or search terms.</p>
+        <a href="{% url 'apk_store:games_list' %}" class="btn btn-primary">
+            <i class="fas fa-redo"></i> Clear Filters
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

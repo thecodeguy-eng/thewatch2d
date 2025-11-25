@@ -1,0 +1,233 @@
+{% extends 'apk_store/base.html' %}
+
+{% block title %}{{ apk.title }} - APK Store{% endblock %}
+
+{% block content %}
+<div class="content-wrapper">
+    <!-- Back Button -->
+    <div class="mb-3">
+        <a href="javascript:history.back()" class="btn btn-outline-secondary btn-sm">
+            <i class="fas fa-arrow-left"></i> Back
+        </a>
+    </div>
+
+    <div class="row">
+        <!-- Left Column - App Icon and Quick Info -->
+        <div class="col-md-4 mb-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body text-center">
+                    <img src="{{ apk.icon_url }}" alt="{{ apk.title }}" class="img-fluid rounded mb-3" style="max-width: 200px;" onerror="this.src='https://via.placeholder.com/200x200?text=No+Image'">
+                    
+                    <h3 class="mb-3">{{ apk.title }}</h3>
+                    
+                    <div class="mb-3">
+                        <span class="badge {% if apk.apk_type == 'game' %}badge-game{% else %}badge-app{% endif %} fs-6">
+                            {% if apk.apk_type == 'game' %}<i class="fas fa-gamepad"></i>{% else %}<i class="fas fa-mobile"></i>{% endif %}
+                            {{ apk.get_apk_type_display }}
+                        </span>
+                        <span class="badge badge-{{ apk.status }} fs-6">
+                            {{ apk.get_status_display }}
+                        </span>
+                    </div>
+
+                    {% if apk.rating %}
+                    <div class="mb-3">
+                        <div class="text-warning fs-4">
+                            <i class="fas fa-star"></i> {{ apk.rating }}
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <a href="{{ apk.download_url }}" class="btn btn-success download-btn w-100 mb-2" target="_blank">
+                        <i class="fas fa-download"></i> Download APK
+                    </a>
+
+                    <!-- Quick Stats -->
+                    <div class="mt-4 text-start">
+                        <div class="d-flex justify-content-between py-2 border-bottom">
+                            <span class="text-muted"><i class="fas fa-code-branch"></i> Version</span>
+                            <strong>{{ apk.version|default:"N/A" }}</strong>
+                        </div>
+                        <div class="d-flex justify-content-between py-2 border-bottom">
+                            <span class="text-muted"><i class="fas fa-hdd"></i> Size</span>
+                            <strong>{{ apk.size|default:"N/A" }}</strong>
+                        </div>
+                        <div class="d-flex justify-content-between py-2 border-bottom">
+                            <span class="text-muted"><i class="fas fa-android"></i> Android</span>
+                            <strong>{{ apk.android_version|default:"4.0+" }}</strong>
+                        </div>
+                        {% if apk.downloads_count %}
+                        <div class="d-flex justify-content-between py-2 border-bottom">
+                            <span class="text-muted"><i class="fas fa-download"></i> Downloads</span>
+                            <strong>{{ apk.downloads_count }}</strong>
+                        </div>
+                        {% endif %}
+                        {% if apk.architecture %}
+                        <div class="d-flex justify-content-between py-2">
+                            <span class="text-muted"><i class="fas fa-microchip"></i> Architecture</span>
+                            <strong>{{ apk.architecture }}</strong>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Categories -->
+            {% if apk.categories.all %}
+            <div class="card border-0 shadow-sm mt-3">
+                <div class="card-body">
+                    <h6 class="card-title mb-3"><i class="fas fa-folder"></i> Categories</h6>
+                    {% for category in apk.categories.all %}
+                    <a href="{% url 'apk_store:category_detail' category.slug %}" class="badge bg-primary me-1 mb-1 text-decoration-none">
+                        {{ category.name }}
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Right Column - Details -->
+        <div class="col-md-8">
+            <!-- Cover Image -->
+            {% if apk.cover_image_url %}
+            <div class="mb-4">
+                <img src="{{ apk.cover_image_url }}" alt="{{ apk.title }} cover" class="img-fluid rounded shadow-sm" onerror="this.style.display='none'">
+            </div>
+            {% endif %}
+
+            <!-- Description -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body">
+                    <h4 class="card-title mb-3"><i class="fas fa-info-circle"></i> Description</h4>
+                    <p class="card-text" style="white-space: pre-line;">{{ apk.description|default:"No description available." }}</p>
+                </div>
+            </div>
+
+            <!-- Mod Features -->
+            {% if apk.mod_features %}
+            <div class="card border-0 shadow-sm mb-4 bg-danger bg-opacity-10">
+                <div class="card-body">
+                    <h4 class="card-title mb-3 text-danger"><i class="fas fa-magic"></i> MOD Features</h4>
+                    <div class="mod-features" style="white-space: pre-line;">{{ apk.mod_features }}</div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Screenshots -->
+            {% if apk.screenshots.all %}
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body">
+                    <h4 class="card-title mb-3"><i class="fas fa-images"></i> Screenshots</h4>
+                    <div class="row">
+                        {% for screenshot in apk.screenshots.all %}
+                        <div class="col-md-4 col-sm-6 mb-3">
+                            <img src="{{ screenshot.image_url }}" alt="Screenshot" class="img-fluid rounded shadow-sm" data-bs-toggle="modal" data-bs-target="#screenshotModal{{ forloop.counter }}" style="cursor: pointer;">
+                            
+                            <!-- Modal for Screenshot -->
+                            <div class="modal fade" id="screenshotModal{{ forloop.counter }}" tabindex="-1">
+                                <div class="modal-dialog modal-lg modal-dialog-centered">
+                                    <div class="modal-content">
+                                        <div class="modal-body p-0">
+                                            <img src="{{ screenshot.image_url }}" alt="Screenshot" class="img-fluid">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Version History -->
+            {% if apk.versions.all %}
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body">
+                    <h4 class="card-title mb-3"><i class="fas fa-history"></i> Version History</h4>
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Version</th>
+                                    <th>Size</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for version in apk.versions.all %}
+                                <tr>
+                                    <td>
+                                        <strong>{{ version.version }}</strong>
+                                        {% if version.is_latest %}
+                                        <span class="badge bg-success small">Latest</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ version.size|default:"N/A" }}</td>
+                                    <td>
+                                        {% if version.release_date %}
+                                        <small class="text-muted">{{ version.release_date }}</small>
+                                        {% else %}
+                                        <small class="text-muted">{{ version.created_at|date:"M d, Y" }}</small>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <a href="{{ version.download_url }}" class="btn btn-sm btn-outline-success" target="_blank">
+                                            <i class="fas fa-download"></i> Download
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Additional Info -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body">
+                    <h4 class="card-title mb-3"><i class="fas fa-clipboard-list"></i> Additional Information</h4>
+                    {% if apk.package_name %}
+                    <p><strong>Package Name:</strong> <code>{{ apk.package_name }}</code></p>
+                    {% endif %}
+                    {% if apk.source_url %}
+                    <p><strong>Source:</strong> <a href="{{ apk.source_url }}" target="_blank">View Original Page</a></p>
+                    {% endif %}
+                    <p><strong>Last Updated:</strong> {{ apk.updated_at|date:"F d, Y" }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Related APKs -->
+    {% if related_apks %}
+    <div class="mt-5">
+        <h3 class="mb-4"><i class="fas fa-layer-group"></i> Related APKs</h3>
+        <div class="row">
+            {% for related in related_apks %}
+            <div class="col-lg-2 col-md-3 col-sm-4 col-6 mb-4">
+                <div class="card apk-card">
+                    <a href="{% url 'apk_store:apk_detail' related.slug %}">
+                        <img src="{{ related.icon_url }}" alt="{{ related.title }}" onerror="this.src='https://via.placeholder.com/200x200?text=No+Image'">
+                    </a>
+                    <div class="card-body p-2">
+                        <h6 class="card-title small mb-1">{{ related.title|truncatewords:3 }}</h6>
+                        <span class="badge badge-{{ related.status }} small">{{ related.get_status_display }}</span>
+                        <div class="mt-2">
+                            <a href="{% url 'apk_store:apk_detail' related.slug %}" class="btn btn-sm btn-primary w-100">
+                                View
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

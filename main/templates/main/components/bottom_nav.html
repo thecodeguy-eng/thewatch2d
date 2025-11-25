@@ -1,0 +1,59 @@
+{% load static %}
+
+{# Mobile Bottom Navigation - Only visible on small screens #}
+<nav class="lg:hidden fixed bottom-0 left-0 right-0 z-50 glass-effect border-t border-gray-200/50 dark:border-gray-700/50 shadow-lg">
+  <div class="flex items-center justify-around py-2">
+    
+    {# Movies #}
+    <a href="{% url 'home' %}" class="flex flex-col items-center space-y-1 px-4 py-2 rounded-xl transition-all {% if 'movies' in request.path %}bg-blue-100 dark:bg-blue-900/30{% else %}hover:bg-gray-100 dark:hover:bg-gray-800/50{% endif %}">
+      <div class="w-8 h-8 flex items-center justify-center">
+        <i class="fas fa-film text-xl {% if 'movies' in request.path or request.path == '/' %}text-blue-600 dark:text-blue-400{% else %}text-gray-600 dark:text-gray-400{% endif %}"></i>
+      </div>
+      <span class="text-xs font-semibold {% if 'movies' in request.path or request.path == '/' %}text-blue-600 dark:text-blue-400{% else %}text-gray-600 dark:text-gray-400{% endif %}">
+        Movies
+      </span>
+    </a>
+    
+    {# Anime #}
+    <a href="{% url 'anime:list' %}" class="flex flex-col items-center space-y-1 px-4 py-2 rounded-xl transition-all {% if 'anime' in request.path %}bg-purple-100 dark:bg-purple-900/30{% else %}hover:bg-gray-100 dark:hover:bg-gray-800/50{% endif %}">
+      <div class="w-8 h-8 flex items-center justify-center">
+        <i class="fas fa-play-circle text-xl {% if 'anime' in request.path %}text-purple-600 dark:text-purple-400{% else %}text-gray-600 dark:text-gray-400{% endif %}"></i>
+      </div>
+      <span class="text-xs font-semibold {% if 'anime' in request.path %}text-purple-600 dark:text-purple-400{% else %}text-gray-600 dark:text-gray-400{% endif %}">
+        Anime
+      </span>
+    </a>
+    
+    {# Home (Center) #}
+    <a href="{% url 'main:home' %}" class="flex flex-col items-center -mt-8">
+      <div class="w-16 h-16 bg-gradient-to-br from-primary-500 via-purple-500 to-accent-500 rounded-full flex items-center justify-center shadow-xl hover:scale-110 transition-transform">
+        <i class="fas fa-home text-2xl text-white"></i>
+      </div>
+      <span class="text-xs font-semibold text-gray-600 dark:text-gray-400 mt-2">Home</span>
+    </a>
+    
+    {# Manga #}
+    <a href="{% url 'manga:list' %}" class="flex flex-col items-center space-y-1 px-4 py-2 rounded-xl transition-all {% if 'manga' in request.path %}bg-pink-100 dark:bg-pink-900/30{% else %}hover:bg-gray-100 dark:hover:bg-gray-800/50{% endif %}">
+      <div class="w-8 h-8 flex items-center justify-center">
+        <i class="fas fa-book text-xl {% if 'manga' in request.path %}text-pink-600 dark:text-pink-400{% else %}text-gray-600 dark:text-gray-400{% endif %}"></i>
+      </div>
+      <span class="text-xs font-semibold {% if 'manga' in request.path %}text-pink-600 dark:text-pink-400{% else %}text-gray-600 dark:text-gray-400{% endif %}">
+        Manga
+      </span>
+    </a>
+    
+    {# APK Store #}
+    <a href="{% url 'apk_store:home' %}" class="flex flex-col items-center space-y-1 px-4 py-2 rounded-xl transition-all {% if 'apk' in request.path %}bg-green-100 dark:bg-green-900/30{% else %}hover:bg-gray-100 dark:hover:bg-gray-800/50{% endif %}">
+      <div class="w-8 h-8 flex items-center justify-center">
+        <i class="fas fa-mobile-alt text-xl {% if 'apk' in request.path %}text-green-600 dark:text-green-400{% else %}text-gray-600 dark:text-gray-400{% endif %}"></i>
+      </div>
+      <span class="text-xs font-semibold {% if 'apk' in request.path %}text-green-600 dark:text-green-400{% else %}text-gray-600 dark:text-gray-400{% endif %}">
+        Apps
+      </span>
+    </a>
+    
+  </div>
+</nav>
+
+{# Add padding to body on mobile to prevent content being hidden behind nav #}
+<div class="lg:hidden h-20"></div>
