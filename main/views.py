@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.views.generic import TemplateView
-from django.db.models import Q
+from django.db.models import Q, Prefetch
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
 
@@ -11,13 +11,13 @@ from manga.models import Manga, Chapter
 from apk_store.models import APK, Category as APKCategory
 
 
-@method_decorator(cache_page(60 * 30), name='dispatch')  # Cache for 30 minutes
+# @method_decorator(cache_page(60 * 30), name='dispatch')  # Cache for 30 minutes
 class UnifiedHomeView(TemplateView):
     """
     Unified homepage combining content from all apps:
     - Movies (featured, trending, latest)
-    - Anime (popular, recent episodes)
-    - Manga (trending, new chapters)
+    - Anime (latest anime with their episodes)
+    - Manga (latest manga with their chapters)
     - APK Store (featured games & apps)
     """
     template_name = 'main/home.html'
@@ -26,7 +26,6 @@ class UnifiedHomeView(TemplateView):
         context = super().get_context_data(**kwargs)
         
         # ========== MOVIES SECTION ==========
-        # Remove is_active=True since Movie model doesn't have this field
         context['featured_movies'] = Movie.objects.filter(
             is_blockbuster=True
         ).select_related().prefetch_related('categories').order_by('-created_at')[:8]
@@ -42,16 +41,43 @@ class UnifiedHomeView(TemplateView):
         context['movie_categories'] = MovieCategory.objects.all()[:6]
         
         
-        # ========== ANIME SECTION ==========
-        context['featured_anime'] = Anime.objects.filter(
+        # ========== ANIME SECTION (Latest Anime with Episodes) ==========
+        # Try featured first, fallback to latest if no featured
+        featured_anime = Anime.objects.filter(
             is_active=True,
             is_featured=True
-        ).select_related('category').prefetch_related('genres').order_by('-views')[:8]
+        ).prefetch_related(
+            Prefetch(
+                'episodes',
+                queryset=Episode.objects.filter(is_active=True).order_by('-episode_number')[:5],
+                to_attr='latest_episodes_list'
+            )
+        ).select_related('category').prefetch_related('genres').order_by('-created_at')[:3]
+        
+        # If no featured anime, get latest ones
+        if not featured_anime.exists():
+            featured_anime = Anime.objects.filter(
+                is_active=True
+            ).prefetch_related(
+                Prefetch(
+                    'episodes',
+                    queryset=Episode.objects.filter(is_active=True).order_by('-episode_number')[:5],
+                    to_attr='latest_episodes_list'
+                )
+            ).select_related('category').prefetch_related('genres').order_by('-created_at')[:3]
+        
+        context['featured_anime'] = featured_anime
         
         context['trending_anime'] = Anime.objects.filter(
             is_active=True,
             is_trending=True
         ).order_by('-views')[:12]
+        
+        # Fallback to latest if no trending
+        if not context['trending_anime'].exists():
+            context['trending_anime'] = Anime.objects.filter(
+                is_active=True
+            ).order_by('-created_at')[:12]
         
         context['latest_episodes'] = Episode.objects.filter(
             is_active=True,
@@ -59,16 +85,43 @@ class UnifiedHomeView(TemplateView):
         ).select_related('anime', 'anime__category').order_by('-created_at')[:12]
         
         
-        # ========== MANGA SECTION ==========
-        context['featured_manga'] = Manga.objects.filter(
+        # ========== MANGA SECTION (Latest Manga with Chapters) ==========
+        # Try featured first, fallback to latest if no featured
+        featured_manga = Manga.objects.filter(
             is_active=True,
             is_featured=True
-        ).select_related('category').prefetch_related('genres').order_by('-views')[:8]
+        ).prefetch_related(
+            Prefetch(
+                'chapters',
+                queryset=Chapter.objects.filter(is_active=True).order_by('-chapter_number')[:5],
+                to_attr='latest_chapters_list'
+            )
+        ).select_related('category').prefetch_related('genres').order_by('-created_at')[:3]
+        
+        # If no featured manga, get latest ones
+        if not featured_manga.exists():
+            featured_manga = Manga.objects.filter(
+                is_active=True
+            ).prefetch_related(
+                Prefetch(
+                    'chapters',
+                    queryset=Chapter.objects.filter(is_active=True).order_by('-chapter_number')[:5],
+                    to_attr='latest_chapters_list'
+                )
+            ).select_related('category').prefetch_related('genres').order_by('-created_at')[:3]
+        
+        context['featured_manga'] = featured_manga
         
         context['trending_manga'] = Manga.objects.filter(
             is_active=True,
             is_trending=True
         ).order_by('-views')[:12]
+        
+        # Fallback to latest if no trending
+        if not context['trending_manga'].exists():
+            context['trending_manga'] = Manga.objects.filter(
+                is_active=True
+            ).order_by('-created_at')[:12]
         
         context['latest_chapters'] = Chapter.objects.filter(
             is_active=True,
@@ -81,6 +134,12 @@ class UnifiedHomeView(TemplateView):
             is_active=True,
             featured=True
         ).prefetch_related('categories', 'screenshots').order_by('-created_at')[:8]
+        
+        # Fallback if no featured APKs
+        if not context['featured_apks'].exists():
+            context['featured_apks'] = APK.objects.filter(
+                is_active=True
+            ).prefetch_related('categories', 'screenshots').order_by('-created_at')[:8]
         
         context['latest_games'] = APK.objects.filter(
             is_active=True,

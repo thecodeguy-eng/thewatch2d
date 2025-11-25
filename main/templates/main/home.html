@@ -3,76 +3,72 @@
 
 {% block content %}
 
-{# Hero Section #}
-<section class="relative overflow-hidden py-20 bg-gradient-to-br from-primary-500 via-purple-500 to-accent-500">
-  <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4xIj48cGF0aCBkPSJNMzYgMzRjMC0yIDItMiAyLTJzMiAwIDIgMi0yIDItMiAyLTItMi0yLTJ6Ii8+PC9nPjwvZz48L3N2Zz4=')] opacity-20"></div>
-  
-  <div class="container mx-auto px-4 lg:px-6 relative z-10">
-    <div class="text-center mb-12 animate-fade-in">
-      <h2 class="text-5xl lg:text-7xl font-black text-white mb-6">
-        All Entertainment.<br/>
-        <span class="bg-gradient-to-r from-yellow-300 to-orange-300 bg-clip-text text-transparent">One Platform.</span>
-      </h2>
-      <p class="text-xl lg:text-2xl text-white/90 font-medium mb-8 max-w-3xl mx-auto">
-        Stream movies, watch anime, read manga, and download premium APKs - all in one place!
+{# Hero Section - Modern & Minimalist #}
+<section class="relative overflow-hidden bg-gradient-to-br from-white via-blue-50/30 to-purple-50/30 dark:from-gray-900 dark:via-blue-900/10 dark:to-purple-900/10">
+  <div class="container mx-auto px-4 lg:px-8 py-16 lg:py-24">
+    <div class="max-w-4xl mx-auto text-center">
+      <h1 class="text-4xl lg:text-6xl font-black text-gray-900 dark:text-white mb-4 tracking-tight">
+        Your Entertainment
+        <span class="block text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600">
+          All in One Place
+        </span>
+      </h1>
+      <p class="text-lg lg:text-xl text-gray-600 dark:text-gray-300 mb-12 font-medium">
+        Movies, Anime, Manga & Premium APKs
       </p>
-      
-      {# Stats Grid #}
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto">
-        <div class="glass-effect rounded-2xl p-6 animate-scale-in" style="animation-delay: 0.1s">
-          <div class="text-3xl font-black text-white mb-2">{{ total_movies|default:"1000+" }}</div>
-          <div class="text-sm text-white/80 font-semibold">Movies</div>
-        </div>
-        <div class="glass-effect rounded-2xl p-6 animate-scale-in" style="animation-delay: 0.2s">
-          <div class="text-3xl font-black text-white mb-2">{{ total_anime|default:"500+" }}</div>
-          <div class="text-sm text-white/80 font-semibold">Anime Series</div>
-        </div>
-        <div class="glass-effect rounded-2xl p-6 animate-scale-in" style="animation-delay: 0.3s">
-          <div class="text-3xl font-black text-white mb-2">{{ total_manga|default:"300+" }}</div>
-          <div class="text-sm text-white/80 font-semibold">Manga Titles</div>
-        </div>
-        <div class="glass-effect rounded-2xl p-6 animate-scale-in" style="animation-delay: 0.4s">
-          <div class="text-3xl font-black text-white mb-2">{{ total_apks|default:"200+" }}</div>
-          <div class="text-sm text-white/80 font-semibold">Premium APKs</div>
-        </div>
-      </div>
     </div>
   </div>
 </section>
 
-{# Quick Access Cards #}
-<section class="container mx-auto px-4 lg:px-6 -mt-16 mb-12 relative z-20">
-  <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-    <a href="{% url 'home' %}" class="app-card glass-effect rounded-2xl p-6 text-center group">
-      <div class="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
-        <i class="fas fa-film text-3xl text-white"></i>
+{# Quick Navigation Cards - Play Store Style #}
+<section class="container mx-auto px-4 lg:px-8 py-1">
+  <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
+    <a href="{% url 'home' %}" 
+       class="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 p-6 lg:p-8 hover:shadow-2xl hover:scale-105 transition-all duration-300">
+      <div class="relative z-10">
+        <div class="w-12 h-12 lg:w-14 lg:h-14 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+          <i class="fas fa-film text-2xl lg:text-3xl text-white"></i>
+        </div>
+        <h3 class="text-white font-bold text-base lg:text-lg mb-1">Movies</h3>
+        <p class="text-white/80 text-xs lg:text-sm">Stream HD movies</p>
       </div>
-      <h3 class="font-bold text-lg mb-1">Movies</h3>
-      <p class="text-sm text-gray-500 dark:text-gray-400">Latest Releases</p>
+      <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16"></div>
     </a>
     
-    <a href="{% url 'anime:list' %}" class="app-card glass-effect rounded-2xl p-6 text-center group">
-      <div class="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
-        <i class="fas fa-play-circle text-3xl text-white"></i>
+    <a href="{% url 'anime:list' %}" 
+       class="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-purple-500 to-purple-600 p-6 lg:p-8 hover:shadow-2xl hover:scale-105 transition-all duration-300">
+      <div class="relative z-10">
+        <div class="w-12 h-12 lg:w-14 lg:h-14 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+          <i class="fas fa-play-circle text-2xl lg:text-3xl text-white"></i>
+        </div>
+        <h3 class="text-white font-bold text-base lg:text-lg mb-1">Anime</h3>
+        <p class="text-white/80 text-xs lg:text-sm">Watch latest episodes</p>
       </div>
-      <h3 class="font-bold text-lg mb-1">Anime</h3>
-      <p class="text-sm text-gray-500 dark:text-gray-400">Stream Now</p>
+      <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16"></div>
     </a>
     
-    <a href="{% url 'manga:list' %}" class="app-card glass-effect rounded-2xl p-6 text-center group">
-      <div class="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-pink-500 to-pink-600 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
-        <i class="fas fa-book text-3xl text-white"></i>
+    <a href="{% url 'manga:list' %}" 
+       class="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-pink-500 to-pink-600 p-6 lg:p-8 hover:shadow-2xl hover:scale-105 transition-all duration-300">
+      <div class="relative z-10">
+        <div class="w-12 h-12 lg:w-14 lg:h-14 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+          <i class="fas fa-book text-2xl lg:text-3xl text-white"></i>
+        </div>
+        <h3 class="text-white font-bold text-base lg:text-lg mb-1">Manga</h3>
+        <p class="text-white/80 text-xs lg:text-sm">Read online</p>
       </div>
-      <h3 class="font-bold text-lg mb-1">Manga</h3>
-      <p class="text-sm text-gray-500 dark:text-gray-400">Read Online</p>
+      <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16"></div>
     </a>
     
-    <a href="{% url 'apk_store:home' %}" class="app-card glass-effect rounded-2xl p-6 text-center group">
-      <div class="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
-        <i class="fas fa-mobile-alt text-3xl text-white"></i>
+    <a href="{% url 'apk_store:home' %}" 
+       class="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-green-500 to-green-600 p-6 lg:p-8 hover:shadow-2xl hover:scale-105 transition-all duration-300">
+      <div class="relative z-10">
+        <div class="w-12 h-12 lg:w-14 lg:h-14 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+          <i class="fas fa-mobile-alt text-2xl lg:text-3xl text-white"></i>
+        </div>
+        <h3 class="text-white font-bold text-base lg:text-lg mb-1">APK Store</h3>
+        <p class="text-white/80 text-xs lg:text-sm">Premium apps</p>
       </div>
-      <h3 class="font-bold text-lg mb-1">APK Store</h3>
-      <p class="text-sm text-gray-500 dark:text-gray-400">Download Apps</p>
+      <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16"></div>
     </a>
   </div>
 </section>
@@ -88,29 +84,4 @@
 
 {# APK Store Section #}
 {% include 'main/components/apk_section.html' %}
-
-{# Social Call-to-Action #}
-<section class="container mx-auto px-4 lg:px-6 py-16">
-  <div class="glass-effect rounded-3xl p-8 lg:p-12 text-center bg-gradient-to-r from-primary-500/10 to-accent-500/10">
-    <h3 class="text-3xl lg:text-4xl font-black mb-4">
-      Join Our Community 🚀
-    </h3>
-    <p class="text-lg text-gray-600 dark:text-gray-300 mb-8 max-w-2xl mx-auto">
-      Get instant updates on new releases, exclusive content, and connect with fellow entertainment enthusiasts!
-    </p>
-    <div class="flex flex-col sm:flex-row gap-4 justify-center">
-      <a href="https://t.me/watch2dchats" target="_blank" 
-         class="inline-flex items-center justify-center px-8 py-4 bg-gradient-to-r from-sky-500 to-blue-600 text-white font-bold rounded-2xl hover:scale-105 transition-transform shadow-xl">
-        <i class="fab fa-telegram-plane mr-3 text-xl"></i>
-        Join Telegram
-      </a>
-      <a href="https://whatsapp.com/channel/0029VavDAbsEFeXpbo2lEg3f" target="_blank"
-         class="inline-flex items-center justify-center px-8 py-4 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold rounded-2xl hover:scale-105 transition-transform shadow-xl">
-        <i class="fab fa-whatsapp mr-3 text-xl"></i>
-        Join WhatsApp
-      </a>
-    </div>
-  </div>
-</section>
-
 {% endblock %}

@@ -1,103 +1,140 @@
 {% load static %}
 
-<section class="container mx-auto px-4 lg:px-6 py-12">
+<section class="container mx-auto px-4 lg:px-8 py-12">
   {# Section Header #}
-  <div class="flex items-center justify-between mb-8">
-    <div class="flex items-center space-x-4">
-      <div class="w-12 h-12 bg-gradient-to-br from-pink-500 to-pink-600 rounded-xl flex items-center justify-center">
-        <i class="fas fa-book text-2xl text-white"></i>
-      </div>
-      <div>
-        <h2 class="text-3xl font-black text-gray-900 dark:text-white">
-          Manga
-        </h2>
-        <p class="text-sm text-gray-500 dark:text-gray-400">Read online for free</p>
-      </div>
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <h2 class="text-2xl lg:text-3xl font-black text-gray-900 dark:text-white flex items-center gap-3">
+        <span class="w-1.5 h-8 bg-gradient-to-b from-pink-500 to-pink-600 rounded-full"></span>
+        Manga
+      </h2>
+      <p class="text-sm text-gray-500 dark:text-gray-400 ml-5 mt-1">Read the latest chapters</p>
     </div>
-    <a href="{% url 'manga:list' %}" class="flex items-center space-x-2 text-pink-600 dark:text-pink-400 hover:underline font-semibold">
-      <span>View All</span>
-      <i class="fas fa-arrow-right"></i>
+    <a href="{% url 'manga:list' %}" 
+       class="flex items-center gap-2 text-pink-600 dark:text-pink-400 hover:gap-3 transition-all font-semibold text-sm">
+      <span>See all</span>
+      <i class="fas fa-arrow-right text-xs"></i>
     </a>
   </div>
 
-  {# Featured Manga #}
+  {# Latest Manga Added #}
   {% if featured_manga %}
-  <div class="mb-12">
-    <h3 class="text-xl font-bold mb-4 text-gray-800 dark:text-gray-200">
-      <i class="fas fa-fire text-orange-500 mr-2"></i>Trending Manga
-    </h3>
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-      {% for manga in featured_manga %}
-      <a href="{% url 'manga:detail' manga.slug %}" class="app-card group">
-        <div class="relative rounded-2xl overflow-hidden bg-gray-200 dark:bg-gray-800 aspect-[2/3]">
-          {% if manga.cover_url %}
-          <img src="{{ manga.cover_url }}" 
-               alt="{{ manga.title }}"
-               class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-               loading="lazy" />
-          {% else %}
-          <div class="w-full h-full bg-gradient-to-br from-pink-400 to-rose-400 flex items-center justify-center">
-            <i class="fas fa-book-open text-white text-4xl opacity-50"></i>
-          </div>
-          {% endif %}
-          <div class="absolute top-2 right-2">
-            <span class="px-2 py-1 bg-pink-500 text-white text-xs font-bold rounded-lg">
-              {{ manga.manga_type|upper }}
-            </span>
-          </div>
-          <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
-            <div class="absolute bottom-0 left-0 right-0 p-4">
-              <h4 class="text-white font-bold text-sm mb-1 line-clamp-2">{{ manga.title }}</h4>
-              <div class="flex items-center space-x-2 text-xs text-white/80">
-                <span><i class="fas fa-eye mr-1"></i>{{ manga.views|default:"0" }}</span>
-                {% if manga.rating %}
-                <span><i class="fas fa-star mr-1 text-yellow-400"></i>{{ manga.rating }}</span>
-                {% endif %}
-              </div>
+  <div class="space-y-6 mb-8">
+    {% for manga in featured_manga %}
+    <div class="bg-white dark:bg-gray-800 rounded-3xl p-5 lg:p-6 shadow-lg hover:shadow-xl transition-shadow">
+      {# Manga Header #}
+      <div class="flex items-start gap-4 mb-5">
+        <a href="{% url 'manga:detail' manga.slug %}" class="group flex-shrink-0">
+          <div class="relative w-24 lg:w-32 aspect-[2/3] rounded-2xl overflow-hidden bg-gray-200 dark:bg-gray-700 shadow-md">
+            {% if manga.cover_url %}
+            <img src="{{ manga.cover_url }}" 
+                 alt="{{ manga.title }}"
+                 class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                 loading="lazy" />
+            {% else %}
+            <div class="w-full h-full bg-gradient-to-br from-pink-400 to-rose-400 flex items-center justify-center">
+              <i class="fas fa-book-open text-white text-3xl opacity-50"></i>
+            </div>
+            {% endif %}
+            <div class="absolute top-2 right-2">
+              <span class="px-2 py-1 bg-pink-500 text-white text-xs font-bold rounded-lg shadow-lg">
+                {{ manga.manga_type|upper }}
+              </span>
             </div>
           </div>
+        </a>
+        
+        <div class="flex-1 min-w-0">
+          <a href="{% url 'manga:detail' manga.slug %}" class="group block">
+            <h3 class="text-lg lg:text-xl font-bold text-gray-900 dark:text-white mb-2 line-clamp-2 group-hover:text-pink-600 dark:group-hover:text-pink-400 transition-colors">
+              {{ manga.title }}
+            </h3>
+          </a>
+          <div class="flex flex-wrap items-center gap-3 mb-3">
+            <span class="inline-flex items-center gap-1.5 text-xs text-gray-600 dark:text-gray-400">
+              <i class="fas fa-eye"></i>
+              {{ manga.views|default:"0" }}
+            </span>
+            {% if manga.rating %}
+            <span class="inline-flex items-center gap-1.5 px-2 py-1 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300 rounded-full text-xs font-semibold">
+              <i class="fas fa-star"></i>
+              {{ manga.rating }}
+            </span>
+            {% endif %}
+            <span class="inline-flex items-center gap-1.5 px-2 py-1 bg-pink-100 dark:bg-pink-900/30 text-pink-700 dark:text-pink-300 rounded-full text-xs font-semibold">
+              <i class="fas fa-book-reader"></i>
+              {{ manga.total_chapters|default:"?" }} CH
+            </span>
+            <span class="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full text-xs font-semibold">
+              {{ manga.status|capfirst }}
+            </span>
+          </div>
+          <p class="text-sm text-gray-600 dark:text-gray-300 line-clamp-2 lg:line-clamp-3">
+            {{ manga.description|truncatewords:25|default:"Dive into this captivating manga with beautiful artwork and an engaging story!" }}
+          </p>
         </div>
-      </a>
-      {% endfor %}
+      </div>
     </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="text-center py-16">
+    <div class="w-20 h-20 bg-pink-100 dark:bg-pink-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+      <i class="fas fa-book text-3xl text-pink-500"></i>
+    </div>
+    <p class="text-gray-500 dark:text-gray-400 font-medium">No manga available yet</p>
+    <p class="text-sm text-gray-400 dark:text-gray-500 mt-1">Check back soon for new content!</p>
   </div>
   {% endif %}
 
-  {# Latest Chapters (Horizontal Scroll) #}
-  {% if latest_chapters %}
+  {# Trending Manga - Horizontal Scroll #}
+  {% if trending_manga %}
   <div>
-    <h3 class="text-xl font-bold mb-4 text-gray-800 dark:text-gray-200">
-      <i class="fas fa-book-reader text-pink-500 mr-2"></i>Latest Chapters
+    <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+      <i class="fas fa-fire text-orange-500"></i>
+      Trending Manga
     </h3>
-    <div class="horizontal-scroll flex space-x-4 pb-4">
-      {% for chapter in latest_chapters %}
-      <a href="{{ chapter.get_absolute_url }}" class="app-card flex-shrink-0 w-40 group">
-        <div class="relative rounded-xl overflow-hidden bg-gray-200 dark:bg-gray-800 aspect-[2/3] mb-2">
-          {% if chapter.manga.cover_url %}
-          <img src="{{ chapter.manga.cover_url }}" 
-               alt="{{ chapter.manga.title }}"
-               class="w-full h-full object-cover group-hover:scale-110 transition-transform"
-               loading="lazy" />
-          {% else %}
-          <div class="w-full h-full bg-gradient-to-br from-pink-400 to-rose-400 flex items-center justify-center">
-            <i class="fas fa-book text-white text-3xl opacity-50"></i>
+    <div class="relative">
+      <div class="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide">
+        {% for manga in trending_manga %}
+        <a href="{% url 'manga:detail' manga.slug %}" 
+           class="group flex-shrink-0 w-32 lg:w-36 snap-start">
+          <div class="relative aspect-[2/3] rounded-2xl overflow-hidden bg-gray-200 dark:bg-gray-700 mb-3 shadow-lg group-hover:shadow-2xl transition-shadow">
+            {% if manga.cover_url %}
+            <img src="{{ manga.cover_url }}" 
+                 alt="{{ manga.title }}"
+                 class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                 loading="lazy" />
+            {% else %}
+            <div class="w-full h-full bg-gradient-to-br from-pink-400 to-rose-400 flex items-center justify-center">
+              <i class="fas fa-book text-white text-2xl opacity-50"></i>
+            </div>
+            {% endif %}
+            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
+              <div class="absolute bottom-0 left-0 right-0 p-3">
+                <div class="w-10 h-10 mx-auto bg-white rounded-full flex items-center justify-center">
+                  <i class="fas fa-book-open text-pink-600"></i>
+                </div>
+              </div>
+            </div>
           </div>
-          {% endif %}
-          <div class="absolute top-2 left-2">
-            <span class="px-2 py-1 bg-pink-500 text-white text-xs font-bold rounded-lg">
-              Ch {{ chapter.chapter_number }}
-            </span>
-          </div>
-        </div>
-        <h4 class="font-semibold text-xs text-gray-900 dark:text-white line-clamp-2 px-2 mb-1">
-          {{ chapter.manga.title }}
-        </h4>
-        <p class="text-xs text-gray-500 dark:text-gray-400 px-2">
-          Chapter {{ chapter.chapter_number }}
-        </p>
-      </a>
-      {% endfor %}
+          <h4 class="font-semibold text-xs lg:text-sm text-gray-900 dark:text-white line-clamp-2 group-hover:text-pink-600 dark:group-hover:text-pink-400 transition-colors">
+            {{ manga.title }}
+          </h4>
+        </a>
+        {% endfor %}
+      </div>
     </div>
   </div>
   {% endif %}
 </section>
+
+<style>
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+</style>
