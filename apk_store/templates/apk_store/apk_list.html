@@ -1,15 +1,7 @@
 {% extends 'apk_store/base.html' %}
 {% load static %}
 
-{% block title %}
-  {% if request.resolver_match.url_name == 'games_list' %}
-    Games - APK Store
-  {% elif request.resolver_match.url_name == 'apps_list' %}
-    Apps - APK Store
-  {% else %}
-    All APKs - APK Store
-  {% endif %}
-{% endblock %}
+{% block title %}All APKs - Download Games & Apps | Watch2D{% endblock %}
 
 {% block content %}
 <div class="container mx-auto px-4 lg:px-8 py-8">
@@ -18,16 +10,10 @@
     <div>
       <h1 class="text-3xl lg:text-4xl font-black text-gray-900 dark:text-white flex items-center gap-3">
         <span class="w-1.5 h-10 bg-gradient-to-b from-green-500 to-green-600 rounded-full"></span>
-        {% if request.resolver_match.url_name == 'games_list' %}
-          <i class="fas fa-gamepad text-purple-500"></i> Games
-        {% elif request.resolver_match.url_name == 'apps_list' %}
-          <i class="fas fa-mobile text-blue-500"></i> Apps
-        {% else %}
-          <i class="fas fa-list text-green-500"></i> All APKs
-        {% endif %}
+        <i class="fas fa-list text-green-500"></i> All APKs
       </h1>
       <p class="text-gray-500 dark:text-gray-400 ml-5 mt-2">
-        {% if page_obj %}{{ page_obj.paginator.count }}{% else %}{{ apks.count|default:games.count|default:apps.count }}{% endif %} items available
+        {{ page_obj.paginator.count }} items available
       </p>
     </div>
   </div>
@@ -35,26 +21,24 @@
   {# Filters #}
   <div class="bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-lg mb-8">
     <form method="get" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-      {% if request.resolver_match.url_name == 'apk_list' %}
       <div>
         <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">
           <i class="fas fa-filter"></i> Type
         </label>
         <select name="type" onchange="this.form.submit()" 
-                class="w-full px-4 py-3 bg-gray-50 dark:bg-gray-900 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:border-green-500 dark:focus:border-green-400 focus:outline-none transition-colors">
+                class="w-full px-4 py-3 bg-gray-50 dark:bg-gray-900 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:border-green-500 dark:focus:border-green-400 focus:outline-none transition-colors text-gray-900 dark:text-white">
           <option value="all" {% if current_type == 'all' %}selected{% endif %}>All Types</option>
           <option value="game" {% if current_type == 'game' %}selected{% endif %}>Games</option>
           <option value="app" {% if current_type == 'app' %}selected{% endif %}>Apps</option>
         </select>
       </div>
-      {% endif %}
 
       <div>
         <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">
           <i class="fas fa-tag"></i> Status
         </label>
         <select name="status" onchange="this.form.submit()"
-                class="w-full px-4 py-3 bg-gray-50 dark:bg-gray-900 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:border-green-500 dark:focus:border-green-400 focus:outline-none transition-colors">
+                class="w-full px-4 py-3 bg-gray-50 dark:bg-gray-900 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:border-green-500 dark:focus:border-green-400 focus:outline-none transition-colors text-gray-900 dark:text-white">
           <option value="">All Status</option>
           <option value="modded" {% if current_status == 'modded' %}selected{% endif %}>Modded</option>
           <option value="premium" {% if current_status == 'premium' %}selected{% endif %}>Premium</option>
@@ -70,7 +54,7 @@
           <i class="fas fa-folder"></i> Category
         </label>
         <select name="category" onchange="this.form.submit()"
-                class="w-full px-4 py-3 bg-gray-50 dark:bg-gray-900 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:border-green-500 dark:focus:border-green-400 focus:outline-none transition-colors">
+                class="w-full px-4 py-3 bg-gray-50 dark:bg-gray-900 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:border-green-500 dark:focus:border-green-400 focus:outline-none transition-colors text-gray-900 dark:text-white">
           <option value="">All Categories</option>
           {% for category in categories %}
           <option value="{{ category.slug }}" {% if current_category == category.slug %}selected{% endif %}>
@@ -85,7 +69,7 @@
           <i class="fas fa-sort"></i> Sort By
         </label>
         <select name="order" onchange="this.form.submit()"
-                class="w-full px-4 py-3 bg-gray-50 dark:bg-gray-900 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:border-green-500 dark:focus:border-green-400 focus:outline-none transition-colors">
+                class="w-full px-4 py-3 bg-gray-50 dark:bg-gray-900 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:border-green-500 dark:focus:border-green-400 focus:outline-none transition-colors text-gray-900 dark:text-white">
           <option value="-created_at">Latest</option>
           <option value="title">Name (A-Z)</option>
           <option value="-rating">Highest Rated</option>
@@ -95,16 +79,16 @@
   </div>
 
   {# APK Grid #}
-  {% if apks or games or apps %}
+  {% if apks %}
   <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 lg:gap-6">
-    {% for apk in apks|default:games|default:apps %}
-    <a href="{% url 'apk_store:apk_detail' apk.slug %}" class="apk-card group bg-white dark:bg-gray-800 rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl transition-all">
+    {% for apk in apks %}
+    <a href="{% url 'apk_store:apk_detail' apk.slug %}" class="group bg-white dark:bg-gray-800 rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl transition-all transform hover:-translate-y-2">
       <div class="relative aspect-square bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-900/20 dark:to-emerald-900/20">
         <img src="{{ apk.icon_url }}" 
              alt="{{ apk.title }}"
              onerror="this.src='https://via.placeholder.com/300x300?text=APK'"
              class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
-        <div class="absolute top-3 right-3 flex gap-2">
+        <div class="absolute top-3 right-3">
           <span class="px-2 py-1 bg-{% if apk.apk_type == 'game' %}purple{% else %}blue{% endif %}-500 text-white text-xs font-bold rounded-lg shadow-lg">
             {% if apk.apk_type == 'game' %}<i class="fas fa-gamepad"></i>{% else %}<i class="fas fa-mobile"></i>{% endif %}
           </span>
@@ -139,8 +123,8 @@
   {% if page_obj.has_other_pages %}
   <div class="flex justify-center items-center gap-2 mt-12">
     {% if page_obj.has_previous %}
-    <a href="?page={{ page_obj.previous_page_number }}{% if current_type and current_type != 'all' %}&type={{ current_type }}{% endif %}{% if current_status %}&status={{ current_status }}{% endif %}{% if current_category %}&category={{ current_category }}{% endif %}"
-       class="px-4 py-2 bg-white dark:bg-gray-800 rounded-xl hover:bg-green-500 hover:text-white dark:hover:bg-green-500 transition-all shadow-md">
+    <a href="?page={{ page_obj.previous_page_number }}{% if current_type != 'all' %}&type={{ current_type }}{% endif %}{% if current_status %}&status={{ current_status }}{% endif %}{% if current_category %}&category={{ current_category }}{% endif %}"
+       class="px-4 py-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-xl hover:bg-green-500 hover:text-white transition-all shadow-md">
       <i class="fas fa-chevron-left"></i>
     </a>
     {% endif %}
@@ -150,8 +134,8 @@
     </div>
 
     {% if page_obj.has_next %}
-    <a href="?page={{ page_obj.next_page_number }}{% if current_type and current_type != 'all' %}&type={{ current_type }}{% endif %}{% if current_status %}&status={{ current_status }}{% endif %}{% if current_category %}&category={{ current_category }}{% endif %}"
-       class="px-4 py-2 bg-white dark:bg-gray-800 rounded-xl hover:bg-green-500 hover:text-white dark:hover:bg-green-500 transition-all shadow-md">
+    <a href="?page={{ page_obj.next_page_number }}{% if current_type != 'all' %}&type={{ current_type }}{% endif %}{% if current_status %}&status={{ current_status }}{% endif %}{% if current_category %}&category={{ current_category }}{% endif %}"
+       class="px-4 py-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-xl hover:bg-green-500 hover:text-white transition-all shadow-md">
       <i class="fas fa-chevron-right"></i>
     </a>
     {% endif %}
@@ -166,10 +150,10 @@
     </div>
     <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">No APKs Found</h3>
     <p class="text-gray-500 dark:text-gray-400 mb-6">Try adjusting your filters or search terms</p>
-    <a href="{% url 'apk_store:home' %}" 
+    <a href="{% url 'apk_store:apk_list' %}" 
        class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-500 text-white font-bold rounded-xl hover:shadow-lg transition-all">
-      <i class="fas fa-home"></i>
-      <span>Back to Home</span>
+      <i class="fas fa-redo"></i>
+      <span>Clear Filters</span>
     </a>
   </div>
   {% endif %}
