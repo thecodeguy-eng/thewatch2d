@@ -145,7 +145,7 @@
 
         {# Desktop Navigation #}
         <div class="hidden lg:flex items-center space-x-6">
-          <a href="{% url 'home' %}" class="flex items-center space-x-2 px-4 py-2 rounded-xl hover:bg-white/50 dark:hover:bg-gray-700/50 transition-all">
+          <a href="{% url 'movies:home' %}" class="flex items-center space-x-2 px-4 py-2 rounded-xl hover:bg-white/50 dark:hover:bg-gray-700/50 transition-all">
             <i class="fas fa-film text-blue-500"></i>
             <span class="font-semibold">Movies</span>
           </a>
@@ -203,7 +203,7 @@
         <div>
           <h4 class="font-bold mb-4">Quick Links</h4>
           <ul class="space-y-2 text-sm text-gray-400">
-            <li><a href="{% url 'home' %}" class="hover:text-white transition-colors">Movies</a></li>
+            <li><a href="{% url 'movies:home' %}" class="hover:text-white transition-colors">Movies</a></li>
             <li><a href="{% url 'anime:list' %}" class="hover:text-white transition-colors">Anime</a></li>
             <li><a href="{% url 'manga:list' %}" class="hover:text-white transition-colors">Manga</a></li>
             <li><a href="{% url 'apk_store:home' %}" class="hover:text-white transition-colors">APK Store</a></li>

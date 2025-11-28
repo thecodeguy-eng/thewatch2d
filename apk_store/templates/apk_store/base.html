@@ -1,547 +1,238 @@
 <!DOCTYPE html>
-<html lang="en">
+{% load static %}
+<html lang="en" class="h-full scroll-smooth">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}APK Store - Download Modded Games & Apps{% endblock %}</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  {# SEO Meta Tags #}
+  <title>{% block title %}APK Store - Download Modded Games & Premium Apps | Watch2D{% endblock %}</title>
+  <meta name="description" content="{% block meta_description %}Download premium modded APKs, games, and apps for free. Watch2D APK Store - Your source for MOD APKs and unlocked games.{% endblock %}" />
+  
+  {# Favicon #}
+  <link rel="icon" type="image/png" href="{% static 'img/favicon.png' %}" />
+  
+  {# Tailwind CSS #}
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            primary: {
+              50: '#eff6ff', 100: '#dbeafe', 200: '#bfdbfe', 300: '#93c5fd',
+              400: '#60a5fa', 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8',
+              800: '#1e40af', 900: '#1e3a8a'
+            },
+            accent: {
+              50: '#fdf2f8', 100: '#fce7f3', 200: '#fbcfe8', 300: '#f9a8d4',
+              400: '#f472b6', 500: '#ec4899', 600: '#db2777', 700: '#be185d',
+              800: '#9d174d', 900: '#831843'
+            }
+          },
+          animation: {
+            'fade-in': 'fadeIn 0.6s ease-out',
+            'slide-up': 'slideUp 0.4s ease-out',
+            'scale-in': 'scaleIn 0.3s ease-out',
+          },
+          keyframes: {
+            fadeIn: {
+              '0%': { opacity: '0', transform: 'translateY(20px)' },
+              '100%': { opacity: '1', transform: 'translateY(0)' }
+            },
+            slideUp: {
+              '0%': { transform: 'translateY(100%)' },
+              '100%': { transform: 'translateY(0)' }
+            },
+            scaleIn: {
+              '0%': { transform: 'scale(0.9)', opacity: '0' },
+              '100%': { transform: 'scale(1)', opacity: '1' }
+            }
+          }
+        }
+      }
+    };
+  </script>
+  
+  {# Font Awesome #}
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  
+  {# Google Fonts #}
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  
+  <style>
+    body { font-family: 'Inter', sans-serif; }
     
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    .glass-effect {
+      backdrop-filter: blur(16px) saturate(180%);
+      background-color: rgba(255, 255, 255, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+    }
     
-    <style>
-        :root {
-            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            --success-gradient: linear-gradient(135deg, #00b894 0%, #00cec9 100%);
-            --dark-bg: #1a1a2e;
-            --card-bg: #ffffff;
-            --shadow-sm: 0 2px 8px rgba(0,0,0,0.08);
-            --shadow-md: 0 4px 16px rgba(0,0,0,0.12);
-            --shadow-lg: 0 8px 32px rgba(0,0,0,0.16);
-        }
-        
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: 'Poppins', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            position: relative;
-        }
-        
-        /* Animated Background */
-        body::before {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: 
-                radial-gradient(circle at 20% 50%, rgba(102, 126, 234, 0.2) 0%, transparent 50%),
-                radial-gradient(circle at 80% 80%, rgba(118, 75, 162, 0.2) 0%, transparent 50%);
-            pointer-events: none;
-            z-index: 0;
-        }
-        
-        .container {
-            position: relative;
-            z-index: 1;
-        }
-        
-        /* Navbar */
-        .navbar {
-            background: rgba(255, 255, 255, 0.98) !important;
-            backdrop-filter: blur(20px);
-            box-shadow: var(--shadow-md);
-            padding: 1rem 0;
-            transition: all 0.3s ease;
-        }
-        
-        .navbar-brand {
-            font-weight: 700;
-            font-size: 1.6rem;
-            background: var(--primary-gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            transition: all 0.3s ease;
-        }
-        
-        .navbar-brand:hover {
-            transform: scale(1.05);
-        }
-        
-        .navbar-brand i {
-            background: var(--primary-gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-        
-        .nav-link {
-            font-weight: 500;
-            color: #2d3436 !important;
-            margin: 0 0.5rem;
-            padding: 0.5rem 1rem !important;
-            border-radius: 10px;
-            transition: all 0.3s ease;
-            position: relative;
-        }
-        
-        .nav-link:hover {
-            background: rgba(102, 126, 234, 0.1);
-            color: #667eea !important;
-            transform: translateY(-2px);
-        }
-        
-        .nav-link i {
-            margin-right: 0.3rem;
-        }
-        
-        /* Search Box */
-        .search-box {
-            border-radius: 25px;
-            border: 2px solid #e0e0e0;
-            padding: 0.6rem 1.2rem;
-            transition: all 0.3s ease;
-        }
-        
-        .search-box:focus {
-            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
-            border-color: #667eea;
-            transform: translateY(-2px);
-        }
-        
-        .btn-outline-primary {
-            border-radius: 50%;
-            width: 45px;
-            height: 45px;
-            padding: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border: 2px solid #667eea;
-            transition: all 0.3s ease;
-        }
-        
-        .btn-outline-primary:hover {
-            background: var(--primary-gradient);
-            transform: scale(1.1);
-        }
-        
-        /* Content Wrapper */
-        .content-wrapper {
-            background: rgba(255, 255, 255, 0.98);
-            border-radius: 25px;
-            padding: 2.5rem;
-            margin: 2rem 0;
-            box-shadow: var(--shadow-lg);
-            backdrop-filter: blur(10px);
-            animation: fadeInUp 0.6s ease;
-        }
-        
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
-        /* APK Cards */
-        .apk-card {
-            border: none;
-            border-radius: 20px;
-            overflow: hidden;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            box-shadow: var(--shadow-sm);
-            height: 100%;
-            background: white;
-            position: relative;
-        }
-        
-        .apk-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: var(--primary-gradient);
-            opacity: 0;
-            transition: opacity 0.3s ease;
-            z-index: 0;
-        }
-        
-        .apk-card:hover {
-            transform: translateY(-15px) scale(1.02);
-            box-shadow: var(--shadow-lg);
-        }
-        
-        .apk-card:hover::before {
-            opacity: 0.03;
-        }
-        
-        .apk-card img {
-            width: 100%;
-            height: 200px;
-            object-fit: cover;
-            transition: transform 0.4s ease;
-        }
-        
-        .apk-card:hover img {
-            transform: scale(1.1);
-        }
-        
-        .apk-card .card-body {
-            position: relative;
-            z-index: 1;
-        }
-        
-        /* Badges */
-        .badge {
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
-            font-weight: 500;
-            font-size: 0.75rem;
-            letter-spacing: 0.3px;
-        }
-        
-        .badge-game {
-            background: var(--primary-gradient);
-        }
-        
-        .badge-app {
-            background: var(--secondary-gradient);
-        }
-        
-        .badge-modded { 
-            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
-        }
-        .badge-premium { 
-            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
-        }
-        .badge-pro { 
-            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
-        }
-        .badge-unlocked { 
-            background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
-        }
-        .badge-paid { 
-            background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
-        }
-        .badge-original { 
-            background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%);
-        }
-        
-        /* Buttons */
-        .btn {
-            border-radius: 12px;
-            font-weight: 600;
-            padding: 0.6rem 1.5rem;
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            border: none;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .btn::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 0;
-            height: 0;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.3);
-            transform: translate(-50%, -50%);
-            transition: width 0.6s, height 0.6s;
-        }
-        
-        .btn:hover::before {
-            width: 300px;
-            height: 300px;
-        }
-        
-        .btn-primary {
-            background: var(--primary-gradient);
-        }
-        
-        .btn-primary:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
-        }
-        
-        .btn-info {
-            background: linear-gradient(135deg, #00cec9 0%, #00b894 100%);
-        }
-        
-        .btn-info:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(0, 184, 148, 0.4);
-        }
-        
-        .btn-success {
-            background: var(--success-gradient);
-        }
-        
-        .btn-success:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(0, 184, 148, 0.4);
-        }
-        
-        .download-btn {
-            background: var(--success-gradient);
-            border: none;
-            padding: 1rem 2rem;
-            font-size: 1.2rem;
-            font-weight: 700;
-            border-radius: 15px;
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .download-btn:hover {
-            transform: scale(1.05);
-            box-shadow: 0 10px 30px rgba(0, 184, 148, 0.4);
-        }
-        
-        .download-btn i {
-            margin-right: 0.5rem;
-            animation: bounce 2s infinite;
-        }
-        
-        @keyframes bounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-5px); }
-        }
-        
-        /* Category Badge */
-        .category-badge {
-            display: inline-block;
-            padding: 0.8rem 1.5rem;
-            background: var(--primary-gradient);
-            color: white;
-            border-radius: 25px;
-            margin: 0.5rem;
-            text-decoration: none;
-            font-weight: 500;
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            box-shadow: var(--shadow-sm);
-        }
-        
-        .category-badge:hover {
-            transform: translateY(-5px) scale(1.05);
-            color: white;
-            box-shadow: var(--shadow-md);
-        }
-        
-        /* Filter Section */
-        .filter-section {
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-            border-radius: 15px;
-            border: none;
-        }
-        
-        .form-select, .form-control {
-            border-radius: 12px;
-            border: 2px solid #e0e0e0;
-            transition: all 0.3s ease;
-        }
-        
-        .form-select:focus, .form-control:focus {
-            border-color: #667eea;
-            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.15);
-        }
-        
-        /* Pagination */
-        .pagination {
-            gap: 0.5rem;
-        }
-        
-        .page-link {
-            border-radius: 12px;
-            border: none;
-            color: #667eea;
-            font-weight: 600;
-            padding: 0.6rem 1rem;
-            transition: all 0.3s ease;
-            margin: 0 0.2rem;
-        }
-        
-        .page-link:hover {
-            background: var(--primary-gradient);
-            color: white;
-            transform: translateY(-2px);
-        }
-        
-        .page-item.active .page-link {
-            background: var(--primary-gradient);
-            border: none;
-        }
-        
-        /* Footer */
-        footer {
-            background: rgba(26, 26, 46, 0.95);
-            backdrop-filter: blur(10px);
-            color: white;
-            padding: 2.5rem 0;
-            margin-top: 4rem;
-            box-shadow: 0 -5px 20px rgba(0,0,0,0.2);
-        }
-        
-        footer p {
-            margin: 0;
-        }
-        
-        /* Responsive */
-        @media (max-width: 768px) {
-            .content-wrapper {
-                padding: 1.5rem;
-                border-radius: 20px;
-            }
-            
-            .navbar-brand {
-                font-size: 1.3rem;
-            }
-            
-            .apk-card img {
-                height: 180px;
-            }
-        }
-        
-        /* Loading Animation */
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-        
-        /* Smooth Scroll */
-        html {
-            scroll-behavior: smooth;
-        }
-        
-        /* Card Title */
-        .card-title {
-            font-weight: 600;
-            color: #2d3436;
-            font-size: 1rem;
-        }
-        
-        /* Hero Section */
-        .display-4 {
-            font-weight: 700;
-            background: var(--primary-gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-        
-        .lead {
-            color: #636e72;
-            font-weight: 400;
-        }
-    </style>
+    .dark .glass-effect {
+      background-color: rgba(17, 25, 40, 0.75);
+      border: 1px solid rgba(255, 255, 255, 0.125);
+    }
     
-    {% block extra_css %}{% endblock %}
+    .apk-card {
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .apk-card:hover {
+      transform: translateY(-8px);
+    }
+  </style>
+  
+  {% block extra_css %}{% endblock %}
 </head>
-<body>
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-light sticky-top">
-        <div class="container">
-            <a class="navbar-brand" href="{% url 'apk_store:home' %}">
-                <i class="fas fa-mobile-alt"></i> APK Store
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'apk_store:home' %}">
-                            <i class="fas fa-home"></i> Home
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'apk_store:games_list' %}">
-                            <i class="fas fa-gamepad"></i> Games
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'apk_store:apps_list' %}">
-                            <i class="fas fa-mobile"></i> Apps
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'apk_store:apk_list' %}">
-                            <i class="fas fa-list"></i> All APKs
-                        </a>
-                    </li>
-                </ul>
-                
-                <!-- Search Form -->
-                <form class="d-flex" method="get" action="{% url 'apk_store:search' %}">
-                    <input class="form-control me-2 search-box" type="search" name="q" placeholder="Search APKs..." value="{{ query }}">
-                    <button class="btn btn-outline-primary" type="submit">
-                        <i class="fas fa-search"></i>
-                    </button>
-                </form>
+
+<body class="bg-gradient-to-br from-slate-50 via-green-50 to-emerald-50 dark:from-gray-900 dark:via-slate-900 dark:to-gray-800 text-gray-900 dark:text-gray-100 min-h-screen">
+  
+  {# Top Navigation #}
+  <header class="sticky top-0 z-50 glass-effect shadow-lg">
+    <div class="container mx-auto px-4 lg:px-6">
+      <nav class="flex justify-between items-center py-4">
+        
+        {# Logo #}
+        <a href="{% url 'main:home' %}" class="flex items-center space-x-3 group">
+          <div class="relative">
+            <div class="w-12 h-12 bg-gradient-to-br from-green-500 via-emerald-500 to-teal-500 rounded-2xl flex items-center justify-center shadow-lg ring-2 ring-green-500/20 group-hover:ring-green-500/40 transition-all">
+              <i class="fas fa-mobile-alt text-2xl text-white"></i>
             </div>
-        </div>
-    </nav>
+          </div>
+          <div>
+            <h1 class="text-xl lg:text-2xl font-black bg-gradient-to-r from-green-600 via-emerald-600 to-teal-600 bg-clip-text text-transparent">
+              APK Store
+            </h1>
+            <p class="text-xs text-gray-500 dark:text-gray-400 font-semibold">Premium Apps & Games</p>
+          </div>
+        </a>
 
-    <!-- Main Content -->
-    <div class="container">
-        {% block content %}{% endblock %}
+        {# Desktop Navigation #}
+        <div class="hidden lg:flex items-center space-x-4">
+          <a href="{% url 'apk_store:home' %}" class="flex items-center space-x-2 px-4 py-2 rounded-xl hover:bg-white/50 dark:hover:bg-gray-700/50 transition-all">
+            <i class="fas fa-home text-green-500"></i>
+            <span class="font-semibold">Home</span>
+          </a>
+          <a href="{% url 'apk_store:games_list' %}" class="flex items-center space-x-2 px-4 py-2 rounded-xl hover:bg-white/50 dark:hover:bg-gray-700/50 transition-all">
+            <i class="fas fa-gamepad text-purple-500"></i>
+            <span class="font-semibold">Games</span>
+          </a>
+          <a href="{% url 'apk_store:apps_list' %}" class="flex items-center space-x-2 px-4 py-2 rounded-xl hover:bg-white/50 dark:hover:bg-gray-700/50 transition-all">
+            <i class="fas fa-mobile text-blue-500"></i>
+            <span class="font-semibold">Apps</span>
+          </a>
+          <a href="{% url 'apk_store:apk_list' %}" class="flex items-center space-x-2 px-4 py-2 rounded-xl hover:bg-white/50 dark:hover:bg-gray-700/50 transition-all">
+            <i class="fas fa-list text-orange-500"></i>
+            <span class="font-semibold">All APKs</span>
+          </a>
+        </div>
+
+        {# Search & Theme Toggle #}
+        <div class="flex items-center gap-3">
+          <button id="search-toggle" class="p-3 rounded-xl glass-effect hover:scale-110 transition-all lg:hidden">
+            <i class="fas fa-search text-gray-600 dark:text-gray-300"></i>
+          </button>
+          <button id="theme-toggle" class="p-3 rounded-xl glass-effect hover:scale-110 transition-all">
+            <i class="fas fa-moon text-gray-600 dark:text-yellow-400"></i>
+          </button>
+        </div>
+      </nav>
+
+      {# Mobile Search Bar #}
+      <div id="mobile-search" class="hidden pb-4">
+        <form method="get" action="{% url 'apk_store:search' %}" class="relative">
+          <input type="search" name="q" placeholder="Search APKs, games, apps..." 
+                 value="{{ query }}"
+                 class="w-full px-4 py-3 pl-12 rounded-2xl bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 focus:border-green-500 dark:focus:border-green-400 focus:outline-none transition-colors">
+          <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+        </form>
+      </div>
     </div>
+  </header>
 
-    {# Bottom Navigation (Mobile) #}
-    {% include 'main/components/bottom_nav.html' %}
+  {# Main Content #}
+  <main class="min-h-screen pb-32 lg:pb-8">
+    {% block content %}{% endblock %}
+  </main>
 
-    
-    <!-- Footer -->
-    <footer>
-        <div class="container text-center">
-            <p class="mb-2" style="font-size: 1.2rem; font-weight: 600;">
-                <i class="fas fa-download"></i> APK Store
-            </p>
-            <p class="mb-3" style="opacity: 0.8;">
-                Download Modded Games & Premium Apps
-            </p>
-            <p style="font-size: 0.85rem; opacity: 0.6;">
-                Disclaimer: For educational purposes only. All trademarks are property of their respective owners.
-            </p>
+  {# Bottom Navigation (Mobile) #}
+  {% include 'main/components/bottom_nav.html' %}
+
+  {# Footer #}
+  <footer class="bg-gradient-to-r from-gray-900 via-slate-900 to-gray-900 text-white mt-20">
+    <div class="container mx-auto px-4 lg:px-6 py-12">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div class="md:col-span-2">
+          <h3 class="text-2xl font-bold mb-4 bg-gradient-to-r from-green-400 to-emerald-400 bg-clip-text text-transparent">
+            Watch2D APK Store
+          </h3>
+          <p class="text-gray-400 mb-4">
+            Download premium modded APKs, games, and apps for free. Your trusted source for MOD APKs.
+          </p>
+          <div class="flex space-x-4">
+            <a href="https://t.me/watch2dchats" target="_blank" class="p-3 bg-sky-500 rounded-xl hover:bg-sky-600 transition-all">
+              <i class="fab fa-telegram-plane"></i>
+            </a>
+            <a href="https://whatsapp.com/channel/0029VavDAbsEFeXpbo2lEg3f" target="_blank" class="p-3 bg-green-500 rounded-xl hover:bg-green-600 transition-all">
+              <i class="fab fa-whatsapp"></i>
+            </a>
+          </div>
         </div>
-    </footer>
+        
+        <div>
+          <h4 class="font-bold mb-4">Quick Links</h4>
+          <ul class="space-y-2 text-sm text-gray-400">
+            <li><a href="{% url 'apk_store:home' %}" class="hover:text-white transition-colors">Home</a></li>
+            <li><a href="{% url 'apk_store:games_list' %}" class="hover:text-white transition-colors">Games</a></li>
+            <li><a href="{% url 'apk_store:apps_list' %}" class="hover:text-white transition-colors">Apps</a></li>
+            <li><a href="{% url 'apk_store:apk_list' %}" class="hover:text-white transition-colors">All APKs</a></li>
+          </ul>
+        </div>
 
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        <div>
+          <h4 class="font-bold mb-4">Other Sections</h4>
+          <ul class="space-y-2 text-sm text-gray-400">
+            <li><a href="{% url 'movies:home' %}" class="hover:text-white transition-colors">Movies</a></li>
+            <li><a href="{% url 'anime:list' %}" class="hover:text-white transition-colors">Anime</a></li>
+            <li><a href="{% url 'manga:list' %}" class="hover:text-white transition-colors">Manga</a></li>
+          </ul>
+        </div>
+      </div>
+      
+      <div class="border-t border-gray-700 mt-8 pt-8 text-center text-sm text-gray-400">
+        <p class="mb-2">&copy; 2024 Watch2D. All rights reserved.</p>
+        <p class="text-xs opacity-75">Disclaimer: For educational purposes only. All trademarks are property of their respective owners.</p>
+      </div>
+    </div>
+  </footer>
+
+  {# Scripts #}
+  <script>
+    // Theme Toggle
+    const themeToggle = document.getElementById('theme-toggle');
+    const html = document.documentElement;
     
-    <script>
-        // Smooth scroll to top
-        window.addEventListener('scroll', function() {
-            const navbar = document.querySelector('.navbar');
-            if (window.scrollY > 50) {
-                navbar.style.boxShadow = '0 4px 20px rgba(0,0,0,0.15)';
-            } else {
-                navbar.style.boxShadow = '0 4px 16px rgba(0,0,0,0.12)';
-            }
-        });
-    </script>
+    const currentTheme = localStorage.getItem('theme') || 'light';
+    if (currentTheme === 'dark') {
+      html.classList.add('dark');
+    }
     
-    {% block extra_js %}{% endblock %}
+    themeToggle?.addEventListener('click', () => {
+      html.classList.toggle('dark');
+      localStorage.setItem('theme', html.classList.contains('dark') ? 'dark' : 'light');
+    });
+
+    // Mobile Search Toggle
+    const searchToggle = document.getElementById('search-toggle');
+    const mobileSearch = document.getElementById('mobile-search');
+    
+    searchToggle?.addEventListener('click', () => {
+      mobileSearch.classList.toggle('hidden');
+    });
+  </script>
+  
+  {% block extra_js %}{% endblock %}
 </body>
 </html>

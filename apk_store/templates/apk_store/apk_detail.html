@@ -1,233 +1,217 @@
 {% extends 'apk_store/base.html' %}
+{% load static %}
 
-{% block title %}{{ apk.title }} - APK Store{% endblock %}
+{% block title %}{{ apk.title }} - Download APK | Watch2D{% endblock %}
 
 {% block content %}
-<div class="content-wrapper">
-    <!-- Back Button -->
-    <div class="mb-3">
-        <a href="javascript:history.back()" class="btn btn-outline-secondary btn-sm">
-            <i class="fas fa-arrow-left"></i> Back
-        </a>
-    </div>
+<div class="container mx-auto px-4 lg:px-8 py-8">
+  {# Back Button #}
+  <div class="mb-6">
+    <button onclick="history.back()" class="inline-flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 rounded-xl hover:shadow-lg transition-all">
+      <i class="fas fa-arrow-left"></i>
+      <span class="font-semibold">Back</span>
+    </button>
+  </div>
 
-    <div class="row">
-        <!-- Left Column - App Icon and Quick Info -->
-        <div class="col-md-4 mb-4">
-            <div class="card border-0 shadow-sm">
-                <div class="card-body text-center">
-                    <img src="{{ apk.icon_url }}" alt="{{ apk.title }}" class="img-fluid rounded mb-3" style="max-width: 200px;" onerror="this.src='https://via.placeholder.com/200x200?text=No+Image'">
-                    
-                    <h3 class="mb-3">{{ apk.title }}</h3>
-                    
-                    <div class="mb-3">
-                        <span class="badge {% if apk.apk_type == 'game' %}badge-game{% else %}badge-app{% endif %} fs-6">
-                            {% if apk.apk_type == 'game' %}<i class="fas fa-gamepad"></i>{% else %}<i class="fas fa-mobile"></i>{% endif %}
-                            {{ apk.get_apk_type_display }}
-                        </span>
-                        <span class="badge badge-{{ apk.status }} fs-6">
-                            {{ apk.get_status_display }}
-                        </span>
-                    </div>
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    {# Left Sidebar - App Info #}
+    <div class="lg:col-span-1 space-y-6">
+      {# Main Info Card #}
+      <div class="bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-lg">
+        <div class="text-center mb-6">
+          <img src="{{ apk.icon_url }}" 
+               alt="{{ apk.title }}"
+               onerror="this.src='https://via.placeholder.com/200x200?text=APK'"
+               class="w-48 h-48 mx-auto rounded-3xl shadow-lg mb-4">
+          
+          <h1 class="text-2xl font-black text-gray-900 dark:text-white mb-4">{{ apk.title }}</h1>
+          
+          <div class="flex flex-wrap justify-center gap-2 mb-4">
+            <span class="px-4 py-2 bg-gradient-to-r {% if apk.apk_type == 'game' %}from-purple-500 to-purple-600{% else %}from-blue-500 to-blue-600{% endif %} text-white rounded-full text-sm font-bold">
+              {% if apk.apk_type == 'game' %}<i class="fas fa-gamepad"></i>{% else %}<i class="fas fa-mobile"></i>{% endif %}
+              {{ apk.get_apk_type_display }}
+            </span>
+            <span class="px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-full text-sm font-bold">
+              {{ apk.get_status_display }}
+            </span>
+          </div>
 
-                    {% if apk.rating %}
-                    <div class="mb-3">
-                        <div class="text-warning fs-4">
-                            <i class="fas fa-star"></i> {{ apk.rating }}
-                        </div>
-                    </div>
-                    {% endif %}
-
-                    <a href="{{ apk.download_url }}" class="btn btn-success download-btn w-100 mb-2" target="_blank">
-                        <i class="fas fa-download"></i> Download APK
-                    </a>
-
-                    <!-- Quick Stats -->
-                    <div class="mt-4 text-start">
-                        <div class="d-flex justify-content-between py-2 border-bottom">
-                            <span class="text-muted"><i class="fas fa-code-branch"></i> Version</span>
-                            <strong>{{ apk.version|default:"N/A" }}</strong>
-                        </div>
-                        <div class="d-flex justify-content-between py-2 border-bottom">
-                            <span class="text-muted"><i class="fas fa-hdd"></i> Size</span>
-                            <strong>{{ apk.size|default:"N/A" }}</strong>
-                        </div>
-                        <div class="d-flex justify-content-between py-2 border-bottom">
-                            <span class="text-muted"><i class="fas fa-android"></i> Android</span>
-                            <strong>{{ apk.android_version|default:"4.0+" }}</strong>
-                        </div>
-                        {% if apk.downloads_count %}
-                        <div class="d-flex justify-content-between py-2 border-bottom">
-                            <span class="text-muted"><i class="fas fa-download"></i> Downloads</span>
-                            <strong>{{ apk.downloads_count }}</strong>
-                        </div>
-                        {% endif %}
-                        {% if apk.architecture %}
-                        <div class="d-flex justify-content-between py-2">
-                            <span class="text-muted"><i class="fas fa-microchip"></i> Architecture</span>
-                            <strong>{{ apk.architecture }}</strong>
-                        </div>
-                        {% endif %}
-                    </div>
-                </div>
+          {% if apk.rating %}
+          <div class="flex items-center justify-center gap-2 mb-6">
+            <div class="flex items-center gap-1 text-yellow-500 text-2xl">
+              <i class="fas fa-star"></i>
+              <span class="font-bold">{{ apk.rating }}</span>
             </div>
+          </div>
+          {% endif %}
 
-            <!-- Categories -->
-            {% if apk.categories.all %}
-            <div class="card border-0 shadow-sm mt-3">
-                <div class="card-body">
-                    <h6 class="card-title mb-3"><i class="fas fa-folder"></i> Categories</h6>
-                    {% for category in apk.categories.all %}
-                    <a href="{% url 'apk_store:category_detail' category.slug %}" class="badge bg-primary me-1 mb-1 text-decoration-none">
-                        {{ category.name }}
-                    </a>
-                    {% endfor %}
-                </div>
-            </div>
-            {% endif %}
+          <a href="{{ apk.download_url }}" target="_blank"
+             class="block w-full py-4 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white font-bold rounded-2xl shadow-lg hover:shadow-xl transition-all text-center">
+            <i class="fas fa-download mr-2"></i>
+            Download APK
+          </a>
         </div>
 
-        <!-- Right Column - Details -->
-        <div class="col-md-8">
-            <!-- Cover Image -->
-            {% if apk.cover_image_url %}
-            <div class="mb-4">
-                <img src="{{ apk.cover_image_url }}" alt="{{ apk.title }} cover" class="img-fluid rounded shadow-sm" onerror="this.style.display='none'">
-            </div>
-            {% endif %}
-
-            <!-- Description -->
-            <div class="card border-0 shadow-sm mb-4">
-                <div class="card-body">
-                    <h4 class="card-title mb-3"><i class="fas fa-info-circle"></i> Description</h4>
-                    <p class="card-text" style="white-space: pre-line;">{{ apk.description|default:"No description available." }}</p>
-                </div>
-            </div>
-
-            <!-- Mod Features -->
-            {% if apk.mod_features %}
-            <div class="card border-0 shadow-sm mb-4 bg-danger bg-opacity-10">
-                <div class="card-body">
-                    <h4 class="card-title mb-3 text-danger"><i class="fas fa-magic"></i> MOD Features</h4>
-                    <div class="mod-features" style="white-space: pre-line;">{{ apk.mod_features }}</div>
-                </div>
-            </div>
-            {% endif %}
-
-            <!-- Screenshots -->
-            {% if apk.screenshots.all %}
-            <div class="card border-0 shadow-sm mb-4">
-                <div class="card-body">
-                    <h4 class="card-title mb-3"><i class="fas fa-images"></i> Screenshots</h4>
-                    <div class="row">
-                        {% for screenshot in apk.screenshots.all %}
-                        <div class="col-md-4 col-sm-6 mb-3">
-                            <img src="{{ screenshot.image_url }}" alt="Screenshot" class="img-fluid rounded shadow-sm" data-bs-toggle="modal" data-bs-target="#screenshotModal{{ forloop.counter }}" style="cursor: pointer;">
-                            
-                            <!-- Modal for Screenshot -->
-                            <div class="modal fade" id="screenshotModal{{ forloop.counter }}" tabindex="-1">
-                                <div class="modal-dialog modal-lg modal-dialog-centered">
-                                    <div class="modal-content">
-                                        <div class="modal-body p-0">
-                                            <img src="{{ screenshot.image_url }}" alt="Screenshot" class="img-fluid">
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        {% endfor %}
-                    </div>
-                </div>
-            </div>
-            {% endif %}
-
-            <!-- Version History -->
-            {% if apk.versions.all %}
-            <div class="card border-0 shadow-sm mb-4">
-                <div class="card-body">
-                    <h4 class="card-title mb-3"><i class="fas fa-history"></i> Version History</h4>
-                    <div class="table-responsive">
-                        <table class="table table-hover">
-                            <thead>
-                                <tr>
-                                    <th>Version</th>
-                                    <th>Size</th>
-                                    <th>Status</th>
-                                    <th>Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for version in apk.versions.all %}
-                                <tr>
-                                    <td>
-                                        <strong>{{ version.version }}</strong>
-                                        {% if version.is_latest %}
-                                        <span class="badge bg-success small">Latest</span>
-                                        {% endif %}
-                                    </td>
-                                    <td>{{ version.size|default:"N/A" }}</td>
-                                    <td>
-                                        {% if version.release_date %}
-                                        <small class="text-muted">{{ version.release_date }}</small>
-                                        {% else %}
-                                        <small class="text-muted">{{ version.created_at|date:"M d, Y" }}</small>
-                                        {% endif %}
-                                    </td>
-                                    <td>
-                                        <a href="{{ version.download_url }}" class="btn btn-sm btn-outline-success" target="_blank">
-                                            <i class="fas fa-download"></i> Download
-                                        </a>
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-            {% endif %}
-
-            <!-- Additional Info -->
-            <div class="card border-0 shadow-sm mb-4">
-                <div class="card-body">
-                    <h4 class="card-title mb-3"><i class="fas fa-clipboard-list"></i> Additional Information</h4>
-                    {% if apk.package_name %}
-                    <p><strong>Package Name:</strong> <code>{{ apk.package_name }}</code></p>
-                    {% endif %}
-                    {% if apk.source_url %}
-                    <p><strong>Source:</strong> <a href="{{ apk.source_url }}" target="_blank">View Original Page</a></p>
-                    {% endif %}
-                    <p><strong>Last Updated:</strong> {{ apk.updated_at|date:"F d, Y" }}</p>
-                </div>
-            </div>
+        {# Quick Stats #}
+        <div class="space-y-3">
+          <div class="flex items-center justify-between py-3 border-b border-gray-200 dark:border-gray-700">
+            <span class="text-gray-600 dark:text-gray-400 flex items-center gap-2">
+              <i class="fas fa-code-branch"></i> Version
+            </span>
+            <span class="font-bold text-gray-900 dark:text-white">{{ apk.version|default:"N/A" }}</span>
+          </div>
+          <div class="flex items-center justify-between py-3 border-b border-gray-200 dark:border-gray-700">
+            <span class="text-gray-600 dark:text-gray-400 flex items-center gap-2">
+              <i class="fas fa-hdd"></i> Size
+            </span>
+            <span class="font-bold text-gray-900 dark:text-white">{{ apk.size|default:"N/A" }}</span>
+          </div>
+          <div class="flex items-center justify-between py-3 border-b border-gray-200 dark:border-gray-700">
+            <span class="text-gray-600 dark:text-gray-400 flex items-center gap-2">
+              <i class="fas fa-android"></i> Android
+            </span>
+            <span class="font-bold text-gray-900 dark:text-white">{{ apk.android_version|default:"4.0+" }}</span>
+          </div>
+          {% if apk.downloads_count %}
+          <div class="flex items-center justify-between py-3 border-b border-gray-200 dark:border-gray-700">
+            <span class="text-gray-600 dark:text-gray-400 flex items-center gap-2">
+              <i class="fas fa-download"></i> Downloads
+            </span>
+            <span class="font-bold text-gray-900 dark:text-white">{{ apk.downloads_count }}</span>
+          </div>
+          {% endif %}
+          {% if apk.architecture %}
+          <div class="flex items-center justify-between py-3">
+            <span class="text-gray-600 dark:text-gray-400 flex items-center gap-2">
+              <i class="fas fa-microchip"></i> Architecture
+            </span>
+            <span class="font-bold text-gray-900 dark:text-white">{{ apk.architecture }}</span>
+          </div>
+          {% endif %}
         </div>
+      </div>
+
+      {# Categories #}
+      {% if apk.categories.all %}
+      <div class="bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-lg">
+        <h3 class="font-bold text-lg text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+          <i class="fas fa-folder text-green-500"></i>
+          Categories
+        </h3>
+        <div class="flex flex-wrap gap-2">
+          {% for category in apk.categories.all %}
+          <a href="{% url 'apk_store:category_detail' category.slug %}" 
+             class="px-4 py-2 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded-full text-sm font-semibold hover:bg-green-200 dark:hover:bg-green-900/50 transition-colors">
+            {{ category.name }}
+          </a>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
     </div>
 
-    <!-- Related APKs -->
-    {% if related_apks %}
-    <div class="mt-5">
-        <h3 class="mb-4"><i class="fas fa-layer-group"></i> Related APKs</h3>
-        <div class="row">
-            {% for related in related_apks %}
-            <div class="col-lg-2 col-md-3 col-sm-4 col-6 mb-4">
-                <div class="card apk-card">
-                    <a href="{% url 'apk_store:apk_detail' related.slug %}">
-                        <img src="{{ related.icon_url }}" alt="{{ related.title }}" onerror="this.src='https://via.placeholder.com/200x200?text=No+Image'">
-                    </a>
-                    <div class="card-body p-2">
-                        <h6 class="card-title small mb-1">{{ related.title|truncatewords:3 }}</h6>
-                        <span class="badge badge-{{ related.status }} small">{{ related.get_status_display }}</span>
-                        <div class="mt-2">
-                            <a href="{% url 'apk_store:apk_detail' related.slug %}" class="btn btn-sm btn-primary w-100">
-                                View
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            {% endfor %}
+    {# Right Content - Details #}
+    <div class="lg:col-span-2 space-y-6">
+      {# Cover Image #}
+      {% if apk.cover_image_url %}
+      <div class="rounded-3xl overflow-hidden shadow-lg">
+        <img src="{{ apk.cover_image_url }}" 
+             alt="{{ apk.title }} cover"
+             onerror="this.style.display='none'"
+             class="w-full h-auto">
+      </div>
+      {% endif %}
+
+      {# Description #}
+      <div class="bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-lg">
+        <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+          <i class="fas fa-info-circle text-blue-500"></i>
+          Description
+        </h2>
+        <p class="text-gray-700 dark:text-gray-300 whitespace-pre-line leading-relaxed">
+          {{ apk.description|default:"No description available." }}
+        </p>
+      </div>
+
+      {# MOD Features #}
+      {% if apk.mod_features %}
+      <div class="bg-gradient-to-br from-red-50 to-pink-50 dark:from-red-900/20 dark:to-pink-900/20 rounded-3xl p-6 shadow-lg border-2 border-red-200 dark:border-red-800">
+        <h2 class="text-2xl font-bold text-red-600 dark:text-red-400 mb-4 flex items-center gap-2">
+          <i class="fas fa-magic"></i>
+          MOD Features
+        </h2>
+        <div class="text-gray-900 dark:text-gray-100 whitespace-pre-line leading-relaxed font-medium">
+          {{ apk.mod_features }}
         </div>
+      </div>
+      {% endif %}
+
+      {# Screenshots #}
+      {% if apk.screenshots.all %}
+      <div class="bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-lg">
+        <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+          <i class="fas fa-images text-purple-500"></i>
+          Screenshots
+        </h2>
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+          {% for screenshot in apk.screenshots.all %}
+          <div class="relative group cursor-pointer rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all">
+            <img src="{{ screenshot.image_url }}" 
+                 alt="Screenshot {{ forloop.counter }}"
+                 class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+            <div class="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors flex items-center justify-center">
+              <i class="fas fa-search-plus text-white text-2xl opacity-0 group-hover:opacity-100 transition-opacity"></i>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+
+      {# Additional Info #}
+      <div class="bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-lg">
+        <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+          <i class="fas fa-clipboard-list text-orange-500"></i>
+          Additional Information
+        </h2>
+        <div class="space-y-3 text-gray-700 dark:text-gray-300">
+          {% if apk.package_name %}
+          <p><strong class="text-gray-900 dark:text-white">Package Name:</strong> <code class="px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded text-sm">{{ apk.package_name }}</code></p>
+          {% endif %}
+          {% if apk.source_url %}
+          <p><strong class="text-gray-900 dark:text-white">Source:</strong> <a href="{{ apk.source_url }}" target="_blank" class="text-green-600 dark:text-green-400 hover:underline">View Original Page <i class="fas fa-external-link-alt text-xs"></i></a></p>
+          {% endif %}
+          <p><strong class="text-gray-900 dark:text-white">Last Updated:</strong> {{ apk.updated_at|date:"F d, Y" }}</p>
+        </div>
+      </div>
     </div>
-    {% endif %}
+  </div>
+
+  {# Related APKs #}
+  {% if related_apks %}
+  <div class="mt-12">
+    <h2 class="text-2xl lg:text-3xl font-black text-gray-900 dark:text-white mb-6 flex items-center gap-3">
+      <span class="w-1.5 h-8 bg-gradient-to-b from-green-500 to-green-600 rounded-full"></span>
+      Related APKs
+    </h2>
+    <div class="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 lg:gap-4">
+      {% for related in related_apks %}
+      <a href="{% url 'apk_store:apk_detail' related.slug %}" class="apk-card group bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all">
+        <div class="relative aspect-square bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-900/20 dark:to-emerald-900/20">
+          <img src="{{ related.icon_url }}" 
+               alt="{{ related.title }}"
+               onerror="this.src='https://via.placeholder.com/200x200?text=APK'"
+               class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+        </div>
+        <div class="p-3">
+          <h4 class="font-semibold text-xs text-gray-900 dark:text-white line-clamp-2 group-hover:text-green-600 dark:group-hover:text-green-400 transition-colors">
+            {{ related.title }}
+          </h4>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
 </div>
 {% endblock %}

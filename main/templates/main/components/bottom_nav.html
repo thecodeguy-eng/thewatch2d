@@ -1,94 +1,137 @@
 {% load static %}
 
-{# Mobile Bottom Navigation - Modern Play Store Style #}
-<nav class="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border-t border-gray-200/50 dark:border-gray-700/50 shadow-2xl safe-area-bottom">
-  <div class="grid grid-cols-4 gap-0">
-    
-    {# Movies #}
-    <a href="{% url 'home' %}" 
-       class="flex flex-col items-center justify-center py-3 px-2 transition-all relative group
-              {% if 'movies' in request.path or request.path == '/' %}
-                text-blue-600 dark:text-blue-400
-              {% else %}
-                text-gray-500 dark:text-gray-400 active:scale-95
-              {% endif %}">
-      {% if 'movies' in request.path or request.path == '/' %}
-      <span class="absolute top-0 left-1/2 -translate-x-1/2 w-12 h-1 bg-blue-600 dark:bg-blue-400 rounded-b-full"></span>
-      {% endif %}
-      <div class="w-7 h-7 flex items-center justify-center mb-1 transition-transform group-active:scale-90">
-        <i class="fas fa-film text-xl"></i>
-      </div>
-      <span class="text-xs font-semibold">Movies</span>
-    </a>
-    
-    {# Anime #}
-    <a href="{% url 'anime:list' %}" 
-       class="flex flex-col items-center justify-center py-3 px-2 transition-all relative group
-              {% if 'anime' in request.path %}
-                text-purple-600 dark:text-purple-400
-              {% else %}
-                text-gray-500 dark:text-gray-400 active:scale-95
-              {% endif %}">
-      {% if 'anime' in request.path %}
-      <span class="absolute top-0 left-1/2 -translate-x-1/2 w-12 h-1 bg-purple-600 dark:bg-purple-400 rounded-b-full"></span>
-      {% endif %}
-      <div class="w-7 h-7 flex items-center justify-center mb-1 transition-transform group-active:scale-90">
-        <i class="fas fa-play-circle text-xl"></i>
-      </div>
-      <span class="text-xs font-semibold">Anime</span>
-    </a>
-    
-    {# Manga #}
-    <a href="{% url 'manga:list' %}" 
-       class="flex flex-col items-center justify-center py-3 px-2 transition-all relative group
-              {% if 'manga' in request.path %}
-                text-pink-600 dark:text-pink-400
-              {% else %}
-                text-gray-500 dark:text-gray-400 active:scale-95
-              {% endif %}">
-      {% if 'manga' in request.path %}
-      <span class="absolute top-0 left-1/2 -translate-x-1/2 w-12 h-1 bg-pink-600 dark:bg-pink-400 rounded-b-full"></span>
-      {% endif %}
-      <div class="w-7 h-7 flex items-center justify-center mb-1 transition-transform group-active:scale-90">
-        <i class="fas fa-book text-xl"></i>
-      </div>
-      <span class="text-xs font-semibold">Manga</span>
-    </a>
-    
-    {# APK Store #}
-    <a href="{% url 'apk_store:home' %}" 
-       class="flex flex-col items-center justify-center py-3 px-2 transition-all relative group
-              {% if 'apk' in request.path %}
-                text-green-600 dark:text-green-400
-              {% else %}
-                text-gray-500 dark:text-gray-400 active:scale-95
-              {% endif %}">
-      {% if 'apk' in request.path %}
-      <span class="absolute top-0 left-1/2 -translate-x-1/2 w-12 h-1 bg-green-600 dark:bg-green-400 rounded-b-full"></span>
-      {% endif %}
-      <div class="w-7 h-7 flex items-center justify-center mb-1 transition-transform group-active:scale-90">
-        <i class="fas fa-mobile-alt text-xl"></i>
-      </div>
-      <span class="text-xs font-semibold">Apps</span>
-    </a>
-    
+{# Mobile Bottom Navigation - iOS Style #}
+<nav class="lg:hidden fixed bottom-0 left-0 right-0 z-50 safe-area-bottom">
+  <div class="mx-3 mb-3 bg-white/90 dark:bg-gray-900/90 backdrop-blur-2xl rounded-3xl shadow-2xl border border-gray-200/50 dark:border-gray-700/50">
+    <div class="grid grid-cols-5 gap-0 px-2">
+      
+      {# Home #}
+      <a href="{% url 'main:home' %}" 
+         class="flex flex-col items-center justify-center py-3 transition-all relative group
+                {% if request.path == '/' %}
+                  text-blue-600 dark:text-blue-400
+                {% else %}
+                  text-gray-500 dark:text-gray-400
+                {% endif %}">
+        <div class="w-11 h-11 flex items-center justify-center rounded-2xl mb-1 transition-all
+                    {% if request.path == '/' %}
+                      bg-blue-100 dark:bg-blue-900/30 scale-100
+                    {% else %}
+                      group-active:scale-90 group-active:bg-gray-100 dark:group-active:bg-gray-800/50
+                    {% endif %}">
+          <i class="fas fa-house text-lg"></i>
+        </div>
+        <span class="text-[10px] font-semibold">Home</span>
+      </a>
+
+      {# Movies #}
+      <a href="{% url 'movies:home' %}" 
+         class="flex flex-col items-center justify-center py-3 transition-all relative group
+                {% if 'movies' in request.path %}
+                  text-blue-600 dark:text-blue-400
+                {% else %}
+                  text-gray-500 dark:text-gray-400
+                {% endif %}">
+        <div class="w-11 h-11 flex items-center justify-center rounded-2xl mb-1 transition-all
+                    {% if 'movies' in request.path %}
+                      bg-blue-100 dark:bg-blue-900/30 scale-100
+                    {% else %}
+                      group-active:scale-90 group-active:bg-gray-100 dark:group-active:bg-gray-800/50
+                    {% endif %}">
+          <i class="fas fa-film text-lg"></i>
+        </div>
+        <span class="text-[10px] font-semibold">Movies</span>
+      </a>
+      
+      {# Anime #}
+      <a href="{% url 'anime:list' %}" 
+         class="flex flex-col items-center justify-center py-3 transition-all relative group
+                {% if 'anime' in request.path %}
+                  text-purple-600 dark:text-purple-400
+                {% else %}
+                  text-gray-500 dark:text-gray-400
+                {% endif %}">
+        <div class="w-11 h-11 flex items-center justify-center rounded-2xl mb-1 transition-all
+                    {% if 'anime' in request.path %}
+                      bg-purple-100 dark:bg-purple-900/30 scale-100
+                    {% else %}
+                      group-active:scale-90 group-active:bg-gray-100 dark:group-active:bg-gray-800/50
+                    {% endif %}">
+          <i class="fas fa-play-circle text-lg"></i>
+        </div>
+        <span class="text-[10px] font-semibold">Anime</span>
+      </a>
+      
+      {# Manga #}
+      <a href="{% url 'manga:list' %}" 
+         class="flex flex-col items-center justify-center py-3 transition-all relative group
+                {% if 'manga' in request.path %}
+                  text-pink-600 dark:text-pink-400
+                {% else %}
+                  text-gray-500 dark:text-gray-400
+                {% endif %}">
+        <div class="w-11 h-11 flex items-center justify-center rounded-2xl mb-1 transition-all
+                    {% if 'manga' in request.path %}
+                      bg-pink-100 dark:bg-pink-900/30 scale-100
+                    {% else %}
+                      group-active:scale-90 group-active:bg-gray-100 dark:group-active:bg-gray-800/50
+                    {% endif %}">
+          <i class="fas fa-book text-lg"></i>
+        </div>
+        <span class="text-[10px] font-semibold">Manga</span>
+      </a>
+      
+      {# APK Store #}
+      <a href="{% url 'apk_store:home' %}" 
+         class="flex flex-col items-center justify-center py-3 transition-all relative group
+                {% if 'apk' in request.path %}
+                  text-green-600 dark:text-green-400
+                {% else %}
+                  text-gray-500 dark:text-gray-400
+                {% endif %}">
+        <div class="w-11 h-11 flex items-center justify-center rounded-2xl mb-1 transition-all
+                    {% if 'apk' in request.path %}
+                      bg-green-100 dark:bg-green-900/30 scale-100
+                    {% else %}
+                      group-active:scale-90 group-active:bg-gray-100 dark:group-active:bg-gray-800/50
+                    {% endif %}">
+          <i class="fas fa-mobile-alt text-lg"></i>
+        </div>
+        <span class="text-[10px] font-semibold">Apps</span>
+      </a>
+      
+    </div>
   </div>
 </nav>
 
-{# Desktop Side Navigation - Modern Floating Style #}
+{# Desktop Side Navigation - Floating Sidebar #}
 <nav class="hidden lg:block fixed left-6 top-1/2 -translate-y-1/2 z-50">
-  <div class="flex flex-col gap-3 bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl rounded-3xl p-3 shadow-2xl border border-gray-200/50 dark:border-gray-700/50">
+  <div class="flex flex-col gap-2 bg-white/90 dark:bg-gray-900/90 backdrop-blur-2xl rounded-3xl p-3 shadow-2xl border border-gray-200/50 dark:border-gray-700/50">
+    
+    {# Home #}
+    <a href="{% url 'main:home' %}" 
+       class="group relative flex items-center justify-center w-14 h-14 rounded-2xl transition-all
+              {% if request.path == '/' %}
+                bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-lg shadow-blue-500/30
+              {% else %}
+                text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:scale-105
+              {% endif %}">
+      <i class="fas fa-house text-xl"></i>
+      <span class="absolute left-full ml-4 px-4 py-2.5 bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-sm font-semibold rounded-xl opacity-0 group-hover:opacity-100 pointer-events-none transition-all whitespace-nowrap shadow-xl scale-90 group-hover:scale-100">
+        Home
+      </span>
+    </a>
     
     {# Movies #}
-    <a href="{% url 'home' %}" 
+    <a href="{% url 'movies:home' %}" 
        class="group relative flex items-center justify-center w-14 h-14 rounded-2xl transition-all
-              {% if 'movies' in request.path or request.path == '/' %}
-                bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-lg shadow-blue-500/50
+              {% if 'movies' in request.path %}
+                bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-lg shadow-blue-500/30
               {% else %}
-                text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800
+                text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:scale-105
               {% endif %}">
       <i class="fas fa-film text-xl"></i>
-      <span class="absolute left-full ml-4 px-4 py-2 bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-sm font-semibold rounded-xl opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap shadow-xl">
+      <span class="absolute left-full ml-4 px-4 py-2.5 bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-sm font-semibold rounded-xl opacity-0 group-hover:opacity-100 pointer-events-none transition-all whitespace-nowrap shadow-xl scale-90 group-hover:scale-100">
         Movies
       </span>
     </a>
@@ -97,12 +140,12 @@
     <a href="{% url 'anime:list' %}" 
        class="group relative flex items-center justify-center w-14 h-14 rounded-2xl transition-all
               {% if 'anime' in request.path %}
-                bg-gradient-to-br from-purple-500 to-purple-600 text-white shadow-lg shadow-purple-500/50
+                bg-gradient-to-br from-purple-500 to-purple-600 text-white shadow-lg shadow-purple-500/30
               {% else %}
-                text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800
+                text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:scale-105
               {% endif %}">
       <i class="fas fa-play-circle text-xl"></i>
-      <span class="absolute left-full ml-4 px-4 py-2 bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-sm font-semibold rounded-xl opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap shadow-xl">
+      <span class="absolute left-full ml-4 px-4 py-2.5 bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-sm font-semibold rounded-xl opacity-0 group-hover:opacity-100 pointer-events-none transition-all whitespace-nowrap shadow-xl scale-90 group-hover:scale-100">
         Anime
       </span>
     </a>
@@ -111,12 +154,12 @@
     <a href="{% url 'manga:list' %}" 
        class="group relative flex items-center justify-center w-14 h-14 rounded-2xl transition-all
               {% if 'manga' in request.path %}
-                bg-gradient-to-br from-pink-500 to-pink-600 text-white shadow-lg shadow-pink-500/50
+                bg-gradient-to-br from-pink-500 to-pink-600 text-white shadow-lg shadow-pink-500/30
               {% else %}
-                text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800
+                text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:scale-105
               {% endif %}">
       <i class="fas fa-book text-xl"></i>
-      <span class="absolute left-full ml-4 px-4 py-2 bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-sm font-semibold rounded-xl opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap shadow-xl">
+      <span class="absolute left-full ml-4 px-4 py-2.5 bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-sm font-semibold rounded-xl opacity-0 group-hover:opacity-100 pointer-events-none transition-all whitespace-nowrap shadow-xl scale-90 group-hover:scale-100">
         Manga
       </span>
     </a>
@@ -125,23 +168,24 @@
     <a href="{% url 'apk_store:home' %}" 
        class="group relative flex items-center justify-center w-14 h-14 rounded-2xl transition-all
               {% if 'apk' in request.path %}
-                bg-gradient-to-br from-green-500 to-green-600 text-white shadow-lg shadow-green-500/50
+                bg-gradient-to-br from-green-500 to-green-600 text-white shadow-lg shadow-green-500/30
               {% else %}
-                text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800
+                text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:scale-105
               {% endif %}">
       <i class="fas fa-mobile-alt text-xl"></i>
-      <span class="absolute left-full ml-4 px-4 py-2 bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-sm font-semibold rounded-xl opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap shadow-xl">
+      <span class="absolute left-full ml-4 px-4 py-2.5 bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-sm font-semibold rounded-xl opacity-0 group-hover:opacity-100 pointer-events-none transition-all whitespace-nowrap shadow-xl scale-90 group-hover:scale-100">
         APK Store
       </span>
     </a>
     
-    <div class="h-px bg-gray-200 dark:bg-gray-700 my-1"></div>
+    {# Divider #}
+    <div class="h-px bg-gradient-to-r from-transparent via-gray-300 dark:via-gray-700 to-transparent my-1"></div>
     
-    {# Scroll to Top Button #}
+    {# Scroll to Top #}
     <button onclick="window.scrollTo({top: 0, behavior: 'smooth'})"
-            class="group relative flex items-center justify-center w-14 h-14 rounded-2xl text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all">
+            class="group relative flex items-center justify-center w-14 h-14 rounded-2xl text-gray-600 dark:text-gray-400 hover:bg-gradient-to-br hover:from-gray-500 hover:to-gray-600 hover:text-white transition-all hover:scale-105 hover:shadow-lg">
       <i class="fas fa-arrow-up text-xl"></i>
-      <span class="absolute left-full ml-4 px-4 py-2 bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-sm font-semibold rounded-xl opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap shadow-xl">
+      <span class="absolute left-full ml-4 px-4 py-2.5 bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-sm font-semibold rounded-xl opacity-0 group-hover:opacity-100 pointer-events-none transition-all whitespace-nowrap shadow-xl scale-90 group-hover:scale-100">
         Back to Top
       </span>
     </button>
@@ -149,13 +193,23 @@
 </nav>
 
 {# Spacer for mobile bottom nav #}
-<div class="lg:hidden h-20"></div>
+<div class="lg:hidden h-24"></div>
 
 <style>
-  /* Safe area support for devices with notches */
+  /* Safe area support for devices with notches/home indicators */
   @supports (padding-bottom: env(safe-area-inset-bottom)) {
     .safe-area-bottom {
-      padding-bottom: calc(0.75rem + env(safe-area-inset-bottom));
+      padding-bottom: env(safe-area-inset-bottom);
     }
+  }
+  
+  /* Smooth scroll behavior */
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  /* Prevent layout shift */
+  nav a, nav button {
+    -webkit-tap-highlight-color: transparent;
   }
 </style>

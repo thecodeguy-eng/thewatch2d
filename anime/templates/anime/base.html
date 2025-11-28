@@ -864,13 +864,6 @@
     </div>
   </header>
 
-    <div class="text-center mt-8">
-    <a href="{% url 'home' %}" 
-      class="inline-block bg-gradient-to-r from-blue-500 via-indigo-500 to-cyan-500 hover:from-blue-600 hover:via-indigo-600 hover:to-cyan-600 text-white px-8 py-3 rounded-full font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg">
-        <i class="fas fa-arrow-right mr-2"></i>
-          Click to Download and Stream Movies 
-    </a>
-
 
 <!-- FLOATING BUTTON VERSION - Add this anywhere in your templates for a floating switch -->
 <div class="fixed bottom-6 right-6 z-40 flex flex-col gap-3">
@@ -907,7 +900,7 @@
 
   <!-- Toggle Button (Movies/Anime) -->
   {% if 'anime' in request.path %}
-    <a href="{% url 'home' %}" 
+    <a href="{% url 'anime:list' %}" 
        class="group relative flex items-center px-4 py-3 bg-gradient-to-r from-blue-500 via-indigo-500 to-cyan-500 hover:from-blue-600 hover:via-indigo-600 hover:to-cyan-600 text-white rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 animate-pulse hover:animate-none">
       <!-- Subtle glow effect -->
       <div class="absolute inset-0 bg-gradient-to-r from-blue-400 via-indigo-400 to-cyan-400 rounded-full blur-sm opacity-30 group-hover:opacity-50 transition-opacity duration-300"></div>

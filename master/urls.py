@@ -13,9 +13,6 @@ from django.conf import settings
 from django.conf.urls.static import static
 import json
 
-# Import the unified home view for backward compatibility
-from main.views import UnifiedHomeView
-
 # Sitemaps
 sitemaps = {
     'home': HomeSitemap(),
@@ -166,13 +163,7 @@ urlpatterns = [
     # ⭐ UNIFIED HOMEPAGE (Main app)
     path('', include('main.urls')),
     
-    # Backward compatibility: Allow {% url 'home' %} to work
-    path('home-redirect/', UnifiedHomeView.as_view(), name='home'),
-    
-    # Backward compatibility for templates using {% url 'home' %}
-    path('home/', include('main.urls')),
-    
-    # 🎬 Movies App
+    # 🎬 Movies App (has its own home page at /movies/)
     path('movies/', include(('movies.urls', 'movies'), namespace='movies')),
     
     # 🎭 Anime App
