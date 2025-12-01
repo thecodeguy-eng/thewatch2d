@@ -1,0 +1,146 @@
+{
+  "name": "Ibez - Movies & Series",
+  "short_name": "Ibez",
+  "description": "Stream and download movies, series, anime, K-Dramas and more. Your ultimate entertainment destination.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "theme_color": "#0ea5e9",
+  "background_color": "#ffffff",
+  "categories": ["entertainment", "multimedia", "movies"],
+  "lang": "en",
+  "dir": "ltr",
+
+  "icons": [
+    {
+      "src": "/static/img/icons/icon-72x72.png",
+      "sizes": "72x72",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/static/img/icons/icon-96x96.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/static/img/icons/icon-128x128.png",
+      "sizes": "128x128",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/static/img/icons/icon-144x144.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/static/img/icons/icon-152x152.png",
+      "sizes": "152x152",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/static/img/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/static/img/icons/icon-384x384.png",
+      "sizes": "384x384",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/static/img/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable any"
+    }
+  ],
+  
+  "screenshots": [
+    {
+      "src": "/static/img/screenshots/mobile-home.png",
+      "sizes": "375x812",
+      "type": "image/png",
+      "platform": "narrow",
+      "label": "Home screen showing latest movies"
+    },
+    {
+      "src": "/static/img/screenshots/desktop-home.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "platform": "wide",
+      "label": "Desktop view of movie catalog"
+    }
+  ],
+  
+  "shortcuts": [
+    {
+      "name": "Search Movies",
+      "short_name": "Search",
+      "description": "Search for movies and series",
+      "url": "/movies/search/",
+      "icons": [
+        {
+          "src": "/static/img/icons/search-icon.png",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Hollywood Movies",
+      "short_name": "Hollywood",
+      "description": "Browse Hollywood movies",
+      "url": "/movies/hollywood/",
+      "icons": [
+        {
+          "src": "/static/img/icons/hollywood-icon.png",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Anime",
+      "short_name": "Anime",
+      "description": "Browse anime series and movies",
+      "url": "/movies/anime/",
+      "icons": [
+        {
+          "src": "/static/img/icons/anime-icon.png",
+          "sizes": "96x96"
+        }
+      ]
+    }
+  ],
+  
+  "related_applications": [
+    {
+      "platform": "play",
+      "url": "https://play.google.com/store/apps/details?id=com.Ibez.app",
+      "id": "com.Ibez.app"
+    }
+  ],
+  
+  "prefer_related_applications": false,
+  
+  "protocol_handlers": [
+    {
+      "protocol": "web+Ibez",
+      "url": "/movie/%s"
+    }
+  ],
+  
+  "edge_side_panel": {
+    "preferred_width": 400
+  },
+  
+  "launch_handler": {
+    "client_mode": "navigate-existing"
+  }
+}
