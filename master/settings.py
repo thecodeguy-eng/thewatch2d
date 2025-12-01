@@ -72,7 +72,7 @@ INSTALLED_APPS = [
     'movies',            # Movies app
     'anime',             # Anime app
     'manga',             # Manga app
-    'apk_store',         # APK Store app
+    'apk_store',         # Ibez app
     
     # Other apps
     'django_crontab',
@@ -155,8 +155,8 @@ WSGI_APPLICATION = 'master.wsgi.application'
 
 
 PWA_SETTINGS = {
-    'name': 'Watch2D - Movies, Anime, Manga & Apps',
-    'short_name': 'Watch2D',
+    'name': 'Ibez - Movies, Anime, Manga & Apps',
+    'short_name': 'Ibez',
     'description': 'All entertainment in one place. Stream movies, watch anime, read manga, and download premium APKs.',
     'theme_color': '#3b82f6',
     'background_color': '#ffffff',
@@ -201,13 +201,19 @@ CSP_MANIFEST_SRC = ("'self'",)
 #     'default': dj_database_url.parse(config('DATABASE_URL'))
 # }
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
+# }
+
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+    'default': dj_database_url.parse(config('DATABASE_URL'))
 }
 
+
+# postgresql://postgres.scsikofwbmcchkxvrvsw:all_in_one_db@aws-1-eu-west-1.pooler.supabase.com:6543/postgres
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
@@ -261,7 +267,7 @@ STATICFILES_DIRS = [
 CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
-        'LOCATION': 'watch2d-cache',
+        'LOCATION': 'Ibez-cache',
         'OPTIONS': {
             'MAX_ENTRIES': 1000
         }
@@ -283,7 +289,7 @@ OFFLINE_URL = '/offline.html'
 WEBPUSH_SETTINGS = {
     "VAPID_PUBLIC_KEY": "your-vapid-public-key-here",
     "VAPID_PRIVATE_KEY": "your-vapid-private-key-here",
-    "VAPID_ADMIN_EMAIL": "admin@watch2d.com"
+    "VAPID_ADMIN_EMAIL": "admin@Ibez.store"
 }
 
 INSTALLED_APPS += [

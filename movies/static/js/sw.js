@@ -1,6 +1,6 @@
-// Service Worker for Watch2D PWA
-const CACHE_NAME = 'watch2d-v1.0.0';
-const RUNTIME_CACHE = 'watch2d-runtime-v1.0.0';
+// Service Worker for Ibez PWA
+const CACHE_NAME = 'Ibez-v1.0.0';
+const RUNTIME_CACHE = 'Ibez-runtime-v1.0.0';
 
 // Core files to cache immediately
 const CORE_CACHE_FILES = [
@@ -224,11 +224,11 @@ self.addEventListener('push', (event) => {
   console.log('Push notification received');
   
   let notificationData = {
-    title: 'Watch2D',
+    title: 'Ibez',
     body: 'New movies available!',
     icon: '/static/img/icons/icon-192x192.png',
     badge: '/static/img/icons/icon-72x72.png',
-    tag: 'watch2d-notification'
+    tag: 'Ibez-notification'
   };
   
   if (event.data) {

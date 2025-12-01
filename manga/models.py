@@ -157,10 +157,10 @@ class Manga(models.Model):
             self.slug = slug
         
         if not self.meta_title:
-            self.meta_title = f"Read {self.title} - Free Manga Online | Watch2D"
+            self.meta_title = f"Read {self.title} - Free Manga Online | Ibez"
         
         if not self.meta_description:
-            self.meta_description = f"Read {self.title} manga online for free. High-quality chapters updated regularly on Watch2D."
+            self.meta_description = f"Read {self.title} manga online for free. High-quality chapters updated regularly on Ibez."
             
         super().save(*args, **kwargs)
 

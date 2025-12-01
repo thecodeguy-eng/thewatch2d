@@ -76,7 +76,7 @@ def robots_txt(request):
     lines = [
         "User-agent: *",
         "Disallow: /admin/",
-        "Sitemap: https://watch2d.com/sitemap.xml",
+        "Sitemap: https://Ibez.store/sitemap.xml",
     ]
     return HttpResponse("\n".join(lines), content_type="text/plain")
 

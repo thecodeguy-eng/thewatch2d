@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   {# -- SEO Meta Tags -- #}
-  <title>{% block title %}Watch2D Anime - Stream & Download Latest Anime Series Free{% endblock %}</title>
+  <title>{% block title %}Ibez Anime - Stream & Download Latest Anime Series Free{% endblock %}</title>
   <meta name="description" content="{% block meta_description %}Watch and download the latest anime series for free. High-quality anime streaming with English subtitles. Updated daily with new episodes.{% endblock %}" />
   <meta name="keywords" content="{% block meta_keywords %}anime, watch anime, download anime, anime streaming, anime episodes, free anime, anime series{% endblock %}" />
   <meta name="robots" content="{% block meta_robots %}index, follow{% endblock %}" />
@@ -19,7 +19,7 @@
   <meta property="og:description" content="{% block og_description %}Watch and download the latest anime series for free. High-quality anime streaming with English subtitles.{% endblock %}" />
   <meta property="og:url" content="{% block og_url %}{{ request.build_absolute_uri }}{% endblock %}" />
   <meta property="og:image" content="{% block og_image %}{% static 'img/anime-preview.jpg' %}{% endblock %}" />
-  <meta property="og:site_name" content="Watch2D Anime" />
+  <meta property="og:site_name" content="Ibez Anime" />
 
   {# -- Favicon -- #}
   <link rel="icon" type="image/png" href="{% static 'img/favicon.png' %}" />
@@ -179,10 +179,10 @@
   {% block extra_css %}{% endblock %}
 
 
- <!-- Watch2D Review System -->
+ <!-- Ibez Review System -->
 <script>
   /**
- * Watch2D Google Review Integration System - Non-Intrusive Version
+ * Ibez Google Review Integration System - Non-Intrusive Version
  * Shows review request without blocking user interaction
  * Blocks ads when review popup is active
  */
@@ -191,16 +191,16 @@
     'use strict';
     
     // Configuration - Easy to modify
-    const WATCH2D_CONFIG = {
+    const Ibez_CONFIG = {
         REVIEW_URL: 'https://g.page/r/CRSgilums2fuEAI/review',
         POPUP_DELAY: 15000, // 0.25 minutes in milliseconds
-        BUSINESS_NAME: 'Watch2D',
+        BUSINESS_NAME: 'Ibez',
         ZONE_IDS: ['9487215', '9487214'], // Your ad zone IDs from the document
         STORAGE_KEYS: {
-            HAS_REVIEWED: 'watch2d_has_reviewed',
-            REVIEW_DATE: 'watch2d_review_date',
-            POPUP_SHOWN: 'watch2d_popup_shown_session',
-            DISMISSED_COUNT: 'watch2d_dismissed_count'
+            HAS_REVIEWED: 'Ibez_has_reviewed',
+            REVIEW_DATE: 'Ibez_review_date',
+            POPUP_SHOWN: 'Ibez_popup_shown_session',
+            DISMISSED_COUNT: 'Ibez_dismissed_count'
         }
     };
     
@@ -220,7 +220,7 @@
             if (shouldShowReviewPopup()) {
                 showReviewPopup();
             }
-        }, WATCH2D_CONFIG.POPUP_DELAY);
+        }, Ibez_CONFIG.POPUP_DELAY);
     }
     
     // Time tracking
@@ -229,7 +229,7 @@
             timeOnSite += 1000;
             
             // Also check if enough time has passed (backup trigger)
-            if (timeOnSite >= WATCH2D_CONFIG.POPUP_DELAY && shouldShowReviewPopup()) {
+            if (timeOnSite >= Ibez_CONFIG.POPUP_DELAY && shouldShowReviewPopup()) {
                 showReviewPopup();
             }
         }, 1000);
@@ -237,29 +237,29 @@
     
     // Check if popup should be shown
     function shouldShowReviewPopup() {
-        const dismissedCount = parseInt(localStorage.getItem(WATCH2D_CONFIG.STORAGE_KEYS.DISMISSED_COUNT) || '0');
+        const dismissedCount = parseInt(localStorage.getItem(Ibez_CONFIG.STORAGE_KEYS.DISMISSED_COUNT) || '0');
         return !hasReviewedBefore() && 
               !popupShownThisSession && 
               !reviewPopupActive &&
-              timeOnSite >= WATCH2D_CONFIG.POPUP_DELAY &&
+              timeOnSite >= Ibez_CONFIG.POPUP_DELAY &&
               dismissedCount < 3; // Stop showing after 3 dismissals
     }
     
     // Check if user has reviewed before
     function hasReviewedBefore() {
-        return localStorage.getItem(WATCH2D_CONFIG.STORAGE_KEYS.HAS_REVIEWED) === 'true';
+        return localStorage.getItem(Ibez_CONFIG.STORAGE_KEYS.HAS_REVIEWED) === 'true';
     }
     
     // Mark user as having reviewed
     function markAsReviewed() {
-        localStorage.setItem(WATCH2D_CONFIG.STORAGE_KEYS.HAS_REVIEWED, 'true');
-        localStorage.setItem(WATCH2D_CONFIG.STORAGE_KEYS.REVIEW_DATE, new Date().toISOString());
+        localStorage.setItem(Ibez_CONFIG.STORAGE_KEYS.HAS_REVIEWED, 'true');
+        localStorage.setItem(Ibez_CONFIG.STORAGE_KEYS.REVIEW_DATE, new Date().toISOString());
     }
     
     // Increment dismissed count
     function incrementDismissedCount() {
-        const count = parseInt(localStorage.getItem(WATCH2D_CONFIG.STORAGE_KEYS.DISMISSED_COUNT) || '0');
-        localStorage.setItem(WATCH2D_CONFIG.STORAGE_KEYS.DISMISSED_COUNT, (count + 1).toString());
+        const count = parseInt(localStorage.getItem(Ibez_CONFIG.STORAGE_KEYS.DISMISSED_COUNT) || '0');
+        localStorage.setItem(Ibez_CONFIG.STORAGE_KEYS.DISMISSED_COUNT, (count + 1).toString());
     }
     
     // Intercept and control popunder ads
@@ -275,7 +275,7 @@
         // Override the popunder functions
         window._sfxyz = function() {
             if (reviewPopupActive) {
-                console.log('Watch2D: Popunder blocked - review popup active');
+                console.log('Ibez: Popunder blocked - review popup active');
                 return false;
             }
             return originalPopunderFunctions._sfxyz ? originalPopunderFunctions._sfxyz.apply(this, arguments) : true;
@@ -283,7 +283,7 @@
         
         window._iamkeom = function() {
             if (reviewPopupActive) {
-                console.log('Watch2D: Popunder blocked - review popup active');
+                console.log('Ibez: Popunder blocked - review popup active');
                 return false;
             }
             return originalPopunderFunctions._iamkeom ? originalPopunderFunctions._iamkeom.apply(this, arguments) : true;
@@ -299,7 +299,7 @@
         
         // Create popup container (positioned, not overlay)
         const popup = document.createElement('div');
-        popup.id = 'watch2d-review-popup';
+        popup.id = 'Ibez-review-popup';
         popup.innerHTML = createPopupHTML();
         
         // Add styles
@@ -314,7 +314,7 @@
         
         // Auto-minimize after 15 seconds if no interaction
         setTimeout(() => {
-            const popupElement = document.getElementById('watch2d-review-popup');
+            const popupElement = document.getElementById('Ibez-review-popup');
             if (popupElement && !popupElement.classList.contains('minimized')) {
                 minimizePopup();
             }
@@ -322,7 +322,7 @@
         
         // Auto-close after 60 seconds total
         setTimeout(() => {
-            if (document.getElementById('watch2d-review-popup')) {
+            if (document.getElementById('Ibez-review-popup')) {
                 closeReviewPopup(true); // true = auto-dismissed
             }
         }, 60000);
@@ -331,31 +331,31 @@
     // Create popup HTML based on user status
     function createPopupHTML() {
         const hasReviewed = hasReviewedBefore();
-        const reviewDate = hasReviewed ? new Date(localStorage.getItem(WATCH2D_CONFIG.STORAGE_KEYS.REVIEW_DATE)) : null;
+        const reviewDate = hasReviewed ? new Date(localStorage.getItem(Ibez_CONFIG.STORAGE_KEYS.REVIEW_DATE)) : null;
         
         if (hasReviewed) {
             // Returning user popup
             return `
-                <div class="watch2d-popup-container returning-user">
-                    <div class="watch2d-popup-header">
-                        <span class="watch2d-popup-icon">👋</span>
-                        <button class="watch2d-popup-close" onclick="closeReviewPopup()">&times;</button>
-                        <button class="watch2d-popup-minimize" onclick="minimizePopup()">−</button>
+                <div class="Ibez-popup-container returning-user">
+                    <div class="Ibez-popup-header">
+                        <span class="Ibez-popup-icon">👋</span>
+                        <button class="Ibez-popup-close" onclick="closeReviewPopup()">&times;</button>
+                        <button class="Ibez-popup-minimize" onclick="minimizePopup()">−</button>
                     </div>
-                    <div class="watch2d-popup-content">
+                    <div class="Ibez-popup-content">
                         <h3>Welcome Back!</h3>
                         <p>Thanks for your review on ${reviewDate ? reviewDate.toLocaleDateString() : 'your previous visit'}!</p>
-                        <div class="watch2d-popup-actions">
-                            <a href="${WATCH2D_CONFIG.REVIEW_URL}" target="_blank" class="watch2d-btn watch2d-btn-primary" onclick="handleReviewClick()">
+                        <div class="Ibez-popup-actions">
+                            <a href="${Ibez_CONFIG.REVIEW_URL}" target="_blank" class="Ibez-btn Ibez-btn-primary" onclick="handleReviewClick()">
                                 📝 Update Review
                             </a>
-                            <button class="watch2d-btn watch2d-btn-secondary" onclick="closeReviewPopup()">
+                            <button class="Ibez-btn Ibez-btn-secondary" onclick="closeReviewPopup()">
                                 Close
                             </button>
                         </div>
                     </div>
-                    <div class="watch2d-popup-minimized">
-                        <span class="watch2d-popup-icon">👋</span>
+                    <div class="Ibez-popup-minimized">
+                        <span class="Ibez-popup-icon">👋</span>
                         <span>Welcome back!</span>
                     </div>
                 </div>
@@ -363,26 +363,26 @@
         } else {
             // First-time user popup
             return `
-                <div class="watch2d-popup-container">
-                    <div class="watch2d-popup-header">
-                        <span class="watch2d-popup-icon">⭐</span>
-                        <button class="watch2d-popup-close" onclick="closeReviewPopup()">&times;</button>
-                        <button class="watch2d-popup-minimize" onclick="minimizePopup()">−</button>
+                <div class="Ibez-popup-container">
+                    <div class="Ibez-popup-header">
+                        <span class="Ibez-popup-icon">⭐</span>
+                        <button class="Ibez-popup-close" onclick="closeReviewPopup()">&times;</button>
+                        <button class="Ibez-popup-minimize" onclick="minimizePopup()">−</button>
                     </div>
-                    <div class="watch2d-popup-content">
-                        <h3>Loving ${WATCH2D_CONFIG.BUSINESS_NAME}?</h3>
+                    <div class="Ibez-popup-content">
+                        <h3>Loving ${Ibez_CONFIG.BUSINESS_NAME}?</h3>
                         <p>Quick 30-second review? It helps us grow! 🎬</p>
-                        <div class="watch2d-popup-actions">
-                            <a href="${WATCH2D_CONFIG.REVIEW_URL}" target="_blank" class="watch2d-btn watch2d-btn-primary" onclick="handleReviewClick()">
+                        <div class="Ibez-popup-actions">
+                            <a href="${Ibez_CONFIG.REVIEW_URL}" target="_blank" class="Ibez-btn Ibez-btn-primary" onclick="handleReviewClick()">
                                 ⭐ Leave Review
                             </a>
-                            <button class="watch2d-btn watch2d-btn-secondary" onclick="closeReviewPopup()">
+                            <button class="Ibez-btn Ibez-btn-secondary" onclick="closeReviewPopup()">
                                 Not Now
                             </button>
                         </div>
                     </div>
-                    <div class="watch2d-popup-minimized">
-                        <span class="watch2d-popup-icon">⭐</span>
+                    <div class="Ibez-popup-minimized">
+                        <span class="Ibez-popup-icon">⭐</span>
                         <span>Review us?</span>
                     </div>
                 </div>
@@ -393,7 +393,7 @@
     // Get popup styles - Non-intrusive positioning
     function getPopupStyles() {
         return `
-            #watch2d-review-popup {
+            #Ibez-review-popup {
                 position: fixed;
                 bottom: 20px;
                 right: 20px;
@@ -402,7 +402,7 @@
                 pointer-events: auto;
             }
             
-            .watch2d-popup-container {
+            .Ibez-popup-container {
                 background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
                 border-radius: 12px;
                 width: 320px;
@@ -410,29 +410,29 @@
                 box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
                 border: 2px solid #4a90e2;
                 transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-                animation: watch2d-slideInRight 0.4s ease;
+                animation: Ibez-slideInRight 0.4s ease;
                 overflow: hidden;
             }
             
-            .watch2d-popup-container.returning-user {
+            .Ibez-popup-container.returning-user {
                 background: linear-gradient(135deg, #2d1b69 0%, #11998e 100%);
                 border-color: #11998e;
             }
             
-            .watch2d-popup-container.minimized {
+            .Ibez-popup-container.minimized {
                 width: 160px;
                 cursor: pointer;
             }
             
-            .watch2d-popup-container.minimized .watch2d-popup-content {
+            .Ibez-popup-container.minimized .Ibez-popup-content {
                 display: none;
             }
             
-            .watch2d-popup-container:not(.minimized) .watch2d-popup-minimized {
+            .Ibez-popup-container:not(.minimized) .Ibez-popup-minimized {
                 display: none;
             }
             
-            .watch2d-popup-header {
+            .Ibez-popup-header {
                 display: flex;
                 align-items: center;
                 justify-content: space-between;
@@ -441,13 +441,13 @@
                 border-bottom: 1px solid rgba(255, 255, 255, 0.1);
             }
             
-            .watch2d-popup-icon {
+            .Ibez-popup-icon {
                 font-size: 18px;
                 font-weight: bold;
             }
             
-            .watch2d-popup-close,
-            .watch2d-popup-minimize {
+            .Ibez-popup-close,
+            .Ibez-popup-minimize {
                 background: none;
                 border: none;
                 color: white;
@@ -463,40 +463,40 @@
                 margin-left: 5px;
             }
             
-            .watch2d-popup-close:hover,
-            .watch2d-popup-minimize:hover {
+            .Ibez-popup-close:hover,
+            .Ibez-popup-minimize:hover {
                 background: rgba(255, 255, 255, 0.2);
             }
             
-            .watch2d-popup-content {
+            .Ibez-popup-content {
                 padding: 15px;
             }
             
-            .watch2d-popup-content h3 {
+            .Ibez-popup-content h3 {
                 margin: 0 0 8px 0;
                 font-size: 16px;
                 color: #4a90e2;
                 font-weight: 600;
             }
             
-            .returning-user .watch2d-popup-content h3 {
+            .returning-user .Ibez-popup-content h3 {
                 color: #11998e;
             }
             
-            .watch2d-popup-content p {
+            .Ibez-popup-content p {
                 margin: 0 0 15px 0;
                 line-height: 1.4;
                 font-size: 13px;
                 opacity: 0.9;
             }
             
-            .watch2d-popup-actions {
+            .Ibez-popup-actions {
                 display: flex;
                 gap: 8px;
                 flex-direction: column;
             }
             
-            .watch2d-btn {
+            .Ibez-btn {
                 padding: 8px 12px;
                 border: none;
                 border-radius: 6px;
@@ -509,37 +509,37 @@
                 display: block;
             }
             
-            .watch2d-btn-primary {
+            .Ibez-btn-primary {
                 background: linear-gradient(45deg, #4a90e2, #357abd);
                 color: white;
                 box-shadow: 0 2px 8px rgba(74, 144, 226, 0.3);
             }
             
-            .watch2d-btn-primary:hover {
+            .Ibez-btn-primary:hover {
                 transform: translateY(-1px);
                 box-shadow: 0 4px 12px rgba(74, 144, 226, 0.4);
             }
             
-            .returning-user .watch2d-btn-primary {
+            .returning-user .Ibez-btn-primary {
                 background: linear-gradient(45deg, #11998e, #0f7a70);
                 box-shadow: 0 2px 8px rgba(17, 153, 142, 0.3);
             }
             
-            .returning-user .watch2d-btn-primary:hover {
+            .returning-user .Ibez-btn-primary:hover {
                 box-shadow: 0 4px 12px rgba(17, 153, 142, 0.4);
             }
             
-            .watch2d-btn-secondary {
+            .Ibez-btn-secondary {
                 background: rgba(255, 255, 255, 0.1);
                 color: white;
                 border: 1px solid rgba(255, 255, 255, 0.3);
             }
             
-            .watch2d-btn-secondary:hover {
+            .Ibez-btn-secondary:hover {
                 background: rgba(255, 255, 255, 0.2);
             }
             
-            .watch2d-popup-minimized {
+            .Ibez-popup-minimized {
                 padding: 12px 15px;
                 display: flex;
                 align-items: center;
@@ -550,11 +550,11 @@
                 transition: all 0.2s ease;
             }
             
-            .watch2d-popup-minimized:hover {
+            .Ibez-popup-minimized:hover {
                 background: rgba(255, 255, 255, 0.1);
             }
             
-            @keyframes watch2d-slideInRight {
+            @keyframes Ibez-slideInRight {
                 from { 
                     transform: translateX(100%); 
                     opacity: 0; 
@@ -565,31 +565,31 @@
                 }
             }
             
-            @keyframes watch2d-bounce {
+            @keyframes Ibez-bounce {
                 0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
                 40% { transform: translateY(-5px); }
                 60% { transform: translateY(-3px); }
             }
             
             /* Attention grabber animation */
-            .watch2d-popup-container:not(.minimized) {
-                animation: watch2d-slideInRight 0.4s ease, watch2d-bounce 2s ease 5s;
+            .Ibez-popup-container:not(.minimized) {
+                animation: Ibez-slideInRight 0.4s ease, Ibez-bounce 2s ease 5s;
             }
             
             /* Mobile responsiveness */
             @media (max-width: 480px) {
-                #watch2d-review-popup {
+                #Ibez-review-popup {
                     bottom: 10px;
                     right: 10px;
                     left: 10px;
                 }
                 
-                .watch2d-popup-container {
+                .Ibez-popup-container {
                     width: auto;
                     max-width: none;
                 }
                 
-                .watch2d-popup-container.minimized {
+                .Ibez-popup-container.minimized {
                     width: 140px;
                     margin-left: auto;
                 }
@@ -600,7 +600,7 @@
                 /* Add bottom padding only when popup is active */
             }
             
-            .watch2d-popup-container {
+            .Ibez-popup-container {
                 /* Ensure popup stays above everything */
                 isolation: isolate;
             }
@@ -611,7 +611,7 @@
     function setupPopupEvents(popup) {
         // Click on minimized popup to expand
         popup.addEventListener('click', function(e) {
-            if (popup.classList.contains('minimized') && !e.target.classList.contains('watch2d-popup-close')) {
+            if (popup.classList.contains('minimized') && !e.target.classList.contains('Ibez-popup-close')) {
                 expandPopup();
             }
         });
@@ -619,7 +619,7 @@
     
     // Minimize popup
     window.minimizePopup = function() {
-        const popup = document.getElementById('watch2d-review-popup');
+        const popup = document.getElementById('Ibez-review-popup');
         if (popup) {
             popup.firstElementChild.classList.add('minimized');
         }
@@ -627,7 +627,7 @@
     
     // Expand popup
     function expandPopup() {
-        const popup = document.getElementById('watch2d-review-popup');
+        const popup = document.getElementById('Ibez-review-popup');
         if (popup) {
             popup.firstElementChild.classList.remove('minimized');
             // Auto-minimize again after 10 seconds
@@ -652,14 +652,14 @@
             });
         }
         
-        console.log('Watch2D: User clicked to leave a review');
+        console.log('Ibez: User clicked to leave a review');
     };
     
     // Close popup and restore ad functionality
     window.closeReviewPopup = function(autoDismissed = false) {
-        const popup = document.getElementById('watch2d-review-popup');
+        const popup = document.getElementById('Ibez-review-popup');
         if (popup) {
-            popup.style.animation = 'watch2d-slideOutRight 0.3s ease forwards';
+            popup.style.animation = 'Ibez-slideOutRight 0.3s ease forwards';
             setTimeout(() => {
                 popup.remove();
             }, 300);
@@ -677,12 +677,12 @@
             showThankYouMessage();
         }
         
-        console.log('Watch2D: Review popup closed, ads restored');
+        console.log('Ibez: Review popup closed, ads restored');
     };
     
     // Add slide out animation
     const additionalStyles = `
-        @keyframes watch2d-slideOutRight {
+        @keyframes Ibez-slideOutRight {
             from { 
                 transform: translateX(0); 
                 opacity: 1; 
@@ -709,12 +709,12 @@
                 box-shadow: 0 4px 20px rgba(0,0,0,0.3);
                 font-weight: 600;
                 z-index: 999998;
-                animation: watch2d-slideInRight 0.3s ease;
+                animation: Ibez-slideInRight 0.3s ease;
                 max-width: 280px;
                 font-size: 13px;
                 font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             ">
-                ✅ Thanks for supporting ${WATCH2D_CONFIG.BUSINESS_NAME}! 🎬
+                ✅ Thanks for supporting ${Ibez_CONFIG.BUSINESS_NAME}! 🎬
             </div>
         `;
         
@@ -722,7 +722,7 @@
         
         // Auto-remove after 4 seconds
         setTimeout(() => {
-            thankYou.firstElementChild.style.animation = 'watch2d-slideOutRight 0.3s ease forwards';
+            thankYou.firstElementChild.style.animation = 'Ibez-slideOutRight 0.3s ease forwards';
             setTimeout(() => thankYou.remove(), 300);
         }, 4000);
     }
@@ -733,7 +733,7 @@
             e.preventDefault();
             popupShownThisSession = false;
             showReviewPopup();
-            console.log('Watch2D: Manual review popup triggered for testing');
+            console.log('Ibez: Manual review popup triggered for testing');
         }
     });
     
@@ -745,7 +745,7 @@
     }
     
     // Debug info (remove in production)
-    window.WATCH2D_DEBUG = {
+    window.Ibez_DEBUG = {
         getTimeOnSite: () => Math.floor(timeOnSite / 1000) + ' seconds',
         hasReviewed: hasReviewedBefore,
         isPopupActive: () => reviewPopupActive,
@@ -754,12 +754,12 @@
             showReviewPopup();
         },
         resetReviewStatus: () => {
-            Object.values(WATCH2D_CONFIG.STORAGE_KEYS).forEach(key => {
+            Object.values(Ibez_CONFIG.STORAGE_KEYS).forEach(key => {
                 localStorage.removeItem(key);
             });
-            console.log('Watch2D: Review status reset');
+            console.log('Ibez: Review status reset');
         },
-        getDismissedCount: () => localStorage.getItem(WATCH2D_CONFIG.STORAGE_KEYS.DISMISSED_COUNT) || '0'
+        getDismissedCount: () => localStorage.getItem(Ibez_CONFIG.STORAGE_KEYS.DISMISSED_COUNT) || '0'
     };
     
 })();
@@ -777,12 +777,12 @@
         <div class="flex items-center space-x-3">
           <a href="{% url 'anime:list' %}" class="flex items-center space-x-3 group">
             <div class="relative">
-              <img src="{% static 'img/logo.png' %}" alt="Watch2D Logo" class="h-12 w-12 rounded-2xl shadow-lg ring-2 ring-primary-500/20 group-hover:ring-primary-500/40 transition-all duration-300" />
+              <img src="{% static 'img/logo.png' %}" alt="Ibez Logo" class="h-12 w-12 rounded-2xl shadow-lg ring-2 ring-primary-500/20 group-hover:ring-primary-500/40 transition-all duration-300" />
               <div class="absolute inset-0 rounded-2xl bg-gradient-to-r from-primary-500/20 to-accent-500/20 opacity-0 group-hover:opacity-100 transition-all duration-300"></div>
             </div>
             <div>
               <h1 class="text-2xl lg:text-3xl font-bold bg-gradient-to-r from-primary-600 via-blue-600 to-accent-600 bg-clip-text text-transparent">
-                Watch2D
+                Ibez
               </h1>
               <p class="text-xs text-gray-500 dark:text-gray-400 font-medium">Anime.Unlimited</p>
             </div>
@@ -870,7 +870,7 @@
   <!-- Social Media Buttons -->
   <div class="flex flex-col gap-2">
     <!-- Telegram Button -->
-    <a href="https://t.me/watch2dchats" 
+    <a href="https://t.me/Ibezchats" 
        target="_blank"
        rel="noopener noreferrer"
        class="group relative flex items-center px-4 py-2.5 bg-gradient-to-r from-sky-400 via-blue-500 to-blue-600 hover:from-sky-500 hover:via-blue-600 hover:to-blue-700 text-white rounded-full shadow-lg hover:shadow-2xl transform hover:scale-105 transition-all duration-300">
@@ -968,14 +968,14 @@
             <div class="w-10 h-10 bg-gradient-to-r from-primary-500 to-accent-500 rounded-xl flex items-center justify-center">
               <i class="fas fa-play text-white text-lg"></i>
             </div>
-            <h3 class="text-xl font-bold bg-gradient-to-r from-primary-400 to-accent-400 bg-clip-text text-transparent">Watch2D Anime</h3>
+            <h3 class="text-xl font-bold bg-gradient-to-r from-primary-400 to-accent-400 bg-clip-text text-transparent">Ibez Anime</h3>
           </div>
           <p class="text-gray-300 text-sm leading-relaxed max-w-md">
             Your ultimate destination for streaming and downloading the latest anime series. 
             High-quality episodes with English subtitles, updated daily. Discover your next favorite anime!
           </p>
         <div class="flex space-x-4 pt-4">
-          <a href="https://t.me/watch2dchats" 
+          <a href="https://t.me/Ibezchats" 
             target="_blank"
             rel="noopener noreferrer"
             class="p-3 bg-gradient-to-r from-sky-400 to-blue-600 rounded-xl hover:from-sky-500 hover:to-blue-700 transition-all duration-300 transform hover:scale-110 shadow-lg">
@@ -992,7 +992,7 @@
       </div>
       
       <div class="border-t border-gray-700 mt-8 pt-8 text-center text-sm text-gray-400">
-        <p>&copy; Watch2D Anime. All rights reserved. | Made with ❤️ for anime lovers</p>
+        <p>&copy; Ibez Anime. All rights reserved. | Made with ❤️ for anime lovers</p>
         <p class="mt-2">Disclaimer: We do not host any anime files. All content is linked from third-party sources.</p>
       </div>
     </div>

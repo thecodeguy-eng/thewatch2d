@@ -1,6 +1,6 @@
 {
-  "name": "Watch2D - Movies & Series",
-  "short_name": "Watch2D",
+  "name": "Ibez - Movies & Series",
+  "short_name": "Ibez",
   "description": "Stream and download movies, series, anime, K-Dramas and more. Your ultimate entertainment destination.",
   "start_url": "/",
   "scope": "/",
@@ -122,8 +122,8 @@
   "related_applications": [
     {
       "platform": "play",
-      "url": "https://play.google.com/store/apps/details?id=com.watch2d.app",
-      "id": "com.watch2d.app"
+      "url": "https://play.google.com/store/apps/details?id=com.Ibez.app",
+      "id": "com.Ibez.app"
     }
   ],
   
@@ -131,7 +131,7 @@
   
   "protocol_handlers": [
     {
-      "protocol": "web+watch2d",
+      "protocol": "web+Ibez",
       "url": "/movie/%s"
     }
   ],

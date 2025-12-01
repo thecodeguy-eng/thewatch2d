@@ -1,0 +1,36 @@
+# Core Django
+Django==5.1.7
+gunicorn==23.0.0
+whitenoise==6.9.0
+
+# Database
+psycopg2-binary==2.9.10
+dj-database-url==2.3.0
+
+# Environment variables
+python-decouple==3.8
+
+# Django extensions
+django-allauth==0.63.6
+PyJWT==2.10.1
+cryptography==43.0.3
+django-crispy-forms==2.3
+crispy-bootstrap5==2025.6
+django-crontab==0.7.1
+django-pwa==2.0.1
+django-widget-tweaks==1.5.0
+
+# Cloudinary for media
+cloudinary==1.43.0
+django-cloudinary-storage==0.3.0
+
+# Web scraping
+beautifulsoup4==4.13.4
+requests==2.32.3
+lxml==5.3.0
+cloudscraper==1.2.71
+
+# Utilities
+pillow==11.1.0
+python-slugify==8.0.4
+python-dateutil==2.9.0.post0

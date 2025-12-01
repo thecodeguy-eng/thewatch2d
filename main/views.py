@@ -18,7 +18,7 @@ class UnifiedHomeView(TemplateView):
     - Movies (featured, trending, latest)
     - Anime (latest anime with their episodes)
     - Manga (latest manga with their chapters)
-    - APK Store (featured games & apps)
+    - Ibez (featured games & apps)
     """
     template_name = 'main/home.html'
     
@@ -129,7 +129,7 @@ class UnifiedHomeView(TemplateView):
         ).select_related('manga', 'manga__category').order_by('-created_at')[:12]
         
         
-        # ========== APK STORE SECTION ==========
+        # ========== Ibez SECTION ==========
         context['featured_apks'] = APK.objects.filter(
             is_active=True,
             featured=True

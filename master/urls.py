@@ -25,8 +25,8 @@ sitemaps = {
 def manifest_view(request):
     """Serve the PWA manifest.json"""
     manifest_data = {
-        "name": "Watch2D - Movies, Anime, Manga & Apps",
-        "short_name": "Watch2D",
+        "name": "Ibez - Movies, Anime, Manga & Apps",
+        "short_name": "Ibez",
         "description": "Stream movies, watch anime, read manga, and download premium APKs - all in one place!",
         "start_url": "/",
         "scope": "/",
@@ -110,7 +110,7 @@ def manifest_view(request):
                 "icons": [{"src": "/static/img/icons/icon-96x96.png", "sizes": "96x96"}]
             },
             {
-                "name": "APK Store",
+                "name": "Ibez",
                 "short_name": "Apps",
                 "description": "Download premium APKs",
                 "url": "/apk_store/",
@@ -158,7 +158,7 @@ def push_subscribe_view(request):
 
 urlpatterns = [
     # Admin
-    path('watch2d/watch2d_admin/admin', admin.site.urls),
+    path('Ibez/Ibez_admin/admin', admin.site.urls),
     
     # ⭐ UNIFIED HOMEPAGE (Main app)
     path('', include('main.urls')),
@@ -172,7 +172,7 @@ urlpatterns = [
     # 📚 Manga App  
     path('manga/', include('manga.urls')),
     
-    # 📱 APK Store App
+    # 📱 Ibez App
     path('apk_store/', include('apk_store.urls')),
     
     # Authentication

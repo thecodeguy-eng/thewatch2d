@@ -1,5 +1,5 @@
-// PWA Registration and Management for Watch2D
-class Watch2DPWA {
+// PWA Registration and Management for Ibez
+class IbezPWA {
   constructor() {
     this.deferredPrompt = null;
     this.isInstalled = false;
@@ -34,7 +34,7 @@ class Watch2DPWA {
                       window.navigator.standalone === true;
     
     if (this.isInstalled) {
-      console.log('Watch2D PWA is installed');
+      console.log('Ibez PWA is installed');
       this.hideInstallPrompts();
     }
   }
@@ -85,7 +85,7 @@ class Watch2DPWA {
 
     // Handle successful installation
     window.addEventListener('appinstalled', () => {
-      console.log('Watch2D PWA installed successfully');
+      console.log('Ibez PWA installed successfully');
       this.isInstalled = true;
       this.hideInstallPrompts();
       this.showInstallSuccess();
@@ -118,10 +118,10 @@ class Watch2DPWA {
     banner.innerHTML = `
       <div class="pwa-banner-content">
         <div class="pwa-banner-icon">
-          <img src="/static/img/logo.png" alt="Watch2D" />
+          <img src="/static/img/logo.png" alt="Ibez" />
         </div>
         <div class="pwa-banner-text">
-          <h3>Install Watch2D App</h3>
+          <h3>Install Ibez App</h3>
           <p>Get the full app experience with offline access</p>
         </div>
         <div class="pwa-banner-actions">
@@ -191,7 +191,7 @@ class Watch2DPWA {
 
   // Show install success message
   showInstallSuccess() {
-    this.showToast('Watch2D app installed successfully! 🎉', 'success');
+    this.showToast('Ibez app installed successfully! 🎉', 'success');
   }
 
   // Show app update available
@@ -210,7 +210,7 @@ class Watch2DPWA {
       <div class="pwa-banner-content">
         <div class="pwa-banner-text">
           <h3>Update Available</h3>
-          <p>A new version of Watch2D is ready</p>
+          <p>A new version of Ibez is ready</p>
         </div>
         <div class="pwa-banner-actions">
           <button id="pwa-update-btn" class="pwa-btn-update">Update Now</button>
@@ -706,12 +706,12 @@ class Watch2DPWA {
 document.addEventListener('DOMContentLoaded', () => {
   // Only initialize PWA in modern browsers
   if ('serviceWorker' in navigator && 'Promise' in window) {
-    window.watch2dPWA = new Watch2DPWA();
-    console.log('Watch2D PWA initialized');
+    window.IbezPWA = new IbezPWA();
+    console.log('Ibez PWA initialized');
   } else {
     console.warn('PWA features not supported in this browser');
   }
 });
 
 // Export for global access
-window.Watch2DPWA = Watch2DPWA;
+window.IbezPWA = IbezPWA;
