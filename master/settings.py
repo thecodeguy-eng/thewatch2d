@@ -34,11 +34,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 
 ## test
-# SECRET_KEY = config('SECRET_KEY', default='your-secret-key-here')
-SECRET_KEY = "fsfcscfsfdsxqc434433trrtygffgdxffgcycfvyfxdtrxerdrtdyfuyttrrd"
+SECRET_KEY = config('SECRET_KEY', default='your-secret-key-here')
+# SECRET_KEY = "fsfcscfsfdsxqc434433trrtygffgdxffgcycfvyfxdtrxerdrtdyfuyttrrd"
 
-# DEBUG = config('DEBUG', default=False, cast=bool)
-DEBUG = True
+DEBUG = config('DEBUG', default=False, cast=bool)
+# DEBUG = True
 ## deploy
 # SECRET_KEY = os.environ.get('SECRET_KEY')
 
