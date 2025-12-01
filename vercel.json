@@ -1,5 +1,4 @@
 {
-    "version": 2,
     "builds": [
         {
             "src": "master/wsgi.py",
@@ -8,25 +7,16 @@
                 "maxLambdaSize": "15mb",
                 "runtime": "python3.12"
             }
-        },
-        {
-            "src": "staticfiles/**",
-            "use": "@vercel/static"
         }
     ],
     "routes": [
         {
             "src": "/static/(.*)",
-            "dest": "/staticfiles/$1"
+            "dest": "/static/$1"
         },
         {
             "src": "/(.*)",
             "dest": "master/wsgi.py"
         }
-    ],
-    "functions": {
-        "master/wsgi.py": {
-            "includeFiles": "**"
-        }
-    }
+    ]
 }
