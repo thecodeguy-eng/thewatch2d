@@ -34,3 +34,6 @@ cloudscraper==1.2.71
 pillow==11.1.0
 python-slugify==8.0.4
 python-dateutil==2.9.0.post0
+
+# PDF generation (MISSING - ADD THIS)
+reportlab==4.0.9
