@@ -50,10 +50,16 @@ DEBUG = config('DEBUG', default=False, cast=bool)
 
 
 
-## deploy
 ALLOWED_HOSTS = [
-    "*"
+    'ibez.vercel.app',
+    '.vercel.app',  # This allows all preview deployments
+    'localhost',
+    '127.0.0.1',
 ]
+
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+USE_X_FORWARDED_HOST = True
+USE_X_FORWARDED_PORT = True
 
 
 
