@@ -14,49 +14,49 @@
 
   "icons": [
     {
-      "src": "/static/img/icons/icon-72x72.png",
+      "src": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhyWP9kWOZt4_QBwAd6ld2aBNxy2gHZdxXEntwKHGiL5EGWMR9OV_3MAoU2cnndWVdXtMaxcNpQ6YsCkEXLTutlBxPYDFIPujBO7SuiB745FsTuJvzjDmRMxtRR__lNKBH37lcuUhV8MfYXiA6Go3-F9cffW44OA_wWGBJw6n5PxjYRplbaTSO9e-O0YPA/s320/Image_fx%20(10).png",
       "sizes": "72x72",
       "type": "image/png",
       "purpose": "maskable any"
     },
     {
-      "src": "/static/img/icons/icon-96x96.png",
+      "src": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhyWP9kWOZt4_QBwAd6ld2aBNxy2gHZdxXEntwKHGiL5EGWMR9OV_3MAoU2cnndWVdXtMaxcNpQ6YsCkEXLTutlBxPYDFIPujBO7SuiB745FsTuJvzjDmRMxtRR__lNKBH37lcuUhV8MfYXiA6Go3-F9cffW44OA_wWGBJw6n5PxjYRplbaTSO9e-O0YPA/s320/Image_fx%20(10).png",
       "sizes": "96x96",
       "type": "image/png",
       "purpose": "maskable any"
     },
     {
-      "src": "/static/img/icons/icon-128x128.png",
+      "src": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhyWP9kWOZt4_QBwAd6ld2aBNxy2gHZdxXEntwKHGiL5EGWMR9OV_3MAoU2cnndWVdXtMaxcNpQ6YsCkEXLTutlBxPYDFIPujBO7SuiB745FsTuJvzjDmRMxtRR__lNKBH37lcuUhV8MfYXiA6Go3-F9cffW44OA_wWGBJw6n5PxjYRplbaTSO9e-O0YPA/s320/Image_fx%20(10).png",
       "sizes": "128x128",
       "type": "image/png",
       "purpose": "maskable any"
     },
     {
-      "src": "/static/img/icons/icon-144x144.png",
+      "src": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhyWP9kWOZt4_QBwAd6ld2aBNxy2gHZdxXEntwKHGiL5EGWMR9OV_3MAoU2cnndWVdXtMaxcNpQ6YsCkEXLTutlBxPYDFIPujBO7SuiB745FsTuJvzjDmRMxtRR__lNKBH37lcuUhV8MfYXiA6Go3-F9cffW44OA_wWGBJw6n5PxjYRplbaTSO9e-O0YPA/s320/Image_fx%20(10).png",
       "sizes": "144x144",
       "type": "image/png",
       "purpose": "maskable any"
     },
     {
-      "src": "/static/img/icons/icon-152x152.png",
+      "src": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhyWP9kWOZt4_QBwAd6ld2aBNxy2gHZdxXEntwKHGiL5EGWMR9OV_3MAoU2cnndWVdXtMaxcNpQ6YsCkEXLTutlBxPYDFIPujBO7SuiB745FsTuJvzjDmRMxtRR__lNKBH37lcuUhV8MfYXiA6Go3-F9cffW44OA_wWGBJw6n5PxjYRplbaTSO9e-O0YPA/s320/Image_fx%20(10).png",
       "sizes": "152x152",
       "type": "image/png",
       "purpose": "maskable any"
     },
     {
-      "src": "/static/img/icons/icon-192x192.png",
+      "src": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhyWP9kWOZt4_QBwAd6ld2aBNxy2gHZdxXEntwKHGiL5EGWMR9OV_3MAoU2cnndWVdXtMaxcNpQ6YsCkEXLTutlBxPYDFIPujBO7SuiB745FsTuJvzjDmRMxtRR__lNKBH37lcuUhV8MfYXiA6Go3-F9cffW44OA_wWGBJw6n5PxjYRplbaTSO9e-O0YPA/s320/Image_fx%20(10).png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "maskable any"
     },
     {
-      "src": "/static/img/icons/icon-384x384.png",
+      "src": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhyWP9kWOZt4_QBwAd6ld2aBNxy2gHZdxXEntwKHGiL5EGWMR9OV_3MAoU2cnndWVdXtMaxcNpQ6YsCkEXLTutlBxPYDFIPujBO7SuiB745FsTuJvzjDmRMxtRR__lNKBH37lcuUhV8MfYXiA6Go3-F9cffW44OA_wWGBJw6n5PxjYRplbaTSO9e-O0YPA/s320/Image_fx%20(10).png",
       "sizes": "384x384",
       "type": "image/png",
       "purpose": "maskable any"
     },
     {
-      "src": "/static/img/icons/icon-512x512.png",
+      "src": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhyWP9kWOZt4_QBwAd6ld2aBNxy2gHZdxXEntwKHGiL5EGWMR9OV_3MAoU2cnndWVdXtMaxcNpQ6YsCkEXLTutlBxPYDFIPujBO7SuiB745FsTuJvzjDmRMxtRR__lNKBH37lcuUhV8MfYXiA6Go3-F9cffW44OA_wWGBJw6n5PxjYRplbaTSO9e-O0YPA/s320/Image_fx%20(10).png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable any"
@@ -65,14 +65,14 @@
   
   "screenshots": [
     {
-      "src": "/static/img/screenshots/mobile-home.png",
+      "src": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhyWP9kWOZt4_QBwAd6ld2aBNxy2gHZdxXEntwKHGiL5EGWMR9OV_3MAoU2cnndWVdXtMaxcNpQ6YsCkEXLTutlBxPYDFIPujBO7SuiB745FsTuJvzjDmRMxtRR__lNKBH37lcuUhV8MfYXiA6Go3-F9cffW44OA_wWGBJw6n5PxjYRplbaTSO9e-O0YPA/s320/Image_fx%20(10).png",
       "sizes": "375x812",
       "type": "image/png",
       "platform": "narrow",
       "label": "Home screen showing latest movies"
     },
     {
-      "src": "/static/img/screenshots/desktop-home.png",
+      "src": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhyWP9kWOZt4_QBwAd6ld2aBNxy2gHZdxXEntwKHGiL5EGWMR9OV_3MAoU2cnndWVdXtMaxcNpQ6YsCkEXLTutlBxPYDFIPujBO7SuiB745FsTuJvzjDmRMxtRR__lNKBH37lcuUhV8MfYXiA6Go3-F9cffW44OA_wWGBJw6n5PxjYRplbaTSO9e-O0YPA/s320/Image_fx%20(10).png",
       "sizes": "1280x720",
       "type": "image/png",
       "platform": "wide",
@@ -88,7 +88,7 @@
       "url": "/movies/search/",
       "icons": [
         {
-          "src": "/static/img/icons/search-icon.png",
+          "src": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhyWP9kWOZt4_QBwAd6ld2aBNxy2gHZdxXEntwKHGiL5EGWMR9OV_3MAoU2cnndWVdXtMaxcNpQ6YsCkEXLTutlBxPYDFIPujBO7SuiB745FsTuJvzjDmRMxtRR__lNKBH37lcuUhV8MfYXiA6Go3-F9cffW44OA_wWGBJw6n5PxjYRplbaTSO9e-O0YPA/s320/Image_fx%20(10).png",
           "sizes": "96x96"
         }
       ]
@@ -100,7 +100,7 @@
       "url": "/movies/hollywood/",
       "icons": [
         {
-          "src": "/static/img/icons/hollywood-icon.png",
+          "src": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhyWP9kWOZt4_QBwAd6ld2aBNxy2gHZdxXEntwKHGiL5EGWMR9OV_3MAoU2cnndWVdXtMaxcNpQ6YsCkEXLTutlBxPYDFIPujBO7SuiB745FsTuJvzjDmRMxtRR__lNKBH37lcuUhV8MfYXiA6Go3-F9cffW44OA_wWGBJw6n5PxjYRplbaTSO9e-O0YPA/s320/Image_fx%20(10).png",
           "sizes": "96x96"
         }
       ]
@@ -112,7 +112,7 @@
       "url": "/movies/anime/",
       "icons": [
         {
-          "src": "/static/img/icons/anime-icon.png",
+          "src": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhyWP9kWOZt4_QBwAd6ld2aBNxy2gHZdxXEntwKHGiL5EGWMR9OV_3MAoU2cnndWVdXtMaxcNpQ6YsCkEXLTutlBxPYDFIPujBO7SuiB745FsTuJvzjDmRMxtRR__lNKBH37lcuUhV8MfYXiA6Go3-F9cffW44OA_wWGBJw6n5PxjYRplbaTSO9e-O0YPA/s320/Image_fx%20(10).png",
           "sizes": "96x96"
         }
       ]

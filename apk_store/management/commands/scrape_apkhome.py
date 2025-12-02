@@ -1,659 +1,390 @@
 from django.core.management.base import BaseCommand
 from django.utils.text import slugify
-from apk_store.models import APK, Category, Screenshot, APKVersion
+from django.db import connection, reset_queries
+from django.db.models import Q
+from apk_store.models import APK, Category, Screenshot
 from bs4 import BeautifulSoup
 import re
 import time
 import random
 import requests
-from datetime import datetime
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 
 class Command(BaseCommand):
-    help = 'Scrape Android APKs from APKHome.net'
+    help = 'Scrape APKs with smart deduplication by base game title'
 
     def add_arguments(self, parser):
-        parser.add_argument('--max-items', type=int, default=9999, help='Max items to scrape')
-        parser.add_argument('--type', type=str, choices=['games', 'apps', 'all'], default='all', help='Type to scrape')
+        parser.add_argument('--max-items', type=int, default=100, help='Max NEW unique games')
         parser.add_argument('--start-page', type=int, default=1, help='Starting page')
-        parser.add_argument('--delay-min', type=float, default=2.0, help='Min delay between requests')
-        parser.add_argument('--delay-max', type=float, default=5.0, help='Max delay between requests')
+        parser.add_argument('--delay-min', type=float, default=3.0, help='Min delay')
+        parser.add_argument('--delay-max', type=float, default=7.0, help='Max delay')
+        parser.add_argument('--keep-versions', action='store_true', help='Keep multiple versions of same game')
 
-    def create_session(self):
-        """Create requests session with proper headers"""
+    def create_robust_session(self):
+        """Create session with retries and better headers"""
         session = requests.Session()
+        
+        retry = Retry(total=3, backoff_factor=1, status_forcelist=[500, 502, 503, 504])
+        adapter = HTTPAdapter(max_retries=retry)
+        session.mount('http://', adapter)
+        session.mount('https://', adapter)
+        
         session.headers.update({
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
             'Accept-Language': 'en-US,en;q=0.9',
-            'Accept-Encoding': 'gzip, deflate, br',
             'DNT': '1',
             'Connection': 'keep-alive',
             'Upgrade-Insecure-Requests': '1',
         })
+        
         return session
 
-    def get_listing_page(self, session, apk_type='all', page=1):
-        """Get list of APK URLs from listing page"""
-        if page == 1:
-            if apk_type == 'games':
-                url = 'https://apkhome.net/category/games/'
-            elif apk_type == 'apps':
-                url = 'https://apkhome.net/category/apps/'
-            else:
-                url = 'https://apkhome.net/'
-        else:
-            if apk_type == 'games':
-                url = f'https://apkhome.net/category/games/page/{page}/'
-            elif apk_type == 'apps':
-                url = f'https://apkhome.net/category/apps/page/{page}/'
-            else:
-                url = f'https://apkhome.net/page/{page}/'
+    def normalize_game_title(self, title):
+        """
+        Extract base game name by removing version numbers and mod info
+        Example: "Minecraft 1.21.60.2 MOD" -> "minecraft"
+        """
+        # Convert to lowercase
+        base = title.lower()
         
-        try:
-            self.stdout.write(f"\n🌐 Fetching: {url}")
-            response = session.get(url, timeout=30)
-            
-            if response.status_code != 200:
-                self.stdout.write(self.style.WARNING(f"⚠️ Status code: {response.status_code}"))
-                return []
-            
-            soup = BeautifulSoup(response.text, 'html.parser')
-            apk_links = []
-            
-            main_content = soup.find('main') or soup.find('body')
-            if main_content:
-                all_links = main_content.find_all('a', href=True)
-                
-                for link in all_links:
-                    href = link.get('href', '').strip()
-                    
-                    if 'apkhome.net' not in href:
-                        continue
-                    
-                    if not ('-apk' in href.lower() or '-mod' in href.lower()):
-                        continue
-                    
-                    skip_patterns = [
-                        '/category/', '/tag/', '/author/', '/page/', 
-                        '/wp-', '/about', '/contact', '/privacy', 
-                        '/terms', '/dmca', '/sitemap', '/feed'
-                    ]
-                    if any(pattern in href for pattern in skip_patterns):
-                        continue
-                    
-                    if not href.startswith('http'):
-                        if href.startswith('//'):
-                            href = 'https:' + href
-                        elif href.startswith('/'):
-                            href = 'https://apkhome.net' + href
-                        else:
-                            href = 'https://apkhome.net/' + href
-                    
-                    href = href.rstrip('/')
-                    apk_links.append(href)
-            
-            apk_links = list(set(apk_links))
-            
-            if apk_links:
-                self.stdout.write(self.style.SUCCESS(f"   ✅ Found {len(apk_links)} unique APK links"))
-                for i, link in enumerate(apk_links[:3], 1):
-                    title = link.split('/')[-1].replace('-', ' ').title()[:50]
-                    self.stdout.write(f"   [{i}] {title}...")
-                return apk_links
-            else:
-                self.stdout.write(self.style.WARNING("   ⚠️ No APK links found"))
-                return []
-                    
-        except Exception as e:
-            self.stdout.write(self.style.ERROR(f"   ❌ Error: {e}"))
-            return []
+        # Remove version numbers (e.g., 1.21.60.2, v1.2.3, etc.)
+        base = re.sub(r'\b\d+\.\d+[.\d]*\b', '', base)
+        base = re.sub(r'\bv\d+[.\d]*\b', '', base)
+        
+        # Remove mod/status keywords
+        keywords = ['mod', 'apk', 'premium', 'pro', 'unlocked', 'full', 'paid', 
+                   'latest', 'update', 'new', 'free', 'hack', 'cheat']
+        for kw in keywords:
+            base = re.sub(r'\b' + kw + r'\b', '', base)
+        
+        # Clean up whitespace and special chars
+        base = re.sub(r'[^\w\s]', ' ', base)
+        base = re.sub(r'\s+', ' ', base).strip()
+        
+        return base
 
-    def extract_icon_url(self, soup, page_url):
-        """Extract icon/cover image with multiple fallback strategies"""
+    def is_duplicate_game(self, title, existing_titles, existing_normalized):
+        """Check if this is a duplicate game by comparing normalized titles"""
+        normalized = self.normalize_game_title(title)
         
-        # Strategy 1: Meta tags (most reliable)
-        meta_selectors = [
-            'meta[property="og:image"]',
-            'meta[name="twitter:image"]',
-            'meta[property="og:image:secure_url"]',
-        ]
-        
-        for selector in meta_selectors:
-            meta = soup.select_one(selector)
-            if meta and meta.get('content'):
-                url = meta.get('content').strip()
-                if url.startswith('http') and not url.endswith('.svg'):
-                    return url
-        
-        # Strategy 2: Main article/post images
-        # Look for featured image, app icon in article
-        article_selectors = [
-            '.app-icon img',
-            '.game-icon img',
-            'article .app-icon-img',
-            '.entry-thumb img',
-            '.featured-image img',
-            '.post-thumbnail img',
-            '.wp-post-image',
-            'article img[width]',  # Images with width attribute
-        ]
-        
-        for selector in article_selectors:
-            elem = soup.select_one(selector)
-            if elem:
-                url = self._extract_img_src(elem)
-                if url and self._is_valid_icon(url):
-                    return url
-        
-        # Strategy 3: First large image in main content
-        main_content = soup.find('article') or soup.find('main') or soup.find('.entry-content')
-        if main_content:
-            images = main_content.find_all('img')
-            for img in images[:10]:  # Check first 10 images
-                url = self._extract_img_src(img)
-                if url and self._is_valid_icon(url):
-                    # Check dimensions
-                    width = self._get_dimension(img, 'width')
-                    height = self._get_dimension(img, 'height')
-                    
-                    # Accept if dimensions are good or unknown
-                    if (width >= 150 or height >= 150) or (width == 0 and height == 0):
-                        return url
-        
-        # Strategy 4: JSON-LD structured data
-        json_ld = soup.find('script', type='application/ld+json')
-        if json_ld:
-            try:
-                import json
-                data = json.loads(json_ld.string)
-                if isinstance(data, dict):
-                    if 'image' in data:
-                        img = data['image']
-                        if isinstance(img, str):
-                            return img
-                        elif isinstance(img, dict) and 'url' in img:
-                            return img['url']
-                elif isinstance(data, list):
-                    for item in data:
-                        if isinstance(item, dict) and 'image' in item:
-                            img = item['image']
-                            if isinstance(img, str):
-                                return img
-                            elif isinstance(img, dict) and 'url' in img:
-                                return img['url']
-            except:
-                pass
-        
-        return None
-
-    def _extract_img_src(self, img):
-        """Extract image source from img tag with lazy loading support"""
-        src_attrs = [
-            'data-src',
-            'data-lazy-src',
-            'data-original',
-            'src',
-        ]
-        
-        for attr in src_attrs:
-            url = img.get(attr, '').strip()
-            if url:
-                # Handle srcset format
-                if ' ' in url:
-                    url = url.split()[0]
-                
-                # Normalize URL
-                if not url.startswith('http'):
-                    if url.startswith('//'):
-                        url = 'https:' + url
-                    elif url.startswith('/'):
-                        url = 'https://apkhome.net' + url
-                
-                return url
-        
-        # Try srcset as fallback
-        srcset = img.get('srcset', '').strip()
-        if srcset:
-            # Parse srcset and get highest resolution
-            entries = srcset.split(',')
-            if entries:
-                url = entries[-1].strip().split()[0]
-                if not url.startswith('http'):
-                    if url.startswith('//'):
-                        url = 'https:' + url
-                    elif url.startswith('/'):
-                        url = 'https://apkhome.net' + url
-                return url
-        
-        return None
-
-    def _get_dimension(self, img, attr):
-        """Get image dimension safely"""
-        try:
-            val = img.get(attr, '0')
-            if isinstance(val, str):
-                val = re.sub(r'[^\d]', '', val)  # Remove non-digits
-            return int(val) if val else 0
-        except:
-            return 0
-
-    def _is_valid_icon(self, url):
-        """Check if URL looks like a valid icon/cover image"""
-        if not url or not url.startswith('http'):
+        if not normalized:
             return False
         
-        # Exclude common non-icon patterns
-        exclude_patterns = [
-            'logo', 'favicon', 'avatar', 'author',
-            'banner', 'header', 'footer', 'sidebar',
-            '.svg', '.gif', 'icon-', '-icon.',
-            'gravatar', 'emoji'
-        ]
+        # Check if this normalized title already exists
+        if normalized in existing_normalized:
+            return True
         
-        url_lower = url.lower()
-        for pattern in exclude_patterns:
-            if pattern in url_lower:
-                return False
+        # Also check for very similar titles (fuzzy match)
+        words = set(normalized.split())
+        if len(words) < 2:  # Single word titles, be strict
+            return normalized in existing_normalized
         
-        return True
-
-    def extract_description(self, soup):
-        """Extract description with better cleanup"""
-        
-        # Try meta description first
-        meta_desc = soup.find('meta', {'name': 'description'})
-        if not meta_desc:
-            meta_desc = soup.find('meta', {'property': 'og:description'})
-        
-        if meta_desc and meta_desc.get('content'):
-            meta_text = meta_desc.get('content').strip()
-            if len(meta_text) > 100:
-                return meta_text
-        
-        # Extract from article content
-        content_selectors = [
-            '.entry-content',
-            '.post-content',
-            'article .content',
-            '.about-content',
-            'article',
-        ]
-        
-        desc_elem = None
-        for selector in content_selectors:
-            desc_elem = soup.select_one(selector)
-            if desc_elem:
-                break
-        
-        if not desc_elem:
-            return ''
-        
-        # Remove unwanted elements
-        for unwanted in desc_elem.select(
-            'script, style, .download-link, .wp-block-button, '
-            '.download-button, .install-button, .download-links, '
-            'nav, aside, footer, header, .menu, .navigation, '
-            '.sidebar, .widget, .related, .comments, .share'
-        ):
-            unwanted.decompose()
-        
-        # Extract meaningful paragraphs
-        paragraphs = desc_elem.find_all(['p', 'div'], recursive=True)
-        desc_parts = []
-        
-        for p in paragraphs[:15]:  # Check more paragraphs
-            text = p.get_text(separator=' ', strip=True)
-            
-            # Skip short or useless text
-            if len(text) < 50:
+        # For multi-word titles, check if major words match
+        for existing_norm in existing_normalized:
+            existing_words = set(existing_norm.split())
+            if len(words) < 2 or len(existing_words) < 2:
                 continue
             
-            # Skip download/button text
-            skip_phrases = [
-                'download', 'click here', 'get it', 'install',
-                'app info', 'additional information', 'mod info',
-                'version', 'size:', 'requires android'
-            ]
-            if any(phrase in text.lower()[:50] for phrase in skip_phrases):
+            # If 80% of words match, consider it duplicate
+            common = words.intersection(existing_words)
+            if len(common) >= max(len(words), len(existing_words)) * 0.8:
+                return True
+        
+        return False
+
+    def get_page_with_retry(self, session, url, max_retries=3):
+        """Fetch page with retries"""
+        for attempt in range(max_retries):
+            try:
+                response = session.get(url, timeout=30, allow_redirects=True)
+                
+                if response.status_code == 200:
+                    return response
+                elif response.status_code == 404:
+                    return None
+                    
+            except Exception as e:
+                if attempt == max_retries - 1:
+                    self.stdout.write(self.style.ERROR(f"❌ Failed: {e}"))
+                else:
+                    time.sleep(3 * (attempt + 1))
+        
+        return False
+
+    def extract_apk_links(self, soup):
+        """Extract APK links"""
+        apk_links = set()
+        
+        for link in soup.find_all('a', href=True):
+            href = link.get('href', '').strip()
+            
+            if 'apkhome.net' not in href:
                 continue
             
-            desc_parts.append(text)
+            if not any(p in href for p in ['-apk', '-mod', '/apk/', '/mod/']):
+                continue
             
-            # Stop if we have enough
-            if len(' '.join(desc_parts)) > 1000:
-                break
+            skip = ['/category/', '/tag/', '/author/', '/page/', '/wp-', 
+                   '/about', '/contact', '/privacy', '/terms', '/dmca', '/#']
+            
+            if any(s in href for s in skip):
+                continue
+            
+            if not href.startswith('http'):
+                if href.startswith('//'):
+                    href = 'https:' + href
+                elif href.startswith('/'):
+                    href = 'https://apkhome.net' + href
+                else:
+                    href = 'https://apkhome.net/' + href
+            
+            apk_links.add(href.rstrip('/'))
         
-        description = '\n\n'.join(desc_parts)
-        
-        # Clean up
-        description = re.sub(r'\s+', ' ', description)  # Normalize whitespace
-        description = re.sub(r'\n\s*\n', '\n\n', description)  # Clean multiple newlines
-        
-        return description[:5000] if description else ''
+        return list(apk_links)
 
-    def extract_download_link(self, soup, session, page_url):
-        """Extract the actual download link"""
-        download_selectors = [
-            'a.download-button',
-            'a.btn.primary.install-button',
-            'a[href*="dl.apkhome"]',
-            'a[href*="dl7.apkhome"]',
-            'a[href*="dl8.apkhome"]',
-            'a.wp-block-button__link',
-            'a.download-btn',
-            '.download-links a',
-            '.wp-block-buttons a',
-            'a[href$=".apk"]',
-        ]
-        
-        for selector in download_selectors:
-            link = soup.select_one(selector)
-            if link:
-                href = link.get('href', '')
-                if href:
-                    if '.apk' in href.lower() or 'dl' in href:
-                        return href if href.startswith('http') else f"https://apkhome.net{href}"
-        
-        # Fallback: search all links
-        all_links = soup.find_all('a', href=True)
-        for link in all_links:
-            href = link.get('href', '')
-            text = link.get_text().strip().lower()
-            if ('download' in text or 'get' in text) and ('.apk' in href or 'dl' in href):
-                return href if href.startswith('http') else f"https://apkhome.net{href}"
-        
-        return page_url
-
-    def scrape_apk_page(self, session, apk_url, apk_type_filter='all'):
+    def scrape_apk_page(self, session, url):
         """Scrape individual APK page"""
+        response = self.get_page_with_retry(session, url)
+        
+        if not response or response is None or response is False:
+            return None
+        
         try:
-            self.stdout.write(f"\n🎮 Scraping: {apk_url}")
-            response = session.get(apk_url, timeout=30)
-            
-            if response.status_code != 200:
-                self.stdout.write(self.style.WARNING(f"   ⚠️ Status: {response.status_code}"))
-                return None
-            
             soup = BeautifulSoup(response.text, 'html.parser')
-            apk_data = {'url': apk_url}
             
-            # ===== TITLE =====
-            title_selectors = ['h1.entry-title', 'h1.post-title', 'article h1', 'h1']
-            title_elem = None
-            for selector in title_selectors:
-                title_elem = soup.select_one(selector)
-                if title_elem:
-                    break
-            
+            # Title
+            title_elem = soup.find('h1')
             if not title_elem:
-                self.stdout.write(self.style.WARNING("   ⚠️ No title found"))
                 return None
             
-            title_text = title_elem.get_text().strip()
+            title = title_elem.get_text().strip()
             
             # Extract mod features
-            mod_patterns = [
-                r'\[(.*?)\]',
-                r'\((.*?MOD.*?)\)',
-                r'MOD\s+(.*?)(?:\||$)',
-            ]
-            for pattern in mod_patterns:
-                mod_match = re.search(pattern, title_text, re.IGNORECASE)
-                if mod_match:
-                    apk_data['mod_features'] = mod_match.group(1)
+            mod_features = ''
+            for pattern in [r'\[(.*?)\]', r'\((.*?MOD.*?)\)']:
+                match = re.search(pattern, title, re.IGNORECASE)
+                if match:
+                    mod_features = match.group(1)
                     break
             
-            # Clean title
-            title_text = re.sub(r'\s*[\[\(].*?[\]\)]\s*', ' ', title_text)
-            title_text = re.sub(r'\s*(MOD|APK|Mod|Apk|MODDED|Premium|Pro)\s*', ' ', title_text, flags=re.IGNORECASE)
-            title_text = re.sub(r'\s+', ' ', title_text).strip()
-            apk_data['title'] = title_text[:255]
+            # Clean title but keep version
+            clean_title = re.sub(r'\s*[\[\(].*?[\]\)]\s*', ' ', title)
+            clean_title = re.sub(r'\s*(MOD|APK|Mod|Apk|MODDED)\s*', ' ', clean_title, flags=re.I)
+            clean_title = re.sub(r'\s+', ' ', clean_title).strip()[:255]
             
-            self.stdout.write(f"   📱 Title: {apk_data['title']}")
-            
-            # ===== TYPE DETECTION =====
-            apk_data['type'] = 'game'
-            
-            url_lower = apk_url.lower()
-            if '/app' in url_lower and '/game' not in url_lower:
-                apk_data['type'] = 'app'
-            elif '/game' in url_lower:
-                apk_data['type'] = 'game'
-            
-            cat_links = soup.select('a[rel="category tag"], .category a, .post-categories a')
-            category_texts = [cat.get_text().lower().strip() for cat in cat_links]
-            
-            app_keywords = ['app', 'tool', 'productivity', 'social', 'communication', 
-                           'photography', 'video editor', 'music', 'utility', 'lifestyle']
-            
-            for cat_text in category_texts:
-                if any(keyword in cat_text for keyword in app_keywords):
-                    if 'game' not in cat_text:
-                        apk_data['type'] = 'app'
-                        break
-            
-            game_keywords = ['soccer', 'football', 'tycoon', 'simulator', 'craft', 
-                           'battle', 'shooting', 'adventure', 'puzzle', 'racing']
-            
-            title_lower = title_text.lower()
-            if any(keyword in title_lower for keyword in game_keywords):
-                apk_data['type'] = 'game'
-            
-            if apk_type_filter != 'all' and apk_data['type'] != apk_type_filter.rstrip('s'):
-                self.stdout.write(self.style.WARNING(f"   ⏭️ Skipping: Type mismatch"))
+            if not clean_title:
                 return None
             
-            self.stdout.write(f"   🎯 Type: {apk_data['type'].upper()}")
+            # Icon
+            icon_url = ''
+            meta_img = soup.find('meta', property='og:image')
+            if meta_img:
+                icon_url = meta_img.get('content', '').strip()
             
-            # ===== ICON (FIXED) =====
-            icon_url = self.extract_icon_url(soup, apk_url)
-            if icon_url:
-                apk_data['icon_url'] = icon_url
-                self.stdout.write(f"   🖼️ Icon: ✓")
-            else:
-                self.stdout.write(self.style.WARNING(f"   ⚠️ No icon found"))
+            # Description
+            description = ''
+            meta_desc = soup.find('meta', property='og:description')
+            if meta_desc:
+                description = meta_desc.get('content', '').strip()[:5000]
             
-            # ===== DESCRIPTION (FIXED) =====
-            description = self.extract_description(soup)
-            if description:
-                apk_data['description'] = description
-                self.stdout.write(f"   📄 Description: {len(description)} chars")
-            else:
-                self.stdout.write(self.style.WARNING(f"   ⚠️ No description found"))
-            
-            # ===== VERSION & SIZE =====
+            # Version & Size
             all_text = soup.get_text()
             
-            version_patterns = [
-                r'Version[:\s]+v?([0-9]+\.[0-9]+(?:\.[0-9]+)*)',
-                r'v([0-9]+\.[0-9]+\.[0-9]+)',
-            ]
-            for pattern in version_patterns:
-                match = re.search(pattern, all_text, re.IGNORECASE)
-                if match:
-                    apk_data['version'] = match.group(1)
-                    self.stdout.write(f"   🔢 Version: {apk_data['version']}")
-                    break
+            version = ''
+            match = re.search(r'Version[:\s]+v?([0-9]+\.[0-9]+(?:\.[0-9]+)*)', all_text, re.I)
+            if match:
+                version = match.group(1)
             
-            size_patterns = [
-                r'Size[:\s]+(\d+(?:\.\d+)?)\s*(MB|GB)',
-                r'(\d+(?:\.\d+)?)\s*(MB|GB)',
-            ]
-            for pattern in size_patterns:
-                match = re.search(pattern, all_text, re.IGNORECASE)
-                if match:
-                    apk_data['size'] = f"{match.group(1)} {match.group(2).upper()}"
-                    self.stdout.write(f"   💾 Size: {apk_data['size']}")
-                    break
+            size = ''
+            match = re.search(r'Size[:\s]+(\d+(?:\.\d+)?)\s*(MB|GB)', all_text, re.I)
+            if match:
+                size = f"{match.group(1)} {match.group(2).upper()}"
             
-            # ===== DOWNLOAD LINK =====
-            download_url = self.extract_download_link(soup, session, apk_url)
-            apk_data['download_url'] = download_url
-            self.stdout.write(f"   📦 Download: {'✓' if download_url != apk_url else 'Using page URL'}")
+            # Type
+            apk_type = 'game'
+            if '/app' in url.lower() and '/game' not in url.lower():
+                apk_type = 'app'
             
-            # ===== SCREENSHOTS =====
-            apk_data['screenshots'] = []
-            for img in soup.select('article img, .content img, .screenshots img'):
-                src = self._extract_img_src(img)
-                if src and self._is_valid_screenshot(src):
-                    if src not in apk_data['screenshots'] and len(apk_data['screenshots']) < 10:
-                        apk_data['screenshots'].append(src)
-            
-            if apk_data['screenshots']:
-                self.stdout.write(f"   🖼️ Screenshots: {len(apk_data['screenshots'])}")
-            
-            # ===== CATEGORIES =====
-            apk_data['categories'] = []
-            for cat in soup.select('a[rel="category tag"], .post-categories a'):
-                cat_name = cat.get_text().strip()
-                excluded = ['home', 'android', 'games', 'apps', 'modded', 'uncategorized']
-                if cat_name.lower() not in excluded:
-                    apk_data['categories'].append(cat_name)
-            
-            # ===== STATUS =====
-            combined_text = (title_text + ' ' + apk_data.get('mod_features', '')).lower()
-            if 'mod' in combined_text or 'modded' in combined_text:
-                apk_data['status'] = 'modded'
-            elif 'premium' in combined_text:
-                apk_data['status'] = 'premium'
-            elif 'pro' in combined_text:
-                apk_data['status'] = 'pro'
-            elif 'unlocked' in combined_text:
-                apk_data['status'] = 'unlocked'
+            # Status
+            combined = (title + ' ' + mod_features).lower()
+            if 'mod' in combined:
+                status = 'modded'
+            elif 'premium' in combined:
+                status = 'premium'
+            elif 'pro' in combined:
+                status = 'pro'
             else:
-                apk_data['status'] = 'original'
+                status = 'original'
             
-            return apk_data
+            return {
+                'url': url,
+                'title': clean_title,
+                'type': apk_type,
+                'icon_url': icon_url,
+                'description': description,
+                'version': version,
+                'size': size,
+                'status': status,
+                'mod_features': mod_features,
+                'download_url': url,
+            }
             
         except Exception as e:
-            self.stdout.write(self.style.ERROR(f"   ❌ Error: {e}"))
-            import traceback
-            traceback.print_exc()
             return None
-
-    def _is_valid_screenshot(self, url):
-        """Check if URL is a valid screenshot"""
-        if not url or not url.startswith('http'):
-            return False
-        
-        url_lower = url.lower()
-        
-        # Exclude patterns
-        exclude = ['icon', 'logo', 'avatar', 'favicon', '.svg', 'gravatar']
-        for pattern in exclude:
-            if pattern in url_lower:
-                return False
-        
-        return True
 
     def handle(self, *args, **options):
         max_items = options['max_items']
-        apk_type = options['type']
         start_page = options['start_page']
         delay_min = options['delay_min']
         delay_max = options['delay_max']
+        keep_versions = options['keep_versions']
         
-        session = self.create_session()
+        session = self.create_robust_session()
         
         self.stdout.write(self.style.SUCCESS("\n" + "="*70))
-        self.stdout.write(self.style.SUCCESS("🚀 APKHOME.NET SCRAPER - ENHANCED VERSION"))
-        self.stdout.write(self.style.SUCCESS("="*70 + "\n"))
-        self.stdout.write(f"📊 Max items: {max_items}")
-        self.stdout.write(f"🎯 Type: {apk_type.upper()}")
-        self.stdout.write(f"📄 Start page: {start_page}")
+        self.stdout.write(self.style.SUCCESS("🚀 SMART APK SCRAPER - UNIQUE GAMES ONLY"))
+        self.stdout.write(self.style.SUCCESS("="*70))
+        self.stdout.write(f"🎯 Target: {max_items} unique games")
+        self.stdout.write(f"📄 Start: Page {start_page}")
+        self.stdout.write(f"🔄 Multiple versions: {'YES' if keep_versions else 'NO (unique games only)'}")
         self.stdout.write(f"⏱️ Delay: {delay_min}-{delay_max}s\n")
         
-        processed = 0
-        created = 0
-        updated = 0
-        skipped = 0
-        current_page = start_page
-        processed_urls = set()
+        # Get existing games
+        existing_apks = APK.objects.all()
+        existing_urls = set(apk.source_url for apk in existing_apks)
+        existing_titles = [apk.title for apk in existing_apks]
+        existing_normalized = set(self.normalize_game_title(title) for title in existing_titles)
         
-        while processed < max_items:
+        self.stdout.write(f"📊 Existing: {len(existing_urls)} APKs, {len(existing_normalized)} unique games\n")
+        
+        created = 0
+        skipped_duplicate_game = 0
+        skipped_duplicate_url = 0
+        skipped_error = 0
+        current_page = start_page
+        session_urls = set()
+        session_normalized = set()
+        consecutive_duplicate_pages = 0
+        
+        while created < max_items and consecutive_duplicate_pages < 5:
             self.stdout.write(f"\n{'='*70}")
-            self.stdout.write(f"📋 PAGE {current_page}")
+            self.stdout.write(f"📋 PAGE {current_page} (Created: {created}/{max_items})")
             self.stdout.write(f"{'='*70}")
             
-            apk_links = self.get_listing_page(session, apk_type, current_page)
+            # Refresh connection
+            if current_page % 10 == 0:
+                try:
+                    reset_queries()
+                    connection.close()
+                except:
+                    pass
             
-            if not apk_links:
-                self.stdout.write(self.style.WARNING(f"⚠️ No items on page {current_page}"))
-                if current_page > 5:
-                    break
+            # Get page
+            url = 'https://apkhome.net/' if current_page == 1 else f'https://apkhome.net/page/{current_page}/'
+            response = self.get_page_with_retry(session, url)
+            
+            if response is None:
+                self.stdout.write(self.style.WARNING("❌ Page not found"))
+                break
+            
+            if not response:
                 current_page += 1
                 time.sleep(random.uniform(delay_min, delay_max))
                 continue
             
-            unique_links = [link for link in apk_links if link not in processed_urls]
+            soup = BeautifulSoup(response.text, 'html.parser')
+            apk_links = self.extract_apk_links(soup)
             
-            if not unique_links:
+            if not apk_links:
+                self.stdout.write(self.style.WARNING("⚠️ No links found"))
                 current_page += 1
+                time.sleep(random.uniform(delay_min, delay_max))
                 continue
             
-            for idx, link in enumerate(unique_links, 1):
-                if processed >= max_items:
+            # Filter new URLs
+            new_urls = [u for u in apk_links if u not in session_urls and u not in existing_urls]
+            
+            self.stdout.write(f"📊 Found {len(apk_links)} links, {len(new_urls)} new URLs")
+            
+            if not new_urls:
+                consecutive_duplicate_pages += 1
+                self.stdout.write(f"⏭️ All URLs seen before ({consecutive_duplicate_pages}/5)")
+                current_page += 1
+                time.sleep(random.uniform(delay_min, delay_max))
+                continue
+            
+            consecutive_duplicate_pages = 0
+            page_created = 0
+            
+            # Process new URLs
+            for idx, apk_url in enumerate(new_urls[:30], 1):
+                if created >= max_items:
                     break
                 
-                processed_urls.add(link)
-                self.stdout.write(f"\n[{idx}/{len(unique_links)}]")
+                session_urls.add(apk_url)
                 
-                apk_data = self.scrape_apk_page(session, link, apk_type)
+                self.stdout.write(f"\n[{idx}/{len(new_urls)}] {apk_url.split('/')[-1][:45]}")
+                
+                apk_data = self.scrape_apk_page(session, apk_url)
                 
                 if not apk_data:
-                    skipped += 1
+                    skipped_error += 1
+                    self.stdout.write("   ⏭️ Parse error")
                     time.sleep(random.uniform(delay_min * 0.5, delay_max * 0.5))
                     continue
                 
+                # Check if URL already exists
+                if APK.objects.filter(source_url=apk_data['url']).exists():
+                    skipped_duplicate_url += 1
+                    self.stdout.write(f"   ⏭️ URL exists")
+                    existing_urls.add(apk_data['url'])
+                    continue
+                
+                # Check if game already exists (unless keeping versions)
+                if not keep_versions:
+                    normalized = self.normalize_game_title(apk_data['title'])
+                    
+                    if self.is_duplicate_game(apk_data['title'], existing_titles, existing_normalized):
+                        skipped_duplicate_game += 1
+                        session_normalized.add(normalized)
+                        self.stdout.write(f"   🔄 Duplicate game: '{normalized}'")
+                        continue
+                
                 try:
-                    apk, is_created = APK.objects.update_or_create(
+                    # Create new APK
+                    apk = APK.objects.create(
                         source_url=apk_data['url'],
-                        defaults={
-                            'title': apk_data['title'],
-                            'apk_type': apk_data.get('type', 'game'),
-                            'description': apk_data.get('description', ''),
-                            'icon_url': apk_data.get('icon_url', ''),
-                            'version': apk_data.get('version', ''),
-                            'size': apk_data.get('size', ''),
-                            'status': apk_data.get('status', 'modded'),
-                            'mod_features': apk_data.get('mod_features', ''),
-                            'download_url': apk_data.get('download_url', ''),
-                            'is_active': True,
-                        }
+                        title=apk_data['title'],
+                        apk_type=apk_data['type'],
+                        description=apk_data.get('description', ''),
+                        icon_url=apk_data.get('icon_url', ''),
+                        version=apk_data.get('version', ''),
+                        size=apk_data.get('size', ''),
+                        status=apk_data['status'],
+                        mod_features=apk_data.get('mod_features', ''),
+                        download_url=apk_data['download_url'],
+                        is_active=True,
                     )
                     
-                    if is_created:
-                        created += 1
-                        self.stdout.write(self.style.SUCCESS(f"   ✅ CREATED"))
-                    else:
-                        updated += 1
-                        self.stdout.write(self.style.SUCCESS(f"   🔄 UPDATED"))
+                    created += 1
+                    page_created += 1
+                    existing_urls.add(apk_data['url'])
+                    existing_titles.append(apk_data['title'])
+                    existing_normalized.add(self.normalize_game_title(apk_data['title']))
                     
-                    # Screenshots
-                    if apk_data.get('screenshots'):
-                        Screenshot.objects.filter(apk=apk).delete()
-                        for idx, screenshot_url in enumerate(apk_data['screenshots'], 1):
-                            Screenshot.objects.create(
-                                apk=apk,
-                                image_url=screenshot_url,
-                                order=idx
-                            )
-                    
-                    # Categories
-                    for cat_name in apk_data.get('categories', [])[:5]:
-                        category, _ = Category.objects.get_or_create(
-                            slug=slugify(cat_name),
-                            defaults={'name': cat_name}
-                        )
-                        apk.categories.add(category)
-                    
-                    processed += 1
+                    self.stdout.write(self.style.SUCCESS(
+                        f"   ✅ CREATED ({created}/{max_items}): {apk_data['title'][:40]}"
+                    ))
                     
                 except Exception as e:
-                    skipped += 1
+                    skipped_error += 1
                     self.stdout.write(self.style.ERROR(f"   ❌ DB error: {e}"))
                 
                 time.sleep(random.uniform(delay_min, delay_max))
+            
+            self.stdout.write(f"\n📊 Page summary: {page_created} created, {len(new_urls) - page_created} skipped")
             
             current_page += 1
             time.sleep(random.uniform(delay_min * 1.5, delay_max * 1.5))
@@ -662,8 +393,18 @@ class Command(BaseCommand):
         self.stdout.write(self.style.SUCCESS(f"\n{'='*70}"))
         self.stdout.write(self.style.SUCCESS("🎉 SCRAPING COMPLETED!"))
         self.stdout.write(self.style.SUCCESS(f"{'='*70}"))
-        self.stdout.write(f"📊 Processed: {processed}")
-        self.stdout.write(self.style.SUCCESS(f"✅ Created: {created}"))
-        self.stdout.write(f"🔄 Updated: {updated}")
-        self.stdout.write(f"⏭️ Skipped: {skipped}")
-        self.stdout.write(f"📚 Total APKs: {APK.objects.count()}\n")
+        self.stdout.write(self.style.SUCCESS(f"✅ Created: {created} unique games"))
+        self.stdout.write(f"🔄 Skipped (duplicate game): {skipped_duplicate_game}")
+        self.stdout.write(f"⏭️ Skipped (duplicate URL): {skipped_duplicate_url}")
+        self.stdout.write(f"❌ Skipped (errors): {skipped_error}")
+        self.stdout.write(f"📄 Pages processed: {current_page - start_page}\n")
+
+
+# # Get 200 unique games, starting fresh
+# python manage.py scrape_apkhome --max-items 200 --start-page 1 --delay-min 4 --delay-max 8
+
+# # Get 50 unique games with slower scraping
+# python manage.py scrape_apkhome --max-items 50 --delay-min 5 --delay-max 10
+
+# # If you DO want multiple versions (e.g., different mods)
+# python manage.py scrape_apkhome --max-items 100 --keep-versions

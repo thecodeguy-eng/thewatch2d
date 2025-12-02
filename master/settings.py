@@ -51,7 +51,7 @@ DEBUG = config('DEBUG', default=False, cast=bool)
 
 
 ALLOWED_HOSTS = [
-    'ibez.vercel.app',
+    'Ibez.vercel.app',
     '.vercel.app',  # This allows all preview deployments
     'localhost',
     '127.0.0.1',
