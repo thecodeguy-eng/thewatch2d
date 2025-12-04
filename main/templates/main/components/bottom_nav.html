@@ -104,8 +104,8 @@
   </div>
 </nav>
 
-{# Desktop Side Navigation - Floating Sidebar #}
-<nav class="hidden lg:block fixed left-6 top-1/2 -translate-y-1/2 z-50">
+{# Desktop Side Navigation - Collapsible Floating Sidebar #}
+<nav id="desktopNav" class="hidden lg:block fixed left-6 top-1/2 -translate-y-1/2 z-50 transition-transform duration-300">
   <div class="flex flex-col gap-2 bg-white/90 dark:bg-gray-900/90 backdrop-blur-2xl rounded-3xl p-3 shadow-2xl border border-gray-200/50 dark:border-gray-700/50">
     
     {# Home #}
@@ -222,10 +222,22 @@
   .spacer-collapsed {
     height: 0 !important;
   }
+
+  /* Desktop sidebar auto-hide */
+  .desktop-nav-hidden {
+    transform: translateX(-120%) translateY(-50%);
+  }
+
+  /* Add left padding to body content on desktop to avoid sidebar overlap */
+  @media (min-width: 1024px) {
+    body {
+      padding-left: 120px;
+    }
+  }
 </style>
 
 <script>
-  // Auto-hide bottom navigation on scroll
+  // Auto-hide bottom navigation on scroll (Mobile)
   (function() {
     const bottomNav = document.getElementById('bottomNav');
     const navSpacer = document.getElementById('navSpacer');
@@ -299,6 +311,78 @@
         if (!isNavVisible) {
           bottomNav.classList.remove('nav-hidden');
           navSpacer.classList.remove('spacer-collapsed');
+          isNavVisible = true;
+        }
+      }
+    }, { passive: true });
+  })();
+
+  // Auto-hide desktop navigation on scroll
+  (function() {
+    const desktopNav = document.getElementById('desktopNav');
+    
+    if (!desktopNav) return;
+    
+    let lastScroll = 0;
+    let isNavVisible = true;
+    let hideTimeout;
+    
+    function throttle(func, wait) {
+      let timeout;
+      return function executedFunction(...args) {
+        const later = () => {
+          clearTimeout(timeout);
+          func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+      };
+    }
+    
+    const handleDesktopScroll = throttle(function() {
+      const currentScroll = window.pageYOffset || document.documentElement.scrollTop;
+      
+      // Don't hide nav at the very top
+      if (currentScroll <= 50) {
+        if (!isNavVisible) {
+          desktopNav.classList.remove('desktop-nav-hidden');
+          isNavVisible = true;
+        }
+        return;
+      }
+      
+      // Scrolling down - hide after a delay
+      if (currentScroll > lastScroll && isNavVisible && currentScroll > 200) {
+        clearTimeout(hideTimeout);
+        hideTimeout = setTimeout(() => {
+          desktopNav.classList.add('desktop-nav-hidden');
+          isNavVisible = false;
+        }, 1000); // Hide after 1 second of scrolling down
+      } 
+      // Scrolling up - show immediately
+      else if (currentScroll < lastScroll && !isNavVisible) {
+        desktopNav.classList.remove('desktop-nav-hidden');
+        isNavVisible = true;
+      }
+      
+      lastScroll = currentScroll <= 0 ? 0 : currentScroll;
+    }, 100);
+    
+    window.addEventListener('scroll', handleDesktopScroll, { passive: true });
+    
+    // Show on hover near left edge
+    document.addEventListener('mousemove', function(e) {
+      if (e.clientX < 150 && !isNavVisible) {
+        desktopNav.classList.remove('desktop-nav-hidden');
+        isNavVisible = true;
+      }
+    });
+    
+    // Show nav when reaching bottom of page
+    window.addEventListener('scroll', function() {
+      if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 100) {
+        if (!isNavVisible) {
+          desktopNav.classList.remove('desktop-nav-hidden');
           isNavVisible = true;
         }
       }
