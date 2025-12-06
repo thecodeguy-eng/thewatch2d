@@ -4,14 +4,14 @@
 
 {# -- SEO Meta Tags -- #}
 {% block title %}
-  {% if category %}{{ category.name }} Movies{% else %}All Movies{% endif %} – Ibez
+  {% if category %}{{ category.name }} Movies{% else %}All Movies{% endif %} – AlphaGL
 {% endblock %}
 
 {% block meta_description %}
   {% if category %}
-    Browse {{ category.name }} movies on Ibez. Download or stream in HD. Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+    Browse {{ category.name }} movies on AlphaGL. Download or stream in HD. Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
   {% else %}
-    Browse all movies on Ibez. Download or stream in HD. Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+    Browse all movies on AlphaGL. Download or stream in HD. Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
   {% endif %}
 {% endblock %}
 
@@ -29,13 +29,13 @@
 
 {% block og_type %}website{% endblock %}
 {% block og_title %}
-  {% if category %}{{ category.name }} Movies – Ibez{% else %}All Movies – Ibez{% endif %}
+  {% if category %}{{ category.name }} Movies – AlphaGL{% else %}All Movies – AlphaGL{% endif %}
 {% endblock %}
 {% block og_description %}
   {% if category %}
-    Browse and download {{ category.name }} movies in HD on Ibez. Page {{ page_obj.number }}.
+    Browse and download {{ category.name }} movies in HD on AlphaGL. Page {{ page_obj.number }}.
   {% else %}
-    Browse and download free movies in HD on Ibez. Page {{ page_obj.number }}.
+    Browse and download free movies in HD on AlphaGL. Page {{ page_obj.number }}.
   {% endif %}
 {% endblock %}
 {% block og_url %}{{ request.build_absolute_uri }}{% endblock %}
@@ -46,7 +46,7 @@
   {
     "@context": "https://schema.org",
     "@type": "ItemList",
-    "name": "{% if category %}{{ category.name }} Movies{% else %}All Movies{% endif %} – Ibez",
+    "name": "{% if category %}{{ category.name }} Movies{% else %}All Movies{% endif %} – AlphaGL",
     "itemListElement": [
       {% for movie in movies %}
       {

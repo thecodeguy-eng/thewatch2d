@@ -1,6 +1,6 @@
-// Service Worker for Ibez PWA
-const CACHE_NAME = 'Ibez-v1.0.0';
-const RUNTIME_CACHE = 'Ibez-runtime-v1.0.0';
+// Service Worker for AlphaGL PWA
+const CACHE_NAME = 'AlphaGL-v1.0.0';
+const RUNTIME_CACHE = 'AlphaGL-runtime-v1.0.0';
 
 // Core files to cache immediately
 const CORE_CACHE_FILES = [
@@ -224,11 +224,11 @@ self.addEventListener('push', (event) => {
   console.log('Push notification received');
   
   let notificationData = {
-    title: 'Ibez',
+    title: 'AlphaGL',
     body: 'New movies available!',
     icon: '/static/img/icons/icon-192x192.png',
     badge: '/static/img/icons/icon-72x72.png',
-    tag: 'Ibez-notification'
+    tag: 'AlphaGL-notification'
   };
   
   if (event.data) {

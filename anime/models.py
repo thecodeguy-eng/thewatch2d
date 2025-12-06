@@ -135,10 +135,10 @@ class Anime(models.Model):
             self.slug = slug
         
         if not self.meta_title:
-            self.meta_title = f"Watch {self.title} - Free Anime Streaming | Ibez"
+            self.meta_title = f"Watch {self.title} - Free Anime Streaming | AlphaGL"
         
         if not self.meta_description:
-            self.meta_description = f"Stream {self.title} anime episodes for free. Watch high-quality anime with English subtitles on Ibez."
+            self.meta_description = f"Stream {self.title} anime episodes for free. Watch high-quality anime with English subtitles on AlphaGL."
             
         super().save(*args, **kwargs)
 

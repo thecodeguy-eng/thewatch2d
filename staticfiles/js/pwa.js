@@ -1,5 +1,5 @@
-// PWA Registration and Management for Ibez
-class IbezPWA {
+// PWA Registration and Management for AlphaGL
+class AlphaGLPWA {
   constructor() {
     this.deferredPrompt = null;
     this.isInstalled = false;
@@ -34,7 +34,7 @@ class IbezPWA {
                       window.navigator.standalone === true;
     
     if (this.isInstalled) {
-      console.log('Ibez PWA is installed');
+      console.log('AlphaGL PWA is installed');
       this.hideInstallPrompts();
     }
   }
@@ -85,7 +85,7 @@ class IbezPWA {
 
     // Handle successful installation
     window.addEventListener('appinstalled', () => {
-      console.log('Ibez PWA installed successfully');
+      console.log('AlphaGL PWA installed successfully');
       this.isInstalled = true;
       this.hideInstallPrompts();
       this.showInstallSuccess();
@@ -118,10 +118,10 @@ class IbezPWA {
     banner.innerHTML = `
       <div class="pwa-banner-content">
         <div class="pwa-banner-icon">
-          <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhyWP9kWOZt4_QBwAd6ld2aBNxy2gHZdxXEntwKHGiL5EGWMR9OV_3MAoU2cnndWVdXtMaxcNpQ6YsCkEXLTutlBxPYDFIPujBO7SuiB745FsTuJvzjDmRMxtRR__lNKBH37lcuUhV8MfYXiA6Go3-F9cffW44OA_wWGBJw6n5PxjYRplbaTSO9e-O0YPA/s320/Image_fx%20(10).png" alt="Ibez" />
+          <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEi4wf2VISeXx06xSasx_N07k5BysFqDs8N5ysPnYLcVKWIlMHJx2JtobthX3yEE1W-LUgXPuLOHApGnPFMkLOaaVf_JBsPU-qdPiZATVZvCQyRUzI__pdU_OaxfyHRf4BM1hCw7X534tQKBa5wC-50JuchJof0m-q5xxZ2EpxTnw5UOnLwgdyfMpzWMIOE/s1600/alphagl-logo.jpg" alt="AlphaGL" />
         </div>
         <div class="pwa-banner-text">
-          <h3>Install Ibez App</h3>
+          <h3>Install AlphaGL App</h3>
           <p>Get the full app experience with offline access</p>
         </div>
         <div class="pwa-banner-actions">
@@ -191,7 +191,7 @@ class IbezPWA {
 
   // Show install success message
   showInstallSuccess() {
-    this.showToast('Ibez app installed successfully! 🎉', 'success');
+    this.showToast('AlphaGL app installed successfully! 🎉', 'success');
   }
 
   // Show app update available
@@ -210,7 +210,7 @@ class IbezPWA {
       <div class="pwa-banner-content">
         <div class="pwa-banner-text">
           <h3>Update Available</h3>
-          <p>A new version of Ibez is ready</p>
+          <p>A new version of AlphaGL is ready</p>
         </div>
         <div class="pwa-banner-actions">
           <button id="pwa-update-btn" class="pwa-btn-update">Update Now</button>
@@ -706,12 +706,12 @@ class IbezPWA {
 document.addEventListener('DOMContentLoaded', () => {
   // Only initialize PWA in modern browsers
   if ('serviceWorker' in navigator && 'Promise' in window) {
-    window.IbezPWA = new IbezPWA();
-    console.log('Ibez PWA initialized');
+    window.AlphaGLPWA = new AlphaGLPWA();
+    console.log('AlphaGL PWA initialized');
   } else {
     console.warn('PWA features not supported in this browser');
   }
 });
 
 // Export for global access
-window.IbezPWA = IbezPWA;
+window.AlphaGLPWA = AlphaGLPWA;

@@ -3,11 +3,11 @@
 {% load static %}
 
 {# SEO Meta Tags #}
-{% block title %}{{ movie.title }}{% if movie.year %} ({{ movie.year }}){% endif %} – Ibez{% endblock %}
+{% block title %}{{ movie.title }}{% if movie.year %} ({{ movie.year }}){% endif %} – AlphaGL{% endblock %}
 
 {% block meta_description %}
   {% with desc=movie.description|default_if_none:"" %}
-    {{ desc|truncatechars:150 }}{% if movie.completed %} Complete Series{% else %} Movie{% endif %}. Stream & Download in HD on Ibez.
+    {{ desc|truncatechars:150 }}{% if movie.completed %} Complete Series{% else %} Movie{% endif %}. Stream & Download in HD on AlphaGL.
   {% endwith %}
 {% endblock %}
 
@@ -20,7 +20,7 @@
 {% endblock %}
 
 {% block og_type %}video.movie{% endblock %}
-{% block og_title %}{{ movie.title }}{% if movie.year %} ({{ movie.year }}){% endif %} – Ibez{% endblock %}
+{% block og_title %}{{ movie.title }}{% if movie.year %} ({{ movie.year }}){% endif %} – AlphaGL{% endblock %}
 {% block og_description %}
   {% with desc=movie.description|default_if_none:"" %}
     {{ desc|truncatechars:150 }}{% if movie.completed %} Complete{% else %} Movie{% endif %}

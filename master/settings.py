@@ -51,7 +51,7 @@ DEBUG = config('DEBUG', default=False, cast=bool)
 
 
 ALLOWED_HOSTS = [
-    'Ibez.vercel.app',
+    'AlphaGL.vercel.app',
     '.vercel.app',  # This allows all preview deployments
     'localhost',
     '127.0.0.1',
@@ -78,7 +78,7 @@ INSTALLED_APPS = [
     'movies',            # Movies app
     'anime',             # Anime app
     'manga',             # Manga app
-    'apk_store',         # Ibez app
+    'apk_store',         # AlphaGL app
     
     # Other apps
     'django_crontab',
@@ -162,8 +162,8 @@ WSGI_APPLICATION = 'master.wsgi.application'
 
 # PWA Settings remain the same
 PWA_SETTINGS = {
-    'name': 'Ibez - Movies, Anime, Manga & Apps',
-    'short_name': 'Ibez',
+    'name': 'AlphaGL - Movies, Anime, Manga & Apps',
+    'short_name': 'AlphaGL',
     'description': 'All entertainment in one place. Stream movies, watch anime, read manga, and download premium APKs.',
     'theme_color': '#3b82f6',
     'background_color': '#ffffff',
@@ -173,12 +173,12 @@ PWA_SETTINGS = {
     'orientation': 'portrait-primary',
     'icons': [
         {
-            'src': 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhyWP9kWOZt4_QBwAd6ld2aBNxy2gHZdxXEntwKHGiL5EGWMR9OV_3MAoU2cnndWVdXtMaxcNpQ6YsCkEXLTutlBxPYDFIPujBO7SuiB745FsTuJvzjDmRMxtRR__lNKBH37lcuUhV8MfYXiA6Go3-F9cffW44OA_wWGBJw6n5PxjYRplbaTSO9e-O0YPA/s320/Image_fx%20(10).png',
+            'src': 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEi4wf2VISeXx06xSasx_N07k5BysFqDs8N5ysPnYLcVKWIlMHJx2JtobthX3yEE1W-LUgXPuLOHApGnPFMkLOaaVf_JBsPU-qdPiZATVZvCQyRUzI__pdU_OaxfyHRf4BM1hCw7X534tQKBa5wC-50JuchJof0m-q5xxZ2EpxTnw5UOnLwgdyfMpzWMIOE/s1600/alphagl-logo.jpg',
             'sizes': '192x192',
             'type': 'image/png',
         },
         {
-            'src': 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhyWP9kWOZt4_QBwAd6ld2aBNxy2gHZdxXEntwKHGiL5EGWMR9OV_3MAoU2cnndWVdXtMaxcNpQ6YsCkEXLTutlBxPYDFIPujBO7SuiB745FsTuJvzjDmRMxtRR__lNKBH37lcuUhV8MfYXiA6Go3-F9cffW44OA_wWGBJw6n5PxjYRplbaTSO9e-O0YPA/s320/Image_fx%20(10).png',
+            'src': 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEi4wf2VISeXx06xSasx_N07k5BysFqDs8N5ysPnYLcVKWIlMHJx2JtobthX3yEE1W-LUgXPuLOHApGnPFMkLOaaVf_JBsPU-qdPiZATVZvCQyRUzI__pdU_OaxfyHRf4BM1hCw7X534tQKBa5wC-50JuchJof0m-q5xxZ2EpxTnw5UOnLwgdyfMpzWMIOE/s1600/alphagl-logo.jpg',
             'sizes': '512x512',
             'type': 'image/png',
         }
@@ -274,7 +274,7 @@ STATICFILES_DIRS = [
 CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
-        'LOCATION': 'Ibez-cache',
+        'LOCATION': 'AlphaGL-cache',
         'OPTIONS': {
             'MAX_ENTRIES': 1000
         }
@@ -297,7 +297,7 @@ OFFLINE_URL = '/offline.html'
 WEBPUSH_SETTINGS = {
     "VAPID_PUBLIC_KEY": "your-vapid-public-key-here",
     "VAPID_PRIVATE_KEY": "your-vapid-private-key-here",
-    "VAPID_ADMIN_EMAIL": "admin@Ibez.store"
+    "VAPID_ADMIN_EMAIL": "admin@AlphaGL.store"
 }
 
 INSTALLED_APPS += [

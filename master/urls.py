@@ -25,7 +25,7 @@ sitemaps = {
 
 urlpatterns = [
     # Admin
-    path('Ibez/Ibez_admin/admin', admin.site.urls),
+    path('AlphaGL/AlphaGL_admin/admin', admin.site.urls),
     
     # ⭐ UNIFIED HOMEPAGE (Main app) - Now includes PWA URLs
     path('', include('main.urls')),

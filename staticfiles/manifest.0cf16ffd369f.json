@@ -1,6 +1,6 @@
 {
-  "name": "Ibez - Movies & Series",
-  "short_name": "Ibez",
+  "name": "AlphaGL - Movies & Series",
+  "short_name": "AlphaGL",
   "description": "Stream and download movies, series, anime, K-Dramas and more. Your ultimate entertainment destination.",
   "start_url": "/",
   "scope": "/",
@@ -122,8 +122,8 @@
   "related_applications": [
     {
       "platform": "play",
-      "url": "https://play.google.com/store/apps/details?id=com.Ibez.app",
-      "id": "com.Ibez.app"
+      "url": "https://play.google.com/store/apps/details?id=com.AlphaGL.app",
+      "id": "com.AlphaGL.app"
     }
   ],
   
@@ -131,7 +131,7 @@
   
   "protocol_handlers": [
     {
-      "protocol": "web+Ibez",
+      "protocol": "web+AlphaGL",
       "url": "/movie/%s"
     }
   ],

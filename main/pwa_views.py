@@ -9,8 +9,8 @@ import json
 def manifest_view(request):
     """Serve the PWA manifest.json"""
     manifest_data = {
-        "name": "Ibez - Movies, Anime, Manga & Apps",
-        "short_name": "Ibez",
+        "name": "AlphaGL - Movies, Anime, Manga & Apps",
+        "short_name": "AlphaGL",
         "description": "Stream movies, watch anime, read manga, and download premium APKs - all in one place!",
         "start_url": "/",
         "scope": "/",
