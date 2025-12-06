@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Offline - Ibez</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+    </style>
+</head>
+<body class="h-full flex items-center justify-center p-4">
+    <div class="text-center max-w-md mx-auto">
+        <div class="mb-8 animate-bounce">
+            <i class="fas fa-wifi-slash text-white text-6xl"></i>
+        </div>
+        
+        <h1 class="text-4xl font-bold text-white mb-4">
+            You're Offline
+        </h1>
+        
+        <p class="text-white/90 text-lg mb-8">
+            Looks like you've lost your internet connection. Don't worry, some features may still work!
+        </p>
+        
+        <div class="space-y-4 text-white/80 text-sm mb-8">
+            <div class="flex items-center justify-center space-x-2">
+                <i class="fas fa-check-circle text-green-300"></i>
+                <span>Previously viewed content available</span>
+            </div>
+            <div class="flex items-center justify-center space-x-2">
+                <i class="fas fa-check-circle text-green-300"></i>
+                <span>Your saved favorites still accessible</span>
+            </div>
+        </div>
+        
+        <button onclick="window.location.reload()" 
+                class="bg-white text-purple-600 px-8 py-3 rounded-full font-semibold hover:bg-gray-100 transition-all duration-300 shadow-lg">
+            <i class="fas fa-sync-alt mr-2"></i>
+            Try Again
+        </button>
+        
+        <div class="mt-8">
+            <a href="/" class="text-white/80 hover:text-white transition-colors">
+                <i class="fas fa-home mr-2"></i>
+                Go to Homepage
+            </a>
+        </div>
+    </div>
+    
+    <script>
+        // Auto-retry connection every 5 seconds
+        setInterval(() => {
+            if (navigator.onLine) {
+                window.location.reload();
+            }
+        }, 5000);
+        
+        // Show reconnection message
+        window.addEventListener('online', () => {
+            const message = document.createElement('div');
+            message.className = 'fixed top-4 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-6 py-3 rounded-full shadow-lg';
+            message.innerHTML = '<i class="fas fa-check-circle mr-2"></i>Connection restored!';
+            document.body.appendChild(message);
+            
+            setTimeout(() => {
+                window.location.reload();
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

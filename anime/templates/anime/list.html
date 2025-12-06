@@ -88,14 +88,16 @@
     </div>
   </div>
 
-  <!-- Anime Grid -->
+  <!-- Anime Grid - FIXED IMAGE LOADING -->
   <div id="anime-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-6">
     {% for anime in animes %}
     <div class="anime-card bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-lg group">
-      <div class="relative aspect-[3/4] overflow-hidden">
+      <div class="relative aspect-[3/4] overflow-hidden bg-gray-200 dark:bg-gray-700">
         {% if anime.poster_url %}
           <img src="{{ anime.poster_url }}" 
                alt="{{ anime.title }}" 
+               loading="lazy"
+               onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 200 300%22%3E%3Crect width=%22100%25%22 height=%22100%25%22 fill=%22%23f3f4f6%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 fill=%22%239ca3af%22 font-family=%22sans-serif%22%3ENo Image%3C/text%3E%3C/svg%3E'"
                class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110">
         {% else %}
           <div class="w-full h-full bg-gradient-to-br from-primary-500 to-accent-500 flex items-center justify-center">
@@ -118,16 +120,6 @@
         <!-- Overlay -->
         <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
           <div class="absolute bottom-3 left-3 right-3">
-            <div class="flex space-x-2 mb-2">
-              <!-- <button onclick="likeAnime({{ anime.id }})" 
-                      class="p-2 bg-white/20 backdrop-blur-sm rounded-full text-white hover:bg-white/30 transition-colors">
-                <i class="fas fa-heart"></i>
-              </button> -->
-              <!-- <button onclick="addToWatchlist({{ anime.id }})" 
-                      class="p-2 bg-white/20 backdrop-blur-sm rounded-full text-white hover:bg-white/30 transition-colors">
-                <i class="fas fa-bookmark"></i>
-              </button> -->
-            </div>
             <a href="{{ anime.get_absolute_url }}" 
                class="block text-center py-2 bg-primary-500 text-white rounded-lg font-semibold hover:bg-primary-600 transition-colors">
               Watch Now
@@ -142,24 +134,6 @@
             {{ anime.title }}
           </a>
         </h3>
-        
-        <!-- Stats -->
-        <!-- <div class="flex items-center justify-between text-sm text-gray-600 dark:text-gray-400 mb-3">
-          <span class="flex items-center">
-            <i class="fas fa-eye mr-1"></i>
-            {{ anime.views|floatformat:0 }}
-          </span>
-          <span class="flex items-center">
-            <i class="fas fa-heart mr-1"></i>
-            {{ anime.likes|floatformat:0 }}
-          </span>
-          {% if anime.rating %}
-          <span class="flex items-center text-yellow-500">
-            <i class="fas fa-star mr-1"></i>
-            {{ anime.rating }}
-          </span>
-          {% endif %}
-        </div> -->
         
          <!-- Genres -->
         {% if anime.genres.exists %}

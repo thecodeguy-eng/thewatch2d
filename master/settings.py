@@ -160,6 +160,7 @@ AUTHENTICATION_BACKENDS = [
 WSGI_APPLICATION = 'master.wsgi.application'
 
 
+# PWA Settings remain the same
 PWA_SETTINGS = {
     'name': 'Ibez - Movies, Anime, Manga & Apps',
     'short_name': 'Ibez',
@@ -172,12 +173,12 @@ PWA_SETTINGS = {
     'orientation': 'portrait-primary',
     'icons': [
         {
-            'src': '/static/img/icons/icon-192x192.png',
+            'src': 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhyWP9kWOZt4_QBwAd6ld2aBNxy2gHZdxXEntwKHGiL5EGWMR9OV_3MAoU2cnndWVdXtMaxcNpQ6YsCkEXLTutlBxPYDFIPujBO7SuiB745FsTuJvzjDmRMxtRR__lNKBH37lcuUhV8MfYXiA6Go3-F9cffW44OA_wWGBJw6n5PxjYRplbaTSO9e-O0YPA/s320/Image_fx%20(10).png',
             'sizes': '192x192',
             'type': 'image/png',
         },
         {
-            'src': '/static/img/icons/icon-512x512.png',
+            'src': 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhyWP9kWOZt4_QBwAd6ld2aBNxy2gHZdxXEntwKHGiL5EGWMR9OV_3MAoU2cnndWVdXtMaxcNpQ6YsCkEXLTutlBxPYDFIPujBO7SuiB745FsTuJvzjDmRMxtRR__lNKBH37lcuUhV8MfYXiA6Go3-F9cffW44OA_wWGBJw6n5PxjYRplbaTSO9e-O0YPA/s320/Image_fx%20(10).png',
             'sizes': '512x512',
             'type': 'image/png',
         }
@@ -266,7 +267,7 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_DIRS = [
     BASE_DIR / 'movies' / 'static',
     BASE_DIR / 'main' / 'static',      # ⭐ Add this if you have static files in main
-    BASE_DIR / 'pwa_static',           # Keep this
+    # BASE_DIR / 'pwa_static',           # Keep this
 ]
 
 
@@ -285,8 +286,9 @@ CACHES = {
 CACHE_CONTROL_MAX_AGE = 31536000  # 1 year for static files
 
 MIDDLEWARE += [
-    'movies.middleware.PWAMiddleware',
+    'main.middleware.PWAMiddleware',
 ]
+
 
 # Add offline page URL
 OFFLINE_URL = '/offline.html'

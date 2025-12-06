@@ -1,4 +1,4 @@
-<!-- ==================== chapters.html ==================== -->
+<!-- ==================== chapters.html (FIXED) ==================== -->
 {% extends 'base.html' %}
 {% load static %}
 
@@ -43,27 +43,7 @@
         </div>
         
         <!-- Pagination -->
-        {% if is_paginated %}
-        <div class="flex justify-center items-center gap-2 mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
-            {% if page_obj.has_previous %}
-            <a href="?page={{ page_obj.previous_page_number }}" 
-               class="px-4 py-2 bg-white dark:bg-gray-800 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
-                <i class="fas fa-angle-left"></i>
-            </a>
-            {% endif %}
-            
-            <span class="px-4 py-2 bg-primary-600 text-white rounded-lg font-semibold">
-                {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}
-            </span>
-            
-            {% if page_obj.has_next %}
-            <a href="?page={{ page_obj.next_page_number }}" 
-               class="px-4 py-2 bg-white dark:bg-gray-800 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
-                <i class="fas fa-angle-right"></i>
-            </a>
-            {% endif %}
-        </div>
-        {% endif %}
+        {% include 'manga/includes/pagination.html' %}
         
         {% else %}
         <p class="text-center text-gray-600 dark:text-gray-400 py-8">No chapters available</p>
