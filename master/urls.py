@@ -11,6 +11,7 @@ from django.contrib.auth.views import LogoutView
 from django.conf import settings
 from django.conf.urls.static import static
 
+
 # Sitemaps
 sitemaps = {
     'home': HomeSitemap(),
