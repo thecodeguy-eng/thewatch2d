@@ -1,143 +1,95 @@
 {% load static %}
 
-<section class="container mx-auto px-4 lg:px-6 py-8 bg-gradient-to-br from-white via-green-50/30 to-emerald-50/40 dark:from-gray-900 dark:via-green-900/5 dark:to-emerald-900/10 rounded-3xl overflow-hidden relative">
-  <!-- Background Decoration -->
-  <div class="absolute inset-0 opacity-5 dark:opacity-10 pointer-events-none">
-    <div class="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-green-400 to-emerald-500 rounded-full blur-3xl transform translate-x-1/2 -translate-y-1/2"></div>
-    <div class="absolute bottom-0 left-0 w-96 h-96 bg-gradient-to-tr from-blue-400 to-purple-500 rounded-full blur-3xl transform -translate-x-1/2 translate-y-1/2"></div>
-  </div>
-
-  <!-- Section Header -->
-  <div class="relative flex items-center justify-between mb-8 animate-fade-in">
-    <div class="flex items-center space-x-4">
-      <div class="w-16 h-16 bg-gradient-to-br from-green-500 via-green-600 to-emerald-600 rounded-2xl flex items-center justify-center shadow-lg shadow-green-500/30 transform hover:scale-105 transition-transform duration-300">
-        <i class="fas fa-mobile-alt text-3xl text-white"></i>
-      </div>
-      <div>
-        <h2 class="text-4xl font-black bg-gradient-to-r from-green-600 to-emerald-600 dark:from-green-400 dark:to-emerald-400 bg-clip-text text-transparent">
-          Apps & Games
-        </h2>
-        <p class="text-sm text-gray-600 dark:text-gray-400 font-medium">Premium games & apps</p>
-      </div>
+<section class="container mx-auto px-4 lg:px-6 py-12 relative">
+  
+  <!-- Section Header - Minimalist -->
+  <div class="relative flex items-center justify-between mb-10">
+    <div>
+      <h2 class="text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-1">
+        Apps & Games
+      </h2>
+      <p class="text-sm text-gray-500 dark:text-gray-400">Discover what you love</p>
     </div>
-    <a href="{% url 'apk_store:home' %}" class="group flex items-center space-x-2 px-5 py-2.5 bg-white dark:bg-gray-800 rounded-full shadow-md hover:shadow-lg transition-all duration-300 border border-gray-200 dark:border-gray-700">
-      <span class="text-green-600 dark:text-green-400 font-bold text-sm">View All</span>
-      <i class="fas fa-arrow-right text-green-600 dark:text-green-400 group-hover:translate-x-1 transition-transform duration-300"></i>
-    </a>
   </div>
 
-  <!-- Featured Apps & Games -->
+  <!-- Featured Apps Carousel - Play Store Style -->
   {% if featured_apks %}
-  <div class="relative mb-12 animate-slide-up">
-    <div class="flex items-center justify-between mb-6">
-      <h3 class="text-2xl font-bold text-gray-900 dark:text-white flex items-center">
-        <div class="w-10 h-10 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-xl flex items-center justify-center mr-3 shadow-lg">
-          <i class="fas fa-crown text-white text-lg"></i>
-        </div>
-        Featured for You
+  <div class="mb-16">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="text-xl font-semibold text-gray-900 dark:text-white">
+        Recommended for you
       </h3>
     </div>
     
-    <!-- Large Featured Cards Horizontal Scroll -->
-    <div class="horizontal-scroll flex space-x-6 pb-6 -mx-2 px-2 snap-x snap-mandatory overflow-x-auto scrollbar-hide">
+    <!-- Large Hero Cards -->
+    <div class="horizontal-scroll flex gap-4 pb-4 -mx-2 px-2 snap-x snap-mandatory overflow-x-auto scrollbar-hide">
       {% for apk in featured_apks %}
-      <div class="snap-start flex-shrink-0 w-[85vw] sm:w-[400px] group">
-        <a href="{% url 'apk_store:apk_detail' apk.slug %}" class="block relative">
-          <!-- Main Card -->
-          <div class="bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-850 rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-500 overflow-hidden border border-gray-200/50 dark:border-gray-700/50 transform hover:scale-[1.02] hover:-translate-y-1">
+      <div class="snap-start flex-shrink-0 w-[340px]">
+        <a href="{% url 'apk_store:apk_detail' apk.slug %}" class="block group">
+          <div class="bg-white dark:bg-gray-800 rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 dark:border-gray-700">
             
-            <!-- Hero Image/Screenshot -->
-            <div class="relative h-48 sm:h-56 overflow-hidden bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-900/20 dark:to-emerald-900/20">
+            <!-- Large Preview Image -->
+            <div class="relative h-[280px] overflow-hidden bg-gradient-to-br from-blue-50 to-purple-50 dark:from-gray-900 dark:to-gray-800">
               {% if apk.screenshots.all %}
               <img src="{{ apk.screenshots.first.image_url }}" 
-                   alt="{{ apk.title }} screenshot"
-                   class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                   alt="{{ apk.title }}"
+                   class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                    loading="lazy" />
               {% elif apk.cover_image_url %}
               <img src="{{ apk.cover_image_url }}" 
                    alt="{{ apk.title }}"
-                   class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                   class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                    loading="lazy" />
               {% else %}
-              <div class="w-full h-full bg-gradient-to-br from-green-400 via-emerald-400 to-teal-500 flex items-center justify-center">
-                <i class="fas fa-android text-white text-6xl opacity-20"></i>
+              <div class="w-full h-full bg-gradient-to-br from-blue-400 via-purple-400 to-pink-400 flex items-center justify-center">
+                <i class="fas fa-android text-white text-7xl opacity-30"></i>
               </div>
               {% endif %}
               
-              <!-- Overlay Gradient -->
-              <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent"></div>
-              
-              <!-- Featured Badge -->
-              <div class="absolute top-4 left-4 px-3 py-1.5 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full flex items-center space-x-1.5 shadow-lg">
-                <i class="fas fa-star text-white text-xs"></i>
-                <span class="text-white font-bold text-xs uppercase tracking-wide">Featured</span>
-              </div>
-
-              <!-- Download Overlay -->
-              <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center">
-                <div class="transform scale-75 group-hover:scale-100 transition-transform duration-300">
-                  <div class="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-2xl">
-                    <i class="fas fa-download text-green-600 text-2xl"></i>
-                  </div>
-                </div>
-              </div>
+              <!-- Subtle gradient overlay -->
+              <div class="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent"></div>
             </div>
 
-            <!-- Card Content -->
-            <div class="p-5">
-              <!-- App Info Row -->
-              <div class="flex items-start space-x-4 mb-4">
+            <!-- App Info - Compact -->
+            <div class="p-4">
+              <div class="flex items-start gap-3">
                 <!-- App Icon -->
-                <div class="w-16 h-16 sm:w-18 sm:h-18 rounded-2xl overflow-hidden bg-white dark:bg-gray-900 shadow-lg flex-shrink-0 ring-2 ring-gray-100 dark:ring-gray-700 group-hover:ring-green-500 dark:group-hover:ring-green-400 transition-all duration-300">
+                <div class="w-14 h-14 rounded-2xl overflow-hidden bg-white dark:bg-gray-900 shadow-md flex-shrink-0">
                   {% if apk.icon_url %}
                   <img src="{{ apk.icon_url }}" 
                        alt="{{ apk.title }}"
                        class="w-full h-full object-cover"
                        loading="lazy" />
                   {% else %}
-                  <div class="w-full h-full bg-gradient-to-br from-green-400 to-emerald-500 flex items-center justify-center">
-                    <i class="fas fa-android text-white text-2xl"></i>
+                  <div class="w-full h-full bg-gradient-to-br from-green-400 to-blue-500 flex items-center justify-center">
+                    <i class="fas fa-android text-white text-xl"></i>
                   </div>
                   {% endif %}
                 </div>
                 
-                <!-- App Details -->
+                <!-- Title & Meta -->
                 <div class="flex-1 min-w-0">
-                  <h4 class="font-bold text-lg text-gray-900 dark:text-white line-clamp-2 mb-2 group-hover:text-green-600 dark:group-hover:text-green-400 transition-colors">
+                  <h4 class="font-semibold text-base text-gray-900 dark:text-white line-clamp-1 mb-1">
                     {{ apk.title }}
                   </h4>
                   
-                  <div class="flex items-center space-x-3 mb-2">
-                    {% if apk.rating %}
-                    <div class="flex items-center space-x-1">
-                      <i class="fas fa-star text-yellow-400 text-sm"></i>
-                      <span class="font-bold text-gray-900 dark:text-white text-sm">{{ apk.rating }}</span>
-                    </div>
-                    {% endif %}
-                    
-                    <span class="px-3 py-1 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-full font-bold text-xs shadow-md">
+                  <div class="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400 mb-2">
+                    <span class="px-2 py-0.5 bg-gray-100 dark:bg-gray-700 rounded-md font-medium">
                       {{ apk.get_status_display }}
                     </span>
+                    {% if apk.rating %}
+                    <div class="flex items-center gap-1">
+                      <i class="fas fa-star text-yellow-500 text-xs"></i>
+                      <span class="font-medium">{{ apk.rating }}</span>
+                    </div>
+                    {% endif %}
                   </div>
                   
-                  <div class="flex items-center space-x-4 text-xs text-gray-500 dark:text-gray-400">
-                    <span class="flex items-center">
-                      <i class="fas fa-download mr-1.5"></i>
-                      {{ apk.downloads_count|default:"1M+" }}
-                    </span>
-                    <span class="flex items-center">
-                      <i class="fas fa-hdd mr-1.5"></i>
-                      {{ apk.size|default:"Varies" }}
-                    </span>
-                  </div>
+                  <button class="w-full py-2 bg-green-600 hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600 text-white text-sm font-semibold rounded-lg transition-colors">
+                    Install
+                  </button>
                 </div>
               </div>
-
-              <!-- Install Button -->
-              <button class="w-full py-3 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white font-bold rounded-xl transition-all duration-300 shadow-md hover:shadow-xl transform group-hover:scale-[1.02] flex items-center justify-center space-x-2">
-                <span>Install</span>
-                <i class="fas fa-arrow-down"></i>
-              </button>
             </div>
           </div>
         </a>
@@ -147,73 +99,70 @@
   </div>
   {% endif %}
 
-  <!-- Latest Games & Apps Grid -->
-  <div class="relative grid grid-cols-1 lg:grid-cols-2 gap-8">
-    <!-- Latest Games -->
+  <!-- Top Charts Section - Play Store Grid Style -->
+  <div class="space-y-12">
+    
+    <!-- Top Games -->
     {% if latest_games %}
-    <div class="animate-slide-up" style="animation-delay: 100ms;">
-      <div class="flex items-center justify-between mb-6">
-        <h3 class="text-xl font-bold text-gray-900 dark:text-white flex items-center">
-          <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center mr-3 shadow-lg">
-            <i class="fas fa-gamepad text-white text-lg"></i>
-          </div>
-          Top Apps & Games
+    <div>
+      <div class="flex items-center justify-between mb-5">
+        <h3 class="text-xl font-semibold text-gray-900 dark:text-white">
+          Top charts
         </h3>
-        <a href="{% url 'apk_store:games_list' %}" class="text-green-600 dark:text-green-400 hover:underline font-semibold text-sm">See all</a>
+        <a href="{% url 'apk_store:games_list' %}" class="text-sm text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 font-medium flex items-center gap-1">
+          See more
+          <i class="fas fa-chevron-right text-xs"></i>
+        </a>
       </div>
       
-      <div class="space-y-3">
+      <!-- Grid Layout - Play Store Style -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {% for game in latest_games|slice:":6" %}
-        <a href="{% url 'apk_store:apk_detail' game.slug %}" class="group flex items-center space-x-4 bg-white dark:bg-gray-800 rounded-2xl p-4 hover:shadow-xl transition-all duration-300 border border-gray-100 dark:border-gray-700 hover:border-blue-500 dark:hover:border-blue-400 transform hover:-translate-y-0.5">
-          <!-- Game Icon -->
-          <div class="relative w-16 h-16 sm:w-18 sm:h-18 rounded-xl overflow-hidden bg-gray-100 dark:bg-gray-900 flex-shrink-0 shadow-md ring-2 ring-transparent group-hover:ring-blue-500 dark:group-hover:ring-blue-400 transition-all duration-300">
-            {% if game.icon_url %}
-            <img src="{{ game.icon_url }}" 
-                 alt="{{ game.title }}"
-                 class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                 loading="lazy" />
-            {% else %}
-            <div class="w-full h-full bg-gradient-to-br from-blue-400 to-indigo-500 flex items-center justify-center">
-              <i class="fas fa-gamepad text-white text-2xl"></i>
+        <a href="{% url 'apk_store:apk_detail' game.slug %}" class="group flex items-center gap-4 bg-white dark:bg-gray-800 rounded-2xl p-4 hover:shadow-lg transition-all duration-300 border border-transparent hover:border-gray-200 dark:hover:border-gray-700">
+          
+          <!-- App Icon with Ranking Badge -->
+          <div class="relative flex-shrink-0">
+            <div class="w-16 h-16 rounded-2xl overflow-hidden bg-gray-100 dark:bg-gray-900 shadow-sm">
+              {% if game.icon_url %}
+              <img src="{{ game.icon_url }}" 
+                   alt="{{ game.title }}"
+                   class="w-full h-full object-cover"
+                   loading="lazy" />
+              {% else %}
+              <div class="w-full h-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center">
+                <i class="fas fa-gamepad text-white text-xl"></i>
+              </div>
+              {% endif %}
             </div>
-            {% endif %}
             
-            <!-- Rank Number -->
-            <div class="absolute -top-2 -left-2 w-7 h-7 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center shadow-lg">
-              <span class="text-white font-bold text-xs">{{ forloop.counter }}</span>
+            <!-- Ranking Badge -->
+            <div class="absolute -top-2 -left-2 w-6 h-6 bg-gray-900 dark:bg-white rounded-full flex items-center justify-center shadow-md">
+              <span class="text-white dark:text-gray-900 font-bold text-xs">{{ forloop.counter }}</span>
             </div>
           </div>
           
-          <!-- Game Info -->
+          <!-- App Details -->
           <div class="flex-1 min-w-0">
-            <h4 class="font-bold text-base text-gray-900 dark:text-white truncate mb-1 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+            <h4 class="font-medium text-sm text-gray-900 dark:text-white line-clamp-2 mb-1 leading-snug">
               {{ game.title }}
             </h4>
             
-            <div class="flex items-center space-x-3 text-xs text-gray-500 dark:text-gray-400 mb-2">
-              <span class="flex items-center">
-                <i class="fas fa-hdd mr-1"></i>
-                {{ game.size|default:"Varies" }}
-              </span>
-              <span class="px-2 py-0.5 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-full font-semibold">
+            <div class="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 mb-2">
+              {% if game.rating %}
+              <div class="flex items-center gap-1">
+                <span class="font-medium text-gray-700 dark:text-gray-300">{{ game.rating }}</span>
+                <i class="fas fa-star text-yellow-500"></i>
+              </div>
+              {% endif %}
+              <span class="px-1.5 py-0.5 bg-gray-100 dark:bg-gray-700 rounded text-xs">
                 {{ game.get_status_display }}
               </span>
             </div>
             
-            {% if game.rating %}
-            <div class="flex items-center space-x-1">
-              <i class="fas fa-star text-yellow-400 text-xs"></i>
-              <span class="text-gray-700 dark:text-gray-300 text-xs font-semibold">{{ game.rating }}</span>
-            </div>
-            {% endif %}
-          </div>
-          
-          <!-- Install Button -->
-          <div class="flex-shrink-0">
-            <div class="px-4 py-2 bg-gradient-to-r from-blue-500 to-indigo-500 text-white rounded-xl font-bold text-sm shadow-md group-hover:shadow-lg transition-all duration-300 group-hover:scale-105 flex items-center space-x-1">
-              <i class="fas fa-download text-xs"></i>
-              <span class="hidden sm:inline">Get</span>
-            </div>
+            <!-- Install Button -->
+            <button class="px-4 py-1.5 bg-transparent border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg text-xs font-semibold hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+              Install
+            </button>
           </div>
         </a>
         {% endfor %}
@@ -221,82 +170,115 @@
     </div>
     {% endif %}
 
-    <!-- Latest Apps -->
-    <!-- {% if latest_apps %}
-    <div class="animate-slide-up" style="animation-delay: 200ms;">
-      <div class="flex items-center justify-between mb-6">
-        <h3 class="text-xl font-bold text-gray-900 dark:text-white flex items-center">
-          <div class="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl flex items-center justify-center mr-3 shadow-lg">
-            <i class="fas fa-mobile text-white text-lg"></i>
-          </div>
-          Top Apps
+    <!-- Horizontal Scrolling Categories - App Store Style -->
+    <div>
+      <div class="flex items-center justify-between mb-5">
+        <h3 class="text-xl font-semibold text-gray-900 dark:text-white">
+          New & updated
         </h3>
-        <a href="{% url 'apk_store:apps_list' %}" class="text-green-600 dark:text-green-400 hover:underline font-semibold text-sm">See all</a>
-      </div> -->
+        <a href="{% url 'apk_store:home' %}" class="text-sm text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 font-medium flex items-center gap-1">
+          See all
+          <i class="fas fa-chevron-right text-xs"></i>
+        </a>
+      </div>
       
-      <!-- <div class="space-y-3">
-        {% for app in latest_apps|slice:":6" %}
-        <a href="{% url 'apk_store:apk_detail' app.slug %}" class="group flex items-center space-x-4 bg-white dark:bg-gray-800 rounded-2xl p-4 hover:shadow-xl transition-all duration-300 border border-gray-100 dark:border-gray-700 hover:border-purple-500 dark:hover:border-purple-400 transform hover:-translate-y-0.5"> -->
-          <!-- App Icon -->
-          <!-- <div class="relative w-16 h-16 sm:w-18 sm:h-18 rounded-xl overflow-hidden bg-gray-100 dark:bg-gray-900 flex-shrink-0 shadow-md ring-2 ring-transparent group-hover:ring-purple-500 dark:group-hover:ring-purple-400 transition-all duration-300">
-            {% if app.icon_url %}
-            <img src="{{ app.icon_url }}" 
-                 alt="{{ app.title }}"
-                 class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                 loading="lazy" />
-            {% else %}
-            <div class="w-full h-full bg-gradient-to-br from-purple-400 to-pink-500 flex items-center justify-center">
-              <i class="fas fa-mobile text-white text-2xl"></i>
-            </div>
-            {% endif %} -->
-            
-            <!-- Rank Number -->
-            <!-- <div class="absolute -top-2 -left-2 w-7 h-7 bg-gradient-to-br from-purple-500 to-pink-600 rounded-full flex items-center justify-center shadow-lg">
-              <span class="text-white font-bold text-xs">{{ forloop.counter }}</span>
-            </div>
-          </div> -->
-          
-          <!-- App Info -->
-          <!-- <div class="flex-1 min-w-0">
-            <h4 class="font-bold text-base text-gray-900 dark:text-white truncate mb-1 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">
-              {{ app.title }}
-            </h4> -->
-            
-            <!-- <div class="flex items-center space-x-3 text-xs text-gray-500 dark:text-gray-400 mb-2">
-              <span class="flex items-center">
-                <i class="fas fa-hdd mr-1"></i>
-                {{ app.size|default:"Varies" }}
-              </span>
-              <span class="px-2 py-0.5 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 rounded-full font-semibold">
-                {{ app.get_status_display }}
-              </span>
+      <!-- Horizontal Scroll Cards -->
+      <div class="horizontal-scroll flex gap-4 pb-4 -mx-2 px-2 overflow-x-auto scrollbar-hide">
+        {% for game in latest_games|slice:"6:12" %}
+        <div class="flex-shrink-0 w-[140px]">
+          <a href="{% url 'apk_store:apk_detail' game.slug %}" class="block group">
+            <!-- App Icon -->
+            <div class="w-full aspect-square rounded-3xl overflow-hidden bg-white dark:bg-gray-800 shadow-md hover:shadow-xl transition-all duration-300 mb-3 border border-gray-100 dark:border-gray-700">
+              {% if game.icon_url %}
+              <img src="{{ game.icon_url }}" 
+                   alt="{{ game.title }}"
+                   class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                   loading="lazy" />
+              {% else %}
+              <div class="w-full h-full bg-gradient-to-br from-purple-400 to-pink-500 flex items-center justify-center">
+                <i class="fas fa-gamepad text-white text-3xl"></i>
+              </div>
+              {% endif %}
             </div>
             
-            {% if app.rating %}
-            <div class="flex items-center space-x-1">
-              <i class="fas fa-star text-yellow-400 text-xs"></i>
-              <span class="text-gray-700 dark:text-gray-300 text-xs font-semibold">{{ app.rating }}</span>
+            <!-- App Name & Rating -->
+            <h4 class="font-medium text-sm text-gray-900 dark:text-white line-clamp-2 mb-1 leading-tight">
+              {{ game.title }}
+            </h4>
+            
+            {% if game.rating %}
+            <div class="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
+              <span class="font-medium">{{ game.rating }}</span>
+              <i class="fas fa-star text-yellow-500" style="font-size: 10px;"></i>
             </div>
             {% endif %}
-          </div> -->
+          </a>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Premium Apps Section -->
+    <div>
+      <div class="flex items-center justify-between mb-5">
+        <h3 class="text-xl font-semibold text-gray-900 dark:text-white">
+          Premium picks
+        </h3>
+        <a href="{% url 'apk_store:apps_list' %}" class="text-sm text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 font-medium flex items-center gap-1">
+          See more
+          <i class="fas fa-chevron-right text-xs"></i>
+        </a>
+      </div>
+      
+      <!-- Compact List Style -->
+      <div class="space-y-3">
+        {% for game in latest_games|slice:"12:15" %}
+        <a href="{% url 'apk_store:apk_detail' game.slug %}" class="group flex items-center gap-4 bg-white dark:bg-gray-800 rounded-2xl p-3 hover:shadow-lg transition-all duration-300 border border-transparent hover:border-gray-200 dark:hover:border-gray-700">
           
-          <!-- Install Button -->
-          <!-- <div class="flex-shrink-0">
-            <div class="px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl font-bold text-sm shadow-md group-hover:shadow-lg transition-all duration-300 group-hover:scale-105 flex items-center space-x-1">
-              <i class="fas fa-download text-xs"></i>
-              <span class="hidden sm:inline">Get</span>
+          <!-- Small Icon -->
+          <div class="w-12 h-12 rounded-xl overflow-hidden bg-gray-100 dark:bg-gray-900 shadow-sm flex-shrink-0">
+            {% if game.icon_url %}
+            <img src="{{ game.icon_url }}" 
+                 alt="{{ game.title }}"
+                 class="w-full h-full object-cover"
+                 loading="lazy" />
+            {% else %}
+            <div class="w-full h-full bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center">
+              <i class="fas fa-mobile text-white text-lg"></i>
             </div>
-          </div> -->
+            {% endif %}
+          </div>
+          
+          <!-- Compact Info -->
+          <div class="flex-1 min-w-0">
+            <h4 class="font-medium text-sm text-gray-900 dark:text-white truncate mb-0.5">
+              {{ game.title }}
+            </h4>
+            <div class="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+              {% if game.rating %}
+              <span class="flex items-center gap-1">
+                {{ game.rating }} <i class="fas fa-star text-yellow-500" style="font-size: 9px;"></i>
+              </span>
+              {% endif %}
+              <span>•</span>
+              <span>{{ game.size|default:"Varies" }}</span>
+            </div>
+          </div>
+          
+          <!-- Simple Install Icon -->
+          <button class="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors flex-shrink-0">
+            <i class="fas fa-download text-gray-600 dark:text-gray-300 text-xs"></i>
+          </button>
         </a>
         {% endfor %}
       </div>
     </div>
-    {% endif %}
+
   </div>
 </section>
 
 <style>
-/* Hide scrollbar but keep functionality */
+/* Smooth scrollbar hiding */
 .scrollbar-hide {
   -ms-overflow-style: none;
   scrollbar-width: none;
@@ -305,50 +287,24 @@
   display: none;
 }
 
-/* Smooth scroll behavior */
+/* Smooth horizontal scrolling */
 .horizontal-scroll {
   scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
 }
 
-/* Animations */
-@keyframes fade-in {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+/* Subtle hover animations */
+@media (hover: hover) {
+  .group:hover {
+    transform: translateY(-2px);
   }
 }
 
-@keyframes slide-up {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.animate-fade-in {
-  animation: fade-in 0.6s ease-out;
-}
-
-.animate-slide-up {
-  animation: slide-up 0.8s ease-out;
-}
-
-/* Glass effect enhancement */
-.glass-effect {
-  backdrop-filter: blur(10px);
-  background: rgba(255, 255, 255, 0.9);
-}
-
-.dark .glass-effect {
-  background: rgba(31, 41, 55, 0.9);
+/* Focus states for accessibility */
+a:focus-visible,
+button:focus-visible {
+  outline: 2px solid #10b981;
+  outline-offset: 2px;
+  border-radius: 0.5rem;
 }
 </style>
