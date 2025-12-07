@@ -123,7 +123,20 @@
     </a>
 
     
-    
+    {# apps & games #}
+    <a href="{% url 'apk_store:home' %}" 
+       class="group relative flex items-center justify-center w-14 h-14 rounded-2xl transition-all
+              {% if 'apk' in request.path %}
+                bg-gradient-to-br from-green-500 to-green-600 text-white shadow-lg shadow-green-500/30
+              {% else %}
+                text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:scale-105
+              {% endif %}">
+      <i class="fas fa-mobile-alt text-xl"></i>
+      <span class="absolute left-full ml-4 px-4 py-2.5 bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-sm font-semibold rounded-xl opacity-0 group-hover:opacity-100 pointer-events-none transition-all whitespace-nowrap shadow-xl scale-90 group-hover:scale-100">
+        Apps & Games
+      </span>
+    </a>
+
     {# Movies #}
     <a href="{% url 'movies:home' %}" 
        class="group relative flex items-center justify-center w-14 h-14 rounded-2xl transition-all
@@ -165,20 +178,7 @@
         Manga
       </span>
     </a>
-    
-    {# AlphaGL #}
-    <a href="{% url 'apk_store:home' %}" 
-       class="group relative flex items-center justify-center w-14 h-14 rounded-2xl transition-all
-              {% if 'apk' in request.path %}
-                bg-gradient-to-br from-green-500 to-green-600 text-white shadow-lg shadow-green-500/30
-              {% else %}
-                text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:scale-105
-              {% endif %}">
-      <i class="fas fa-mobile-alt text-xl"></i>
-      <span class="absolute left-full ml-4 px-4 py-2.5 bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-sm font-semibold rounded-xl opacity-0 group-hover:opacity-100 pointer-events-none transition-all whitespace-nowrap shadow-xl scale-90 group-hover:scale-100">
-        Apps & Games
-      </span>
-    </a>
+  
     
     {# Divider #}
     <div class="h-px bg-gradient-to-r from-transparent via-gray-300 dark:via-gray-700 to-transparent my-1"></div>
