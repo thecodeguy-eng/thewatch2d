@@ -1,5 +1,6 @@
+# admin.py
 from django.contrib import admin
-from .models import APK, Category, Screenshot, APKVersion
+from .models import APK, Category, Screenshot, APKVersion, DownloadFile
 
 class ScreenshotInline(admin.TabularInline):
     model = Screenshot
@@ -11,6 +12,12 @@ class APKVersionInline(admin.TabularInline):
     extra = 0
     fields = ('version', 'download_url', 'size', 'is_latest', 'created_at')
     readonly_fields = ('created_at',)
+
+class DownloadFileInline(admin.TabularInline):
+    model = DownloadFile
+    extra = 1
+    fields = ('file_type', 'file_name', 'download_url', 'size', 'version', 'order', 'is_required')
+    ordering = ['order']
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
@@ -31,7 +38,7 @@ class APKAdmin(admin.ModelAdmin):
     prepopulated_fields = {'slug': ('title',)}
     filter_horizontal = ('categories',)
     readonly_fields = ('created_at', 'updated_at', 'slug')
-    inlines = [ScreenshotInline, APKVersionInline]
+    inlines = [DownloadFileInline, ScreenshotInline, APKVersionInline]
     
     fieldsets = (
         ('Basic Information', {
@@ -46,8 +53,9 @@ class APKAdmin(admin.ModelAdmin):
         ('Status & Mod', {
             'fields': ('status', 'mod_features')
         }),
-        ('Downloads & Links', {
-            'fields': ('download_url', 'source_url')
+        ('Primary Download', {
+            'fields': ('download_url', 'source_url'),
+            'description': 'Primary download link (additional files can be added below)'
         }),
         ('Categories', {
             'fields': ('categories',)
@@ -73,6 +81,14 @@ class APKAdmin(admin.ModelAdmin):
     def mark_as_featured(self, request, queryset):
         queryset.update(featured=True)
     mark_as_featured.short_description = "Mark selected as featured"
+
+@admin.register(DownloadFile)
+class DownloadFileAdmin(admin.ModelAdmin):
+    list_display = ('apk', 'file_type', 'file_name', 'size', 'version', 'order', 'is_required', 'created_at')
+    list_filter = ('file_type', 'is_required', 'created_at')
+    search_fields = ('apk__title', 'file_name', 'description')
+    readonly_fields = ('created_at',)
+    ordering = ['apk', 'order']
 
 @admin.register(Screenshot)
 class ScreenshotAdmin(admin.ModelAdmin):

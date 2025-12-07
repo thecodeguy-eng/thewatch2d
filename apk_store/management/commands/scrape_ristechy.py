@@ -2,7 +2,7 @@ from django.core.management.base import BaseCommand
 from django.utils import timezone
 from django.utils.text import slugify
 from django.db import connection, reset_queries
-from apk_store.models import APK, Category, Screenshot, APKVersion
+from apk_store.models import APK, Category, Screenshot, APKVersion, DownloadFile
 from django.db import models
 import requests
 from bs4 import BeautifulSoup
@@ -200,9 +200,11 @@ class Command(BaseCommand):
             print(f"  ⚠️ Error extracting images: {e}")
         
         return images
+    
+    # In scrape_ristechy.py, replace the extract_download_links method
 
-    def extract_download_links(self, content_html):
-        """Extract download links from post content"""
+    def extract_download_links(self, content_html, title):
+        """Extract and categorize download links from post content"""
         links = []
         
         try:
@@ -221,15 +223,53 @@ class Command(BaseCommand):
                 ]
                 
                 if any(indicator in href.lower() or indicator in text.lower() 
-                      for indicator in download_indicators):
+                    for indicator in download_indicators):
                     
                     # Skip if it's just a random link
                     if len(href) > 10 and not href.endswith(('.jpg', '.png', '.gif', '.css', '.js')):
+                        # Determine file type based on text
+                        file_type = 'apk'  # default
+                        file_name = text or 'Download'
+                        
+                        text_lower = text.lower()
+                        title_lower = title.lower()
+                        
+                        # Try to extract size from text
+                        size_match = re.search(r'\(([0-9.]+\s*(?:MB|GB|KB))\)', text)
+                        size = size_match.group(1) if size_match else ''
+                        
+                        # Try to extract version from text
+                        version_match = re.search(r'v?(\d+\.[\d.]+)', text)
+                        version = version_match.group(1) if version_match else ''
+                        
+                        # Determine file type
+                        if 'obb' in text_lower:
+                            file_type = 'obb'
+                        elif 'data' in text_lower:
+                            file_type = 'data'
+                        elif 'mod' in text_lower and 'apk' not in text_lower:
+                            file_type = 'mod'
+                        elif 'patch' in text_lower:
+                            file_type = 'patch'
+                        elif 'apk' in text_lower or any(indicator in text_lower for indicator in ['download', 'file']):
+                            file_type = 'apk'
+                        else:
+                            # Try to determine from context
+                            if any(word in title_lower for word in ['mod', 'apk']):
+                                file_type = 'apk'
+                        
                         links.append({
                             'url': href,
-                            'text': text or 'Download Link'
+                            'text': file_name,
+                            'file_type': file_type,
+                            'size': size,
+                            'version': version
                         })
-        
+            
+            # Sort links by priority (APK first, then OBB, then Data, then others)
+            type_priority = {'apk': 0, 'obb': 1, 'data': 2, 'mod': 3, 'patch': 4, 'other': 5}
+            links.sort(key=lambda x: type_priority.get(x['file_type'], 99))
+            
         except Exception as e:
             print(f"  ⚠️ Error extracting download links: {e}")
         
@@ -552,11 +592,13 @@ class Command(BaseCommand):
                         version, size = self.extract_version_and_size(content_html, title)
                         
                         # Extract download links
-                        download_links = self.extract_download_links(content_html)
-                        download_url = download_links[0]['url'] if download_links else ''
-                        
+                        download_links = self.extract_download_links(content_html, title)
+                        # Primary download URL (first APK link or first link)
+                        apk_links = [link for link in download_links if link['file_type'] == 'apk']
+                        download_url = apk_links[0]['url'] if apk_links else (download_links[0]['url'] if download_links else '')
+                                                
                         if download_url:
-                            print(f"  📥 Found download link: {download_url[:50]}...")
+                         print(f"  📥 Found {len(download_links)} download link(s)")
                         
                         # Extract mod features
                         mod_features = self.extract_mod_features(content_html)
@@ -584,13 +626,14 @@ class Command(BaseCommand):
                             print(f"  🆕 Created NEW APK: {title}")
                             stats['new_apks'] += 1
                         else:
-                            print(f"  ♻️  Updated EXISTING APK: {title}")
+                            print(f"  ♻️ Updated EXISTING APK: {title}")
                             stats['updated_apks'] += 1
                         
                         # Handle categories
                         if category_ids:
                             categories = self.get_or_create_category(category_ids)
                             apk.categories.set(categories)
+
                         
                         # Handle screenshots (skip first 2 as they're used for icon/cover)
                         screenshot_images = content_images[2:] if len(content_images) > 2 else []
@@ -609,20 +652,25 @@ class Command(BaseCommand):
                             
                             print(f"  📸 Added {len(screenshot_images[:5])} screenshots")
                         
-                        # Handle versions/download links
+                        # Handle download files
                         if download_links:
-                            for idx, link_data in enumerate(download_links[:3]):  # Max 3 versions
-                                version_num = version if idx == 0 else f"{version}-alt{idx}"
-                                
-                                APKVersion.objects.get_or_create(
+                            # Clear existing download files
+                            apk.download_files.all().delete()
+                            
+                            for idx, link_data in enumerate(download_links):
+                                DownloadFile.objects.create(
                                     apk=apk,
-                                    version=version_num,
-                                    defaults={
-                                        'download_url': link_data['url'],
-                                        'size': size,
-                                        'is_latest': idx == 0,
-                                    }
+                                    file_type=link_data['file_type'],
+                                    file_name=link_data['text'],
+                                    download_url=link_data['url'],
+                                    size=link_data.get('size', size),
+                                    version=link_data.get('version', version),
+                                    order=idx,
+                                    is_required=link_data['file_type'] in ['apk', 'obb'],  # APK and OBB are usually required
                                 )
+                                stats['new_download_files'] = stats.get('new_download_files', 0) + 1
+                            
+                            print(f"  📦 Added {len(download_links)} download file(s)")
                         
                         processed_posts += 1
                         posts_processed_this_page += 1

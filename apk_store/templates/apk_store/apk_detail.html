@@ -45,11 +45,107 @@
           </div>
           {% endif %}
 
-          <a href="{{ apk.download_url }}" target="_blank"
-             class="block w-full py-4 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white font-bold rounded-2xl shadow-lg hover:shadow-xl transition-all text-center">
-            <i class="fas fa-download mr-2"></i>
-            Download APK
-          </a>
+          {# Download Section - Show all files #}
+          <div class="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-3xl p-6 shadow-lg border-2 border-green-200 dark:border-green-800 mb-6">
+            <h3 class="font-bold text-2xl text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+              <i class="fas fa-download text-green-500"></i>
+              Download Files
+            </h3>
+            
+            {% if apk.download_files.all %}
+              <div class="space-y-3">
+                {% for file in apk.download_files.all %}
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-md hover:shadow-lg transition-all">
+                  <div class="flex items-center justify-between mb-2">
+                    <div class="flex items-center gap-3">
+                      <div class="w-12 h-12 rounded-xl bg-gradient-to-br 
+                                  {% if file.file_type == 'apk' %}from-green-500 to-emerald-500
+                                  {% elif file.file_type == 'obb' %}from-blue-500 to-cyan-500
+                                  {% elif file.file_type == 'data' %}from-purple-500 to-pink-500
+                                  {% else %}from-orange-500 to-red-500{% endif %}
+                                  flex items-center justify-center text-white">
+                        <i class="fas 
+                                  {% if file.file_type == 'apk' %}fa-file-code
+                                  {% elif file.file_type == 'obb' %}fa-cube
+                                  {% elif file.file_type == 'data' %}fa-database
+                                  {% else %}fa-file-archive{% endif %}
+                                  text-xl"></i>
+                      </div>
+                      <div>
+                        <h4 class="font-bold text-gray-900 dark:text-white">
+                          {{ file.file_name }}
+                          {% if file.is_required %}
+                            <span class="text-xs px-2 py-1 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded-full ml-2">
+                              Required
+                            </span>
+                          {% endif %}
+                        </h4>
+                        <p class="text-sm text-gray-600 dark:text-gray-400">
+                          <span class="font-semibold uppercase">{{ file.get_file_type_display }}</span>
+                          {% if file.size %} • {{ file.size }}{% endif %}
+                          {% if file.version %} • v{{ file.version }}{% endif %}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {% if file.description %}
+                  <p class="text-sm text-gray-600 dark:text-gray-400 mb-3 pl-15">
+                    {{ file.description }}
+                  </p>
+                  {% endif %}
+                  
+                  <a href="{{ file.download_url }}" target="_blank"
+                    class="block w-full py-3 bg-gradient-to-r 
+                            {% if file.file_type == 'apk' %}from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600
+                            {% elif file.file_type == 'obb' %}from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600
+                            {% elif file.file_type == 'data' %}from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600
+                            {% else %}from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600{% endif %}
+                            text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all text-center">
+                    <i class="fas fa-download mr-2"></i>
+                    Download {{ file.get_file_type_display }}
+                  </a>
+                </div>
+                {% endfor %}
+              </div>
+            {% elif apk.download_url %}
+              {# Fallback to single download button if no separate files #}
+              <a href="{{ apk.download_url }}" target="_blank"
+                class="block w-full py-4 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white font-bold rounded-2xl shadow-lg hover:shadow-xl transition-all text-center">
+                <i class="fas fa-download mr-2"></i>
+                Download APK
+              </a>
+            {% else %}
+              <div class="text-center py-8 text-gray-500 dark:text-gray-400">
+                <i class="fas fa-exclamation-circle text-4xl mb-3"></i>
+                <p>No download links available</p>
+              </div>
+            {% endif %}
+          </div>
+
+          {# Installation Instructions (if any file has description) #}
+          {% if apk.download_files.all %}
+            {% with has_instructions=apk.download_files.all|selectattr:"description"|list %}
+              {% if has_instructions %}
+              <div class="bg-blue-50 dark:bg-blue-900/20 rounded-3xl p-6 shadow-lg border-2 border-blue-200 dark:border-blue-800 mb-6">
+                <h3 class="font-bold text-xl text-blue-600 dark:text-blue-400 mb-4 flex items-center gap-2">
+                  <i class="fas fa-info-circle"></i>
+                  Installation Notes
+                </h3>
+                <div class="space-y-3 text-gray-700 dark:text-gray-300">
+                  {% for file in apk.download_files.all %}
+                    {% if file.description %}
+                    <div class="flex gap-3">
+                      <span class="font-bold text-blue-600 dark:text-blue-400">{{ file.get_file_type_display }}:</span>
+                      <span>{{ file.description }}</span>
+                    </div>
+                    {% endif %}
+                  {% endfor %}
+                </div>
+              </div>
+              {% endif %}
+            {% endwith %}
+          {% endif %}
         </div>
 
         {# Quick Stats #}

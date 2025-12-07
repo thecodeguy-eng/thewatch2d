@@ -1,3 +1,4 @@
+# models.py
 from django.db import models
 from django.utils.text import slugify
 from django.urls import reverse
@@ -63,7 +64,7 @@ class APK(models.Model):
     mod_features = models.TextField(blank=True, help_text="Mod features like Unlimited Money, etc.")
     
     # Downloads & Links
-    download_url = models.URLField(max_length=1000, blank=True)
+    download_url = models.URLField(max_length=1000, blank=True)  # Primary download
     source_url = models.URLField(max_length=500, unique=True)
     
     # Relationships
@@ -139,3 +140,34 @@ class APKVersion(models.Model):
         if self.is_latest:
             APKVersion.objects.filter(apk=self.apk, is_latest=True).update(is_latest=False)
         super().save(*args, **kwargs)
+
+
+# NEW MODEL for separate download files
+class DownloadFile(models.Model):
+    FILE_TYPE_CHOICES = [
+        ('apk', 'APK File'),
+        ('obb', 'OBB File'),
+        ('data', 'Data File'),
+        ('mod', 'Mod File'),
+        ('patch', 'Patch File'),
+        ('other', 'Other'),
+    ]
+    
+    apk = models.ForeignKey(APK, on_delete=models.CASCADE, related_name='download_files')
+    file_type = models.CharField(max_length=20, choices=FILE_TYPE_CHOICES, default='apk')
+    file_name = models.CharField(max_length=255, blank=True)  # e.g., "FIFA 2026 Apk", "DFL 2026 Data"
+    download_url = models.URLField(max_length=1000)
+    size = models.CharField(max_length=50, blank=True)
+    version = models.CharField(max_length=50, blank=True)
+    order = models.PositiveIntegerField(default=0)  # Display order
+    is_required = models.BooleanField(default=True)  # Is this file required or optional?
+    description = models.TextField(blank=True)  # Installation instructions or notes
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['order', 'id']
+        verbose_name = "Download File"
+        verbose_name_plural = "Download Files"
+
+    def __str__(self):
+        return f"{self.get_file_type_display()} for {self.apk.title}"
