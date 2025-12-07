@@ -129,29 +129,29 @@ class UnifiedHomeView(TemplateView):
         ).select_related('manga', 'manga__category').order_by('-created_at')[:12]
         
         
-        # ========== AlphaGL SECTION ==========
+        # ========== Apk games SECTION ==========
         context['featured_apks'] = APK.objects.filter(
             is_active=True,
             featured=True
-        ).prefetch_related('categories', 'screenshots').order_by('-created_at')[:8]
+        ).prefetch_related('categories', 'screenshots').order_by('-created_at')[:12]
         
         # Fallback if no featured APKs
         if not context['featured_apks'].exists():
             context['featured_apks'] = APK.objects.filter(
                 is_active=True
-            ).prefetch_related('categories', 'screenshots').order_by('-created_at')[:8]
+            ).prefetch_related('categories', 'screenshots').order_by('-created_at')[:24]
         
         context['latest_games'] = APK.objects.filter(
             is_active=True,
             apk_type='game'
-        ).order_by('-created_at')[:12]
+        ).order_by('-created_at')[:24]
         
         context['latest_apps'] = APK.objects.filter(
             is_active=True,
             apk_type='app'
         ).order_by('-created_at')[:12]
         
-        context['apk_categories'] = APKCategory.objects.all()[:6]
+        context['apk_categories'] = APKCategory.objects.all()[:12]
         
         
         # ========== STATS FOR HERO SECTION ==========
