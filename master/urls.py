@@ -25,7 +25,7 @@ sitemaps = {
 
 urlpatterns = [
     # Admin
-    path('AlphaGL/AlphaGL_admin/admin', admin.site.urls),
+    path('alphagl/alphagl_admin/admin', admin.site.urls),
     
     # ⭐ UNIFIED HOMEPAGE (Main app) - Now includes PWA URLs
     path('', include('main.urls')),

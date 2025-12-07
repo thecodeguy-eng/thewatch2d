@@ -65,7 +65,7 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument('--max-pages', type=int, default=None)
         parser.add_argument('--start-page', type=int, default=1)
-        parser.add_argument('--per-page', type=int, default=20)
+        parser.add_argument('--per-page', type=int, default=999999)
         parser.add_argument('--delay-min', type=float, default=2.0)
         parser.add_argument('--delay-max', type=float, default=4.0)
         parser.add_argument('--force-rescrape', action='store_true', 
