@@ -126,15 +126,15 @@
 </section>
 {% endif %}
 
-{# Latest Games #}
+{# Latest Apps & Games #}
 <section class="container mx-auto px-4 lg:px-8 py-12">
   <div class="flex items-center justify-between mb-6">
     <div>
       <h2 class="text-2xl lg:text-3xl font-black text-gray-900 dark:text-white flex items-center gap-3">
         <span class="w-1.5 h-8 bg-gradient-to-b from-purple-500 to-purple-600 rounded-full"></span>
-        Latest Games
+        Latest Apps & Games
       </h2>
-      <p class="text-sm text-gray-500 dark:text-gray-400 ml-5 mt-1">Fresh MOD games</p>
+      <p class="text-sm text-gray-500 dark:text-gray-400 ml-5 mt-1">Fresh MOD Apps & Games</p>
     </div>
     <a href="{% url 'apk_store:games_list' %}" 
        class="flex items-center gap-2 text-purple-600 dark:text-purple-400 hover:gap-3 transition-all font-semibold text-sm">
@@ -163,6 +163,7 @@
   </div>
 </section>
 
+<!-- 
 {# Latest Apps #}
 <section class="container mx-auto px-4 lg:px-8 py-12">
   <div class="flex items-center justify-between mb-6">
@@ -198,7 +199,7 @@
     </a>
     {% endfor %}
   </div>
-</section>
+</section> -->
 
 {# Categories #}
 {% if categories %}
