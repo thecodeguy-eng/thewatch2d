@@ -55,7 +55,7 @@ ALLOWED_HOSTS = [
     '.vercel.app',  # This allows all preview deployments
     'localhost',
     '127.0.0.1',
-    'alphagl.store',
+    '.store',
 ]
 
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
