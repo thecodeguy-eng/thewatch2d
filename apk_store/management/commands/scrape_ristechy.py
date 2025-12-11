@@ -204,74 +204,102 @@ class Command(BaseCommand):
     # In scrape_ristechy.py, replace the extract_download_links method
 
     def extract_download_links(self, content_html, title):
-        """Extract and categorize download links from post content"""
+        """IMPROVED: Extract and categorize download links from post content"""
         links = []
         
         try:
             soup = BeautifulSoup(content_html, 'html.parser')
             
-            # Find all links in the content
+            # EXPANDED download indicators
+            download_indicators = [
+                'download', 'mediafire', 'mega.nz', 'drive.google', 'mega.co.nz',
+                'dropbox', 'apk', 'mod', 'obb', 'data', 'zip', 'rar', '7z',
+                'zippyshare', 'uploaded', 'rapidgator', 'file', 'files.fm',
+                'anonfiles', 'workupload', 'solidfiles', 'sendspace',
+                'apkadmin', 'archive.org', 'is.gd', 'bit.ly', 'tinyurl'
+            ]
+            
+            # Find ALL anchor tags with href
             for a_tag in soup.find_all('a', href=True):
                 href = a_tag.get('href', '').strip()
                 text = a_tag.get_text().strip()
                 
-                # Check if it's a download link
-                download_indicators = [
-                    'download', 'mediafire', 'mega.nz', 'drive.google', 
-                    'dropbox', 'apk', 'mod', 'obb', 'data', 'zip', 'rar',
-                    'zippyshare', 'uploaded', 'rapidgator', 'file'
-                ]
+                # Skip empty or very short hrefs
+                if not href or len(href) < 10:
+                    continue
                 
-                if any(indicator in href.lower() or indicator in text.lower() 
-                    for indicator in download_indicators):
-                    
-                    # Skip if it's just a random link
-                    if len(href) > 10 and not href.endswith(('.jpg', '.png', '.gif', '.css', '.js')):
-                        # Determine file type based on text
-                        file_type = 'apk'  # default
-                        file_name = text or 'Download'
-                        
-                        text_lower = text.lower()
-                        title_lower = title.lower()
-                        
-                        # Try to extract size from text
-                        size_match = re.search(r'\(([0-9.]+\s*(?:MB|GB|KB))\)', text)
-                        size = size_match.group(1) if size_match else ''
-                        
-                        # Try to extract version from text
-                        version_match = re.search(r'v?(\d+\.[\d.]+)', text)
-                        version = version_match.group(1) if version_match else ''
-                        
-                        # Determine file type
-                        if 'obb' in text_lower:
-                            file_type = 'obb'
-                        elif 'data' in text_lower:
-                            file_type = 'data'
-                        elif 'mod' in text_lower and 'apk' not in text_lower:
-                            file_type = 'mod'
-                        elif 'patch' in text_lower:
-                            file_type = 'patch'
-                        elif 'apk' in text_lower or any(indicator in text_lower for indicator in ['download', 'file']):
-                            file_type = 'apk'
-                        else:
-                            # Try to determine from context
-                            if any(word in title_lower for word in ['mod', 'apk']):
-                                file_type = 'apk'
-                        
-                        links.append({
-                            'url': href,
-                            'text': file_name,
-                            'file_type': file_type,
-                            'size': size,
-                            'version': version
-                        })
+                # Skip non-download links
+                if href.endswith(('.jpg', '.png', '.gif', '.css', '.js', '.webp')):
+                    continue
+                
+                # Check if it's a download link
+                is_download = any(indicator in href.lower() or indicator in text.lower() 
+                                for indicator in download_indicators)
+                
+                # ALSO check for common button/link classes
+                link_class = ' '.join(a_tag.get('class', [])).lower()
+                is_download = is_download or any(keyword in link_class for keyword in ['button', 'download', 'btn'])
+                
+                if not is_download:
+                    continue
+                
+                # Determine file details
+                file_type = 'apk'  # default
+                file_name = text if text else 'Download'
+                
+                text_lower = text.lower()
+                href_lower = href.lower()
+                
+                # Extract size
+                size_match = re.search(r'\(([0-9.]+\s*(?:MB|GB|KB|mb|gb|kb))\)', text)
+                size = size_match.group(1) if size_match else ''
+                
+                # Extract version
+                version_match = re.search(r'v?(\d+\.[\d.]+)', text)
+                version = version_match.group(1) if version_match else ''
+                
+                # Determine file type - IMPROVED LOGIC
+                if 'obb' in text_lower or 'obb' in href_lower:
+                    file_type = 'obb'
+                elif 'data' in text_lower or 'data' in href_lower:
+                    file_type = 'data'
+                elif ('mod' in text_lower or 'mod' in href_lower) and 'apk' not in text_lower:
+                    file_type = 'mod'
+                elif 'patch' in text_lower:
+                    file_type = 'patch'
+                elif 'bios' in text_lower:
+                    file_type = 'other'
+                elif 'apk' in text_lower or 'apk' in href_lower:
+                    file_type = 'apk'
+                elif any(word in text_lower for word in ['download', 'file', 'get']):
+                    file_type = 'apk'
+                
+                links.append({
+                    'url': href,
+                    'text': file_name,
+                    'file_type': file_type,
+                    'size': size,
+                    'version': version
+                })
             
-            # Sort links by priority (APK first, then OBB, then Data, then others)
+            # Sort by priority
             type_priority = {'apk': 0, 'obb': 1, 'data': 2, 'mod': 3, 'patch': 4, 'other': 5}
             links.sort(key=lambda x: type_priority.get(x['file_type'], 99))
             
+            # Remove duplicates
+            seen = set()
+            unique_links = []
+            for link in links:
+                if link['url'] not in seen:
+                    seen.add(link['url'])
+                    unique_links.append(link)
+            
+            return unique_links
+            
         except Exception as e:
             print(f"  ⚠️ Error extracting download links: {e}")
+            import traceback
+            traceback.print_exc()
         
         return links
 
@@ -400,6 +428,58 @@ class Command(BaseCommand):
         
         return '\n'.join(features[:10]) if features else ''
 
+    def extract_full_description(self, content_html, excerpt):
+        """Extract FULL description from content, preserving formatting for up to 50,000 chars"""
+        try:
+            soup = BeautifulSoup(content_html, 'html.parser')
+            
+            # Remove script, style, and ad-related tags
+            for script in soup(["script", "style", "ins"]):  # ins is for ads
+                script.decompose()
+            
+            # Remove ad blocks and other junk
+            for div in soup.find_all('div', class_=['code-block', 'adsbygoogle']):
+                div.decompose()
+            
+            # Get text content with proper line breaks
+            text = soup.get_text(separator='\n')
+            
+            # Clean up excessive whitespace while preserving paragraphs
+            lines = [line.strip() for line in text.split('\n')]
+            lines = [line for line in lines if line]  # Remove empty lines
+            
+            # Join lines back together with double line breaks for readability
+            full_text = '\n\n'.join(lines)
+            
+            # If the text is too short or empty, use excerpt as fallback
+            if len(full_text.strip()) < 100 and excerpt:
+                return excerpt
+            
+            # Remove common footer/header junk
+            junk_phrases = [
+                'Share this:',
+                'Like this:',
+                'Related',
+                'Filed Under:',
+                'Tagged With:',
+                'Click to share',
+                'Click to print',
+                'Jump To',
+                'Table of Contents',
+            ]
+            
+            for phrase in junk_phrases:
+                if phrase in full_text:
+                    full_text = full_text.split(phrase)[0]
+            
+            # Limit to 50,000 chars (enough for 30K+ words)
+            return full_text.strip()[:50000]
+            
+        except Exception as e:
+            print(f"  ⚠️ Error extracting full description: {e}")
+            return excerpt or "No description available."
+
+    
     def get_total_posts(self, category_filter=None):
         """Get total number of posts"""
         try:
@@ -547,7 +627,10 @@ class Command(BaseCommand):
                             post.get('excerpt', {}).get('rendered', ''), 
                             'html.parser'
                         ).get_text().strip()
-                        
+
+                        # Extract full description (NEW - add this line)
+                        full_description = self.extract_full_description(content_html, excerpt)
+                                                
                         post_link = post.get('link', '')
                         post_date = post.get('date', '')
                         featured_media_id = post.get('featured_media', 0)
@@ -591,14 +674,19 @@ class Command(BaseCommand):
                         # Extract version and size
                         version, size = self.extract_version_and_size(content_html, title)
                         
-                        # Extract download links
+                        # Extract download links - IMPROVED
                         download_links = self.extract_download_links(content_html, title)
-                        # Primary download URL (first APK link or first link)
+
+                        # Primary download URL
                         apk_links = [link for link in download_links if link['file_type'] == 'apk']
                         download_url = apk_links[0]['url'] if apk_links else (download_links[0]['url'] if download_links else '')
-                                                
-                        if download_url:
-                         print(f"  📥 Found {len(download_links)} download link(s)")
+           
+                        if download_links:
+                            print(f"  📥 Found {len(download_links)} download link(s)")
+                            for link in download_links[:3]:  # Show first 3
+                                print(f"     - {link['file_type']}: {link['text'][:50]}")
+                        else:
+                            print(f"  ⚠️ No download links found")
                         
                         # Extract mod features
                         mod_features = self.extract_mod_features(content_html)
@@ -610,7 +698,7 @@ class Command(BaseCommand):
                                 'title': title,
                                 'slug': slugify(title),
                                 'apk_type': apk_type,
-                                'description': excerpt or BeautifulSoup(content_html, 'html.parser').get_text()[:500],
+                                'description': full_description,  # ✅ USE FULL DESCRIPTION
                                 'icon_url': icon_url,
                                 'cover_image_url': cover_image,
                                 'version': version,

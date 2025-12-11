@@ -93,8 +93,6 @@
   <header class="sticky top-0 z-50 glass-effect shadow-lg">
     <div class="container mx-auto px-4 lg:px-6">
       <nav class="flex justify-between items-center py-4">
-
-
         {# Logo #}
         <div class="flex items-center space-x-3">
           <a href="{% url 'apk_store:home' %}" class="flex items-center space-x-3 group">
@@ -106,7 +104,7 @@
               <h1 class="text-2xl lg:text-3xl font-bold bg-gradient-to-r from-primary-600 via-blue-600 to-accent-600 bg-clip-text text-transparent">
                 AlphaGL
               </h1>
-               <p class="text-xs text-gray-500 dark:text-gray-400 font-semibold">Premium Apps & Games for you</p>
+               <p class="text-xs text-gray-500 dark:text-gray-400 font-semibold hidden lg:block">Premium Apps & Games</p>
             </div>
           </a>
         </div>
@@ -131,7 +129,17 @@
           </a>
         </div>
 
-        {# Search & Theme Toggle #}
+        {# Desktop Search Bar #}
+        <div class="hidden lg:block flex-1 max-w-md mx-4">
+          <form method="get" action="{% url 'apk_store:search' %}" class="relative">
+            <input type="search" name="q" placeholder="Search games, apps..." 
+                   value="{{ query }}"
+                   class="w-full px-4 py-2.5 pl-10 rounded-xl bg-white/50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 focus:border-green-500 dark:focus:border-green-400 focus:outline-none transition-all text-sm">
+            <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+          </form>
+        </div>
+
+        {# Mobile Search & Theme Toggle #}
         <div class="flex items-center gap-3">
           <button id="search-toggle" class="p-3 rounded-xl glass-effect hover:scale-110 transition-all lg:hidden">
             <i class="fas fa-search text-gray-600 dark:text-gray-300"></i>
@@ -152,7 +160,6 @@
         </form>
       </div>
     </div>
-
 
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3160947215625541"
      crossorigin="anonymous"></script>
@@ -239,101 +246,66 @@
     });
   </script>
 
-
-
-
-
-
-
-
-    <!-- Christmas Snow Overlay - Add this section to your base.html -->
-<style>
+  <!-- Christmas Snow Overlay -->
+  <style>
     .christmas-overlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        pointer-events: none;
-        z-index: 9999;
-        overflow: hidden;
-    }
-
-    .christmas-message {
-        position: fixed;
-        top: 20px;
-        left: 50%;
-        transform: translateX(-50%);
-        color: #fff;
-        font-size: 2rem;
-        text-shadow: 0 0 20px rgba(255, 255, 255, 0.8),
-                     0 0 40px rgba(255, 215, 0, 0.6);
-        pointer-events: none;
-        animation: twinkle 3s ease-in-out infinite;
-        font-family: 'Georgia', serif;
-    }
-
-    @keyframes twinkle {
-        0%, 100% { opacity: 1; }
-        50% { opacity: 0.7; }
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 9999;
+      overflow: hidden;
     }
 
     .snowflake {
-        position: fixed;
-        color: #fff;
-        font-size: 1rem;
-        pointer-events: none;
-        animation: fall linear infinite;
-        opacity: 0.8;
+      position: fixed;
+      color: #fff;
+      font-size: 1rem;
+      pointer-events: none;
+      animation: fall linear infinite;
+      opacity: 0.8;
     }
 
     @keyframes fall {
-        from {
-            transform: translateY(-10px) rotate(0deg);
-        }
-        to {
-            transform: translateY(100vh) rotate(360deg);
-        }
+      from {
+        transform: translateY(-10px) rotate(0deg);
+      }
+      to {
+        transform: translateY(100vh) rotate(360deg);
+      }
     }
+  </style>
 
-    @media (max-width: 768px) {
-        .christmas-message {
-            font-size: 1.5rem;
-        }
-    }
-</style>
+  <div class="christmas-overlay"></div>
 
-<div class="christmas-overlay">
-    <div class="christmas-message"></div>
-</div>
-
-<script>
+  <script>
     (function() {
-        function createSnowflake() {
-            const snowflake = document.createElement('div');
-            snowflake.classList.add('snowflake');
-            snowflake.textContent = '❄';
-            snowflake.style.left = Math.random() * 100 + '%';
-            snowflake.style.top = '-10px';
-            snowflake.style.animationDuration = (Math.random() * 3 + 5) + 's';
-            snowflake.style.opacity = Math.random() * 0.6 + 0.4;
-            snowflake.style.fontSize = (Math.random() * 0.8 + 0.5) + 'rem';
-            
-            document.querySelector('.christmas-overlay').appendChild(snowflake);
-            
-            setTimeout(() => {
-                snowflake.remove();
-            }, 8000);
-        }
-
-        setInterval(createSnowflake, 200);
+      function createSnowflake() {
+        const snowflake = document.createElement('div');
+        snowflake.classList.add('snowflake');
+        snowflake.textContent = '❄';
+        snowflake.style.left = Math.random() * 100 + '%';
+        snowflake.style.top = '-10px';
+        snowflake.style.animationDuration = (Math.random() * 3 + 5) + 's';
+        snowflake.style.opacity = Math.random() * 0.6 + 0.4;
+        snowflake.style.fontSize = (Math.random() * 0.8 + 0.5) + 'rem';
         
-        // Create initial snowflakes
-        for (let i = 0; i < 15; i++) {
-            setTimeout(createSnowflake, i * 100);
-        }
+        document.querySelector('.christmas-overlay').appendChild(snowflake);
+        
+        setTimeout(() => {
+          snowflake.remove();
+        }, 8000);
+      }
+
+      setInterval(createSnowflake, 200);
+      
+      for (let i = 0; i < 15; i++) {
+        setTimeout(createSnowflake, i * 100);
+      }
     })();
-</script>
+  </script>
 
   {% block extra_js %}{% endblock %}
 </body>

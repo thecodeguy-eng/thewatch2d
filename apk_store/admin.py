@@ -37,7 +37,7 @@ class APKAdmin(admin.ModelAdmin):
     search_fields = ('title', 'description', 'package_name')
     prepopulated_fields = {'slug': ('title',)}
     filter_horizontal = ('categories',)
-    readonly_fields = ('created_at', 'updated_at', 'slug')
+    readonly_fields = ('created_at', 'updated_at')  # Removed 'slug' from here
     inlines = [DownloadFileInline, ScreenshotInline, APKVersionInline]
     
     fieldsets = (
