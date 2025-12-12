@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'anime',
     'manga',
     'apk_store',
+    'pc_games',
     
     # Other apps
     'django_crontab',
@@ -93,6 +94,7 @@ TEMPLATES = [
             BASE_DIR / 'anime' / 'templates',
             BASE_DIR / 'manga' / 'templates',
             BASE_DIR / 'apk_store' / 'templates',
+            BASE_DIR / 'pc_games' / 'templates',
         ],
         'APP_DIRS': True,
         'OPTIONS': {

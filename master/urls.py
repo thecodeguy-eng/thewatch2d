@@ -41,6 +41,9 @@ urlpatterns = [
     
     # 📱 APK Store App
     path('apk_store/', include('apk_store.urls')),
+
+    # 💻 Pc games
+    path('pc_games/', include('pc_games.urls')),
     
     # Authentication
     path('logout/', LogoutView.as_view(), name='logout'),
