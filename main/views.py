@@ -9,16 +9,16 @@ from movies.models import Movie, Category as MovieCategory
 from anime.models import Anime, Episode
 from manga.models import Manga, Chapter
 from apk_store.models import APK, Category as APKCategory
+from pc_games.models import Game as PCGame 
 
-
-# @method_decorator(cache_page(60 * 30), name='dispatch')  # Cache for 30 minutes
 class UnifiedHomeView(TemplateView):
     """
     Unified homepage combining content from all apps:
     - Movies (featured, trending, latest)
     - Anime (latest anime with their episodes)
     - Manga (latest manga with their chapters)
-    - AlphaGL (featured games & apps)
+    - APKs (featured games & apps)
+    - PC Games (latest game repacks)
     """
     template_name = 'main/home.html'
     
@@ -129,7 +129,7 @@ class UnifiedHomeView(TemplateView):
         ).select_related('manga', 'manga__category').order_by('-created_at')[:12]
         
         
-        # ========== Apk games SECTION ==========
+        # ========== APK SECTION ==========
         context['featured_apks'] = APK.objects.filter(
             is_active=True,
             featured=True
@@ -154,10 +154,28 @@ class UnifiedHomeView(TemplateView):
         context['apk_categories'] = APKCategory.objects.all()[:12]
         
         
+        # ========== PC GAMES SECTION (FIXED) ==========
+        # Get latest PC games with proper prefetch
+        context['latest_pc_games'] = PCGame.objects.filter(
+            is_active=True
+        ).prefetch_related('categories', 'tags', 'screenshots').order_by('-post_date')[:12]
+        
+        # Get featured PC games (new or updated status)
+        context['featured_pc_games'] = PCGame.objects.filter(
+            is_active=True,
+            status__in=['new', 'updated']
+        ).prefetch_related('categories', 'tags', 'screenshots').order_by('-post_date')[:6]
+        
+        # Fallback if no featured PC games
+        if not context['featured_pc_games'].exists():
+            context['featured_pc_games'] = context['latest_pc_games'][:6]
+        
+        
         # ========== STATS FOR HERO SECTION ==========
         context['total_movies'] = Movie.objects.count()
         context['total_anime'] = Anime.objects.filter(is_active=True).count()
         context['total_manga'] = Manga.objects.filter(is_active=True).count()
         context['total_apks'] = APK.objects.filter(is_active=True).count()
+        context['total_pc_games'] = PCGame.objects.filter(is_active=True).count()
         
         return context

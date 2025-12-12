@@ -776,22 +776,31 @@
 
         {# Desktop Navigation #}
         <div class="hidden lg:flex items-center space-x-6">
-          <a href="{% url 'apk_store:home' %}" class="flex items-center space-x-2 px-4 py-2 rounded-xl hover:bg-white/50 dark:hover:bg-gray-700/50 transition-all">
+        <a href="{% url 'pc_games:game_list' %}" class="flex items-center space-x-2 px-4 py-2 rounded-xl hover:bg-white/50 dark:hover:bg-gray-700/50 transition-all">
+            <i class="fas fa-gamepad text-blue-600"></i>
+            <span class="font-semibold">PC Games</span>
+        </a>
+        
+        <a href="{% url 'apk_store:home' %}" class="flex items-center space-x-2 px-4 py-2 rounded-xl hover:bg-white/50 dark:hover:bg-gray-700/50 transition-all">
             <i class="fas fa-mobile-alt text-green-500"></i>
-            <span class="font-semibold">Apps & Games</span>
-          </a>
-          <a href="{% url 'movies:home' %}" class="flex items-center space-x-2 px-4 py-2 rounded-xl hover:bg-white/50 dark:hover:bg-gray-700/50 transition-all">
+            <span class="font-semibold">Mobile</span>
+        </a>
+        
+        <a href="{% url 'movies:home' %}" class="flex items-center space-x-2 px-4 py-2 rounded-xl hover:bg-white/50 dark:hover:bg-gray-700/50 transition-all">
             <i class="fas fa-film text-blue-500"></i>
             <span class="font-semibold">Movies</span>
-          </a>
-          <a href="{% url 'anime:list' %}" class="flex items-center space-x-2 px-4 py-2 rounded-xl hover:bg-white/50 dark:hover:bg-gray-700/50 transition-all">
+        </a>
+        
+        <a href="{% url 'anime:list' %}" class="flex items-center space-x-2 px-4 py-2 rounded-xl hover:bg-white/50 dark:hover:bg-gray-700/50 transition-all">
             <i class="fas fa-play-circle text-purple-500"></i>
             <span class="font-semibold">Anime</span>
-          </a>
-          <a href="{% url 'manga:list' %}" class="flex items-center space-x-2 px-4 py-2 rounded-xl hover:bg-white/50 dark:hover:bg-gray-700/50 transition-all">
+        </a>
+        
+        <a href="{% url 'manga:list' %}" class="flex items-center space-x-2 px-4 py-2 rounded-xl hover:bg-white/50 dark:hover:bg-gray-700/50 transition-all">
             <i class="fas fa-book text-pink-500"></i>
             <span class="font-semibold">Manga</span>
-          </a>
+        </a>
+        </div>
         </div>
 
         {# Theme Toggle #}
@@ -837,7 +846,7 @@
             <li><a href="{% url 'movies:home' %}" class="hover:text-white transition-colors">Movies</a></li>
             <li><a href="{% url 'anime:list' %}" class="hover:text-white transition-colors">Anime</a></li>
             <li><a href="{% url 'manga:list' %}" class="hover:text-white transition-colors">Manga</a></li>
-            <li><a href="{% url 'apk_store:home' %}" class="hover:text-white transition-colors">Apps & Games</a></li>
+            <li><a href="{% url 'apk_store:home' %}" class="hover:text-white transition-colors">Mobile</a></li>
           </ul>
         </div>
       </div>
