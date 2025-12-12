@@ -73,10 +73,10 @@
             </a>
             {% endif %}
             
-            <!-- <button onclick="addToWatchlist({{ anime.id }})" 
+            <button onclick="addToWatchlist({{ anime.id }})" 
                     class="inline-flex items-center px-6 py-4 border-2 border-white text-white font-semibold rounded-2xl hover:bg-white hover:text-primary-600 transition-all duration-300">
               <i class="fas fa-bookmark mr-3"></i>Add to List
-            </button> -->
+            </button>
             
             <!-- <button onclick="likeAnime({{ anime.id }})" 
                     class="inline-flex items-center px-6 py-4 border-2 border-white text-white font-semibold rounded-2xl hover:bg-white hover:text-red-500 transition-all duration-300">
@@ -329,5 +329,8 @@
       </div>
     </div>
   </div>
+
+  <!-- Comments Section -->
+  {% include 'anime/components/comment_section.html' with content_type='anime' content_id=anime.id %}
 </div>
 {% endblock %}

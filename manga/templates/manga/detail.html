@@ -200,6 +200,12 @@
                 </div>
             </div>
             {% endif %}
+
+
+            <!-- Comments Section -->
+            {% with target_type='manga' target_id=manga.id %}
+                {% include 'manga/includes/comments.html' %}
+            {% endwith %}
         </div>
     </div>
 </div>

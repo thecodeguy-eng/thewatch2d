@@ -25,6 +25,10 @@ urlpatterns = [
     path('ajax/episode/<int:episode_id>/download-links/', views.GetDownloadLinksView.as_view(), name='ajax_download_links'),
     path('ajax/<int:anime_id>/like/', views.LikeAnimeView.as_view(), name='ajax_like_anime'),
     path('ajax/<int:anime_id>/increment-views/', views.IncrementViewsView.as_view(), name='ajax_increment_views'),
+
+    # Comment endpoints
+    path('ajax/submit-comment/', views.SubmitCommentView.as_view(), name='ajax_submit_comment'),
+    path('ajax/submit-reply/', views.SubmitReplyView.as_view(), name='ajax_submit_reply'),
     
     # New enhanced AJAX endpoints
     path('ajax/<int:anime_id>/update-image/', views.UpdateAnimeImageView.as_view(), name='ajax_update_image'),

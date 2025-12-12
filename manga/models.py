@@ -397,3 +397,48 @@ class Bookmark(models.Model):
 
     def __str__(self):
         return f"Bookmark for {self.manga.title}"
+    
+
+
+class Comment(models.Model):
+    manga = models.ForeignKey(Manga, on_delete=models.CASCADE, related_name='comments', null=True, blank=True)
+    chapter = models.ForeignKey(Chapter, on_delete=models.CASCADE, related_name='comments', null=True, blank=True)
+    
+    # Comment details
+    name = models.CharField(max_length=100, help_text="Commenter's name")
+    email = models.EmailField(blank=True, help_text="Optional email (not displayed)")
+    comment = models.TextField()
+    
+    # For nested comments (replies)
+    parent = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='replies')
+    
+    # Moderation
+    is_approved = models.BooleanField(default=True, help_text="Set to False if you want to moderate comments")
+    is_active = models.BooleanField(default=True)
+    
+    # Metadata
+    ip_address = models.GenericIPAddressField(null=True, blank=True)
+    user_agent = models.CharField(max_length=255, blank=True)
+    
+    # Timestamps
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['manga', 'is_approved', 'is_active']),
+            models.Index(fields=['chapter', 'is_approved', 'is_active']),
+            models.Index(fields=['created_at']),
+        ]
+    
+    def __str__(self):
+        target = self.manga or self.chapter
+        return f"Comment by {self.name} on {target}"
+    
+    @property
+    def is_reply(self):
+        return self.parent is not None
+    
+    def get_replies(self):
+        return self.replies.filter(is_approved=True, is_active=True).order_by('created_at')

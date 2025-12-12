@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.utils.html import format_html
 from .models import (
     AnimeCategory, AnimeGenre, Anime, Episode, 
-    DownloadLink
+    DownloadLink, Comment, CommentReply
 )
 
 @admin.register(AnimeCategory)
@@ -97,3 +97,109 @@ class DownloadLinkAdmin(admin.ModelAdmin):
     list_display = ['episode', 'quality', 'host_name', 'is_active', 'expires_at', 'fetch_count']
     list_filter = ['quality', 'host_name', 'is_active']
     readonly_fields = ['fetch_count', 'created_at', 'updated_at']
+
+
+
+class CommentReplyInline(admin.TabularInline):
+    model = CommentReply
+    fields = ['name', 'reply', 'is_approved', 'created_at']
+    readonly_fields = ['created_at']
+    extra = 0
+    can_delete = True
+
+
+@admin.register(Comment)
+class CommentAdmin(admin.ModelAdmin):
+    list_display = [
+        'name', 'content_display', 'comment_preview', 
+        'is_approved', 'is_flagged', 'created_at'
+    ]
+    list_filter = [
+        'is_approved', 'is_flagged', 'content_type', 'created_at'
+    ]
+    search_fields = ['name', 'email', 'comment', 'anime__title', 'episode__title']
+    readonly_fields = ['created_at', 'updated_at', 'ip_address', 'user_agent']
+    inlines = [CommentReplyInline]
+    
+    fieldsets = (
+        ('Comment Details', {
+            'fields': ('content_type', 'anime', 'episode', 'name', 'email', 'comment')
+        }),
+        ('Moderation', {
+            'fields': ('is_approved', 'is_flagged')
+        }),
+        ('Metadata', {
+            'fields': ('ip_address', 'user_agent', 'created_at', 'updated_at'),
+            'classes': ('collapse',)
+        }),
+    )
+    
+    actions = ['approve_comments', 'flag_comments', 'unflag_comments']
+    
+    def content_display(self, obj):
+        """Display what content is being commented on"""
+        if obj.anime:
+            return format_html(
+                '<a href="/admin/anime/anime/{}/change/">{}</a>',
+                obj.anime.id,
+                obj.anime.title
+            )
+        elif obj.episode:
+            return format_html(
+                '<a href="/admin/anime/episode/{}/change/">Episode {}</a>',
+                obj.episode.id,
+                obj.episode.episode_number
+            )
+        return '-'
+    content_display.short_description = 'Content'
+    
+    def comment_preview(self, obj):
+        """Show preview of comment"""
+        preview = obj.comment[:50]
+        if len(obj.comment) > 50:
+            preview += '...'
+        return preview
+    comment_preview.short_description = 'Comment Preview'
+    
+    def approve_comments(self, request, queryset):
+        """Bulk approve comments"""
+        updated = queryset.update(is_approved=True)
+        self.message_user(request, f'{updated} comment(s) approved.')
+    approve_comments.short_description = 'Approve selected comments'
+    
+    def flag_comments(self, request, queryset):
+        """Bulk flag comments"""
+        updated = queryset.update(is_flagged=True)
+        self.message_user(request, f'{updated} comment(s) flagged.')
+    flag_comments.short_description = 'Flag selected comments'
+    
+    def unflag_comments(self, request, queryset):
+        """Bulk unflag comments"""
+        updated = queryset.update(is_flagged=False)
+        self.message_user(request, f'{updated} comment(s) unflagged.')
+    unflag_comments.short_description = 'Unflag selected comments'
+
+
+@admin.register(CommentReply)
+class CommentReplyAdmin(admin.ModelAdmin):
+    list_display = ['name', 'comment_display', 'reply_preview', 'is_approved', 'created_at']
+    list_filter = ['is_approved', 'created_at']
+    search_fields = ['name', 'reply']
+    readonly_fields = ['created_at', 'ip_address']
+    
+    def comment_display(self, obj):
+        """Display parent comment"""
+        return format_html(
+            '<a href="/admin/anime/comment/{}/change/">Comment by {}</a>',
+            obj.comment.id,
+            obj.comment.name
+        )
+    comment_display.short_description = 'Parent Comment'
+    
+    def reply_preview(self, obj):
+        """Show preview of reply"""
+        preview = obj.reply[:50]
+        if len(obj.reply) > 50:
+            preview += '...'
+        return preview
+    reply_preview.short_description = 'Reply Preview'

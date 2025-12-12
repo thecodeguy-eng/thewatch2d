@@ -21,9 +21,21 @@ import re
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
 
-from .models import Anime, Episode, AnimeCategory, AnimeGenre, DownloadLink
+from .models import Anime, Episode, AnimeCategory, AnimeGenre, DownloadLink, Comment, CommentReply
 
 logger = logging.getLogger(__name__)
+
+
+
+# Add this helper function
+def get_client_ip(request):
+    """Get client IP address from request"""
+    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+    if x_forwarded_for:
+        ip = x_forwarded_for.split(',')[0]
+    else:
+        ip = request.META.get('REMOTE_ADDR')
+    return ip
 
 
 @method_decorator(cache_page(60 * 60 * 4), name='dispatch')  # cache 4h
@@ -171,6 +183,7 @@ class CategoryDetailView(DetailView):
         return context
 
 @method_decorator(cache_page(60 * 60 * 2), name='dispatch')  # 2 hours instead of 24
+# Add to your existing EnhancedAnimeDetailView
 class EnhancedAnimeDetailView(DetailView):
     model = Anime
     template_name = 'anime/detail.html'
@@ -179,10 +192,8 @@ class EnhancedAnimeDetailView(DetailView):
     
     def get_object(self, queryset=None):
         obj = super().get_object(queryset)
-        # Increment views
         obj.increment_views()
         
-        # Try to fetch image if missing
         if not obj.poster_url:
             self.try_fetch_missing_image(obj)
         
@@ -213,13 +224,22 @@ class EnhancedAnimeDetailView(DetailView):
         # Related anime
         related_animes = self.object.get_related_anime(6)
         
+        # Get approved comments
+        comments = Comment.objects.filter(
+            anime=self.object,
+            is_approved=True
+        ).prefetch_related('replies').order_by('-created_at')[:20]
+        
         context.update({
             'episodes': episodes,
             'related_animes': related_animes,
             'total_episodes': Episode.objects.filter(anime=self.object, is_active=True).count(),
+            'comments': comments,
+            'comment_count': comments.count(),
         })
         return context
-    
+  
+
 class AnimeEpisodesView(DetailView):
     model = Anime
     template_name = 'anime/episodes.html'
@@ -238,6 +258,7 @@ class AnimeEpisodesView(DetailView):
         context['episodes'] = paginator.get_page(page_number)
         return context
 
+# Update your existing EpisodeDetailView
 class EpisodeDetailView(DetailView):
     model = Episode
     template_name = 'anime/episode_detail.html'
@@ -251,7 +272,6 @@ class EpisodeDetailView(DetailView):
             episode_number=self.kwargs['episode_number'],
             is_active=True
         )
-        # Increment views
         episode.increment_views()
         return episode
     
@@ -281,12 +301,20 @@ class EpisodeDetailView(DetailView):
             episode=self.object, is_active=True
         ).order_by('quality')
         
+        # Get approved comments
+        comments = Comment.objects.filter(
+            episode=self.object,
+            is_approved=True
+        ).prefetch_related('replies').order_by('-created_at')[:20]
+        
         context.update({
             'anime': self.object.anime,
             'prev_episode': prev_episode,
             'next_episode': next_episode,
             'episodes': episodes,
             'download_links': download_links,
+            'comments': comments,
+            'comment_count': comments.count(),
         })
         return context
 
@@ -724,4 +752,153 @@ class StreamLinkResolverView(View):
             return JsonResponse({
                 'success': False,
                 'error': str(e)
+            }, status=500)
+        
+
+    
+# New view for submitting comments
+@method_decorator(csrf_exempt, name='dispatch')
+class SubmitCommentView(View):
+    """AJAX view to submit a comment"""
+    
+    def post(self, request):
+        try:
+            data = json.loads(request.body)
+            
+            # Validate required fields
+            name = data.get('name', '').strip()
+            comment_text = data.get('comment', '').strip()
+            content_type = data.get('content_type', 'anime')
+            content_id = data.get('content_id')
+            
+            if not name or len(name) < 2:
+                return JsonResponse({
+                    'success': False,
+                    'error': 'Please provide your name (at least 2 characters)'
+                }, status=400)
+            
+            if not comment_text or len(comment_text) < 3:
+                return JsonResponse({
+                    'success': False,
+                    'error': 'Comment must be at least 3 characters long'
+                }, status=400)
+            
+            if len(comment_text) > 1000:
+                return JsonResponse({
+                    'success': False,
+                    'error': 'Comment is too long (max 1000 characters)'
+                }, status=400)
+            
+            # Basic spam detection
+            spam_patterns = [
+                r'(https?://\S+){3,}',  # Multiple URLs
+                r'(viagra|cialis|casino|porn)',  # Common spam words
+            ]
+            
+            for pattern in spam_patterns:
+                if re.search(pattern, comment_text, re.IGNORECASE):
+                    return JsonResponse({
+                        'success': False,
+                        'error': 'Your comment appears to be spam'
+                    }, status=400)
+            
+            # Create comment
+            comment = Comment()
+            comment.name = name
+            comment.email = data.get('email', '').strip()
+            comment.comment = comment_text
+            comment.content_type = content_type
+            comment.ip_address = get_client_ip(request)
+            comment.user_agent = request.META.get('HTTP_USER_AGENT', '')[:255]
+            
+            # Link to anime or episode
+            if content_type == 'anime':
+                anime = get_object_or_404(Anime, id=content_id)
+                comment.anime = anime
+            elif content_type == 'episode':
+                episode = get_object_or_404(Episode, id=content_id)
+                comment.episode = episode
+            
+            comment.save()
+            
+            return JsonResponse({
+                'success': True,
+                'message': 'Comment posted successfully!',
+                'comment': {
+                    'id': comment.id,
+                    'name': comment.name,
+                    'comment': comment.comment,
+                    'time': comment.get_time_since(),
+                    'is_recent': comment.is_recent,
+                }
+            })
+            
+        except Exception as e:
+            logger.error(f"Error submitting comment: {str(e)}")
+            return JsonResponse({
+                'success': False,
+                'error': 'Failed to post comment. Please try again.'
+            }, status=500)
+
+
+# New view for submitting replies
+@method_decorator(csrf_exempt, name='dispatch')
+class SubmitReplyView(View):
+    """AJAX view to submit a reply to a comment"""
+    
+    def post(self, request):
+        try:
+            data = json.loads(request.body)
+            
+            # Validate required fields
+            name = data.get('name', '').strip()
+            reply_text = data.get('reply', '').strip()
+            comment_id = data.get('comment_id')
+            
+            if not name or len(name) < 2:
+                return JsonResponse({
+                    'success': False,
+                    'error': 'Please provide your name'
+                }, status=400)
+            
+            if not reply_text or len(reply_text) < 3:
+                return JsonResponse({
+                    'success': False,
+                    'error': 'Reply must be at least 3 characters long'
+                }, status=400)
+            
+            if len(reply_text) > 500:
+                return JsonResponse({
+                    'success': False,
+                    'error': 'Reply is too long (max 500 characters)'
+                }, status=400)
+            
+            # Get parent comment
+            comment = get_object_or_404(Comment, id=comment_id, is_approved=True)
+            
+            # Create reply
+            reply = CommentReply()
+            reply.comment = comment
+            reply.name = name
+            reply.email = data.get('email', '').strip()
+            reply.reply = reply_text
+            reply.ip_address = get_client_ip(request)
+            reply.save()
+            
+            return JsonResponse({
+                'success': True,
+                'message': 'Reply posted successfully!',
+                'reply': {
+                    'id': reply.id,
+                    'name': reply.name,
+                    'reply': reply.reply,
+                    'time': reply.get_time_since(),
+                }
+            })
+            
+        except Exception as e:
+            logger.error(f"Error submitting reply: {str(e)}")
+            return JsonResponse({
+                'success': False,
+                'error': 'Failed to post reply. Please try again.'
             }, status=500)

@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.utils.html import format_html
 from .models import (
     MangaCategory, MangaGenre, Manga, Chapter, 
-    MangaPage, DownloadLink
+    MangaPage, DownloadLink, Comment
 )
 
 @admin.register(MangaCategory)
@@ -109,3 +109,44 @@ class DownloadLinkAdmin(admin.ModelAdmin):
     list_display = ['chapter', 'quality', 'format', 'host_name', 'is_active', 'expires_at', 'download_count']
     list_filter = ['quality', 'format', 'host_name', 'is_active']
     readonly_fields = ['download_count', 'created_at', 'updated_at']
+
+@admin.register(Comment)
+class CommentAdmin(admin.ModelAdmin):
+    list_display = ['name', 'get_target', 'comment_preview', 'is_approved', 'is_reply', 'created_at']
+    list_filter = ['is_approved', 'is_active', 'created_at', 'parent']
+    search_fields = ['name', 'email', 'comment']
+    readonly_fields = ['ip_address', 'user_agent', 'created_at', 'updated_at']
+    list_editable = ['is_approved']
+    
+    fieldsets = (
+        ('Comment Info', {
+            'fields': ('name', 'email', 'comment')
+        }),
+        ('Target', {
+            'fields': ('manga', 'chapter', 'parent')
+        }),
+        ('Moderation', {
+            'fields': ('is_approved', 'is_active')
+        }),
+        ('Metadata', {
+            'fields': ('ip_address', 'user_agent', 'created_at', 'updated_at'),
+            'classes': ('collapse',)
+        }),
+    )
+    
+    def comment_preview(self, obj):
+        return obj.comment[:50] + '...' if len(obj.comment) > 50 else obj.comment
+    comment_preview.short_description = 'Comment'
+    
+    def get_target(self, obj):
+        if obj.manga:
+            return f"Manga: {obj.manga.title}"
+        elif obj.chapter:
+            return f"Chapter: {obj.chapter}"
+        return "Unknown"
+    get_target.short_description = 'Target'
+    
+    def is_reply(self, obj):
+        return obj.is_reply
+    is_reply.boolean = True
+    is_reply.short_description = 'Reply'

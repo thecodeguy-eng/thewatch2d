@@ -36,6 +36,10 @@ urlpatterns = [
 
      path('ajax/chapter/<int:chapter_id>/download/<str:format>/', 
           views.DownloadChapterView.as_view(), name='download_chapter'),
+
+     # Comment endpoints
+     path('ajax/comments/add/', views.AddCommentView.as_view(), name='ajax_add_comment'),
+     path('ajax/comments/get/', views.GetCommentsView.as_view(), name='ajax_get_comments'),
     
     # Management
     path('management/', views.ManagementDashboardView.as_view(), name='management'),

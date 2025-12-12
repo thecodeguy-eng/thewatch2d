@@ -42,14 +42,14 @@ class Movie(models.Model):
     def get_absolute_url(self):
         return reverse('movies:movie_detail', args=[str(self.pk)])
 
-class Comment(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='comments')
-    movie = models.ForeignKey(Movie, on_delete=models.CASCADE, related_name='comments')
-    content = models.TextField()
-    created_at = models.DateTimeField(default=timezone.now)
+# class Comment(models.Model):
+#     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='comments')
+#     movie = models.ForeignKey(Movie, on_delete=models.CASCADE, related_name='comments')
+#     content = models.TextField()
+#     created_at = models.DateTimeField(default=timezone.now)
 
-    def __str__(self):
-        return f"Comment by {self.user.username} on {self.movie.title}"
+#     def __str__(self):
+#         return f"Comment by {self.user.username} on {self.movie.title}"
 
 
 class DownloadLink(models.Model):
@@ -97,3 +97,23 @@ class OfflineAction(models.Model):
     
     class Meta:
         db_table = 'offline_actions'
+
+
+class Comment(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='comments', null=True, blank=True)
+    guest_name = models.CharField(max_length=100, blank=True, null=True, help_text="Name for anonymous comments")
+    movie = models.ForeignKey(Movie, on_delete=models.CASCADE, related_name='comments')
+    parent = models.ForeignKey('self', on_delete=models.CASCADE, related_name='replies', null=True, blank=True)
+    content = models.TextField()
+    created_at = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        author = self.user.username if self.user else self.guest_name
+        return f"Comment by {author} on {self.movie.title}"
+    
+    @property
+    def is_reply(self):
+        return self.parent is not None

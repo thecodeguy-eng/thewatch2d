@@ -1,6 +1,6 @@
 # admin.py
 from django.contrib import admin
-from .models import APK, Category, Screenshot, APKVersion, DownloadFile
+from .models import APK, Category, Screenshot, APKVersion, DownloadFile, Comment
 
 class ScreenshotInline(admin.TabularInline):
     model = Screenshot
@@ -103,3 +103,25 @@ class APKVersionAdmin(admin.ModelAdmin):
     list_filter = ('is_latest', 'created_at')
     search_fields = ('apk__title', 'version')
     readonly_fields = ('created_at',)
+
+
+
+@admin.register(Comment)
+class CommentAdmin(admin.ModelAdmin):
+    list_display = ('name', 'apk', 'comment_text_preview', 'is_approved', 'created_at', 'parent')
+    list_filter = ('is_approved', 'created_at')
+    search_fields = ('name', 'email', 'comment_text', 'apk__title')
+    readonly_fields = ('created_at', 'updated_at')
+    actions = ['approve_comments', 'disapprove_comments']
+    
+    def comment_text_preview(self, obj):
+        return obj.comment_text[:50] + '...' if len(obj.comment_text) > 50 else obj.comment_text
+    comment_text_preview.short_description = 'Comment'
+    
+    def approve_comments(self, request, queryset):
+        queryset.update(is_approved=True)
+    approve_comments.short_description = "Approve selected comments"
+    
+    def disapprove_comments(self, request, queryset):
+        queryset.update(is_approved=False)
+    disapprove_comments.short_description = "Disapprove selected comments"

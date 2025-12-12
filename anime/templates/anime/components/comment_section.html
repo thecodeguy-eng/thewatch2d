@@ -1,0 +1,325 @@
+<!-- Save this as: templates/anime/components/comment_section.html -->
+<!-- This is a reusable component for comments -->
+
+<div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 mt-8">
+  <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-6 flex items-center">
+    <i class="fas fa-comments text-primary-500 mr-3"></i>
+    Comments ({{ comment_count|default:0 }})
+  </h3>
+
+  <!-- Comment Form -->
+  <div class="mb-8">
+    <form id="commentForm" class="space-y-4">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            Your Name <span class="text-red-500">*</span>
+          </label>
+          <input type="text" 
+                 id="commentName" 
+                 name="name" 
+                 required 
+                 maxlength="100"
+                 placeholder="Enter your name"
+                 class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500">
+        </div>
+        
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            Email (Optional)
+          </label>
+          <input type="email" 
+                 id="commentEmail" 
+                 name="email"
+                 placeholder="your@email.com"
+                 class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500">
+        </div>
+      </div>
+      
+      <div>
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          Your Comment <span class="text-red-500">*</span>
+        </label>
+        <textarea id="commentText" 
+                  name="comment" 
+                  required 
+                  rows="4"
+                  maxlength="1000"
+                  placeholder="Share your thoughts..."
+                  class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 resize-none"></textarea>
+        <div class="flex justify-between items-center mt-2">
+          <span class="text-sm text-gray-500 dark:text-gray-400">
+            <span id="charCount">0</span>/1000 characters
+          </span>
+          <span class="text-xs text-gray-400">Be respectful and constructive</span>
+        </div>
+      </div>
+      
+      <div class="flex items-center justify-between">
+        <button type="submit" 
+                class="px-6 py-3 bg-primary-500 text-white font-semibold rounded-xl hover:bg-primary-600 transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed">
+          <i class="fas fa-paper-plane mr-2"></i>Post Comment
+        </button>
+        
+        <div id="commentStatus" class="hidden text-sm"></div>
+      </div>
+    </form>
+  </div>
+
+  <!-- Comments List -->
+  <div id="commentsList" class="space-y-6">
+    {% if comments %}
+      {% for comment in comments %}
+      <div class="comment-item border-b border-gray-200 dark:border-gray-700 pb-6" data-comment-id="{{ comment.id }}">
+        <div class="flex items-start space-x-4">
+          <!-- Avatar -->
+          <div class="flex-shrink-0">
+            <div class="w-10 h-10 bg-gradient-to-r from-primary-500 to-accent-500 rounded-full flex items-center justify-center text-white font-bold">
+              {{ comment.name|first|upper }}
+            </div>
+          </div>
+          
+          <!-- Comment Content -->
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center justify-between mb-2">
+              <div>
+                <h4 class="text-sm font-semibold text-gray-900 dark:text-white">
+                  {{ comment.name }}
+                </h4>
+                <p class="text-xs text-gray-500 dark:text-gray-400">
+                  {{ comment.get_time_since }}
+                  {% if comment.is_recent %}
+                    <span class="ml-2 px-2 py-0.5 bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-400 rounded text-xs">New</span>
+                  {% endif %}
+                </p>
+              </div>
+              
+              <button onclick="toggleReplyForm({{ comment.id }})" 
+                      class="text-sm text-primary-500 hover:text-primary-600 font-medium">
+                <i class="fas fa-reply mr-1"></i>Reply
+              </button>
+            </div>
+            
+            <p class="text-gray-700 dark:text-gray-300 leading-relaxed">
+              {{ comment.comment }}
+            </p>
+            
+            <!-- Reply Form (Hidden by default) -->
+            <div id="replyForm-{{ comment.id }}" class="hidden mt-4 pl-4 border-l-2 border-primary-500">
+              <form class="replyForm space-y-3" data-comment-id="{{ comment.id }}">
+                <input type="text" 
+                       name="reply_name" 
+                       required 
+                       placeholder="Your name"
+                       class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary-500">
+                
+                <textarea name="reply_text" 
+                          required 
+                          rows="2"
+                          maxlength="500"
+                          placeholder="Write a reply..."
+                          class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 resize-none"></textarea>
+                
+                <div class="flex space-x-2">
+                  <button type="submit" 
+                          class="px-4 py-2 bg-primary-500 text-white text-sm font-semibold rounded-lg hover:bg-primary-600 transition-colors">
+                    Post Reply
+                  </button>
+                  <button type="button" 
+                          onclick="toggleReplyForm({{ comment.id }})"
+                          class="px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 text-sm font-semibold rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            </div>
+            
+            <!-- Replies -->
+            {% if comment.replies.all %}
+            <div class="mt-4 space-y-4 pl-4 border-l-2 border-gray-200 dark:border-gray-700">
+              {% for reply in comment.replies.all %}
+              <div class="flex items-start space-x-3">
+                <div class="flex-shrink-0">
+                  <div class="w-8 h-8 bg-gradient-to-r from-accent-500 to-primary-500 rounded-full flex items-center justify-center text-white text-xs font-bold">
+                    {{ reply.name|first|upper }}
+                  </div>
+                </div>
+                
+                <div class="flex-1">
+                  <div class="flex items-center space-x-2 mb-1">
+                    <h5 class="text-sm font-semibold text-gray-900 dark:text-white">
+                      {{ reply.name }}
+                    </h5>
+                    <span class="text-xs text-gray-500 dark:text-gray-400">
+                      {{ reply.get_time_since }}
+                    </span>
+                  </div>
+                  <p class="text-sm text-gray-700 dark:text-gray-300">
+                    {{ reply.reply }}
+                  </p>
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    {% else %}
+      <div class="text-center py-12">
+        <i class="fas fa-comments text-4xl text-gray-300 dark:text-gray-600 mb-4"></i>
+        <p class="text-gray-600 dark:text-gray-400">No comments yet. Be the first to comment!</p>
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+<script>
+// Comment form handling
+const commentForm = document.getElementById('commentForm');
+const commentText = document.getElementById('commentText');
+const charCount = document.getElementById('charCount');
+const commentStatus = document.getElementById('commentStatus');
+
+// Character counter
+if (commentText) {
+  commentText.addEventListener('input', function() {
+    charCount.textContent = this.value.length;
+  });
+}
+
+// Submit comment
+if (commentForm) {
+  commentForm.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const submitBtn = this.querySelector('button[type="submit"]');
+    const originalText = submitBtn.innerHTML;
+    
+    // Disable submit button
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Posting...';
+    
+    const formData = {
+      name: document.getElementById('commentName').value,
+      email: document.getElementById('commentEmail').value,
+      comment: commentText.value,
+      content_type: '{{ content_type }}',
+      content_id: {{ content_id }}
+    };
+    
+    try {
+      const response = await fetch('/anime/ajax/submit-comment/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify(formData)
+      });
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        // Show success message
+        showStatus('success', 'Comment posted successfully!');
+        
+        // Reset form
+        commentForm.reset();
+        charCount.textContent = '0';
+        
+        // Reload page after 1 second to show new comment
+        setTimeout(() => {
+          location.reload();
+        }, 1000);
+      } else {
+        showStatus('error', data.error || 'Failed to post comment');
+      }
+    } catch (error) {
+      showStatus('error', 'Network error. Please try again.');
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = originalText;
+    }
+  });
+}
+
+// Reply form handling
+document.querySelectorAll('.replyForm').forEach(form => {
+  form.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const commentId = this.dataset.commentId;
+    const submitBtn = this.querySelector('button[type="submit"]');
+    const originalText = submitBtn.innerHTML;
+    
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+    
+    const formData = {
+      comment_id: commentId,
+      name: this.querySelector('[name="reply_name"]').value,
+      reply: this.querySelector('[name="reply_text"]').value
+    };
+    
+    try {
+      const response = await fetch('/anime/ajax/submit-reply/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify(formData)
+      });
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        // Reload page to show new reply
+        location.reload();
+      } else {
+        alert(data.error || 'Failed to post reply');
+      }
+    } catch (error) {
+      alert('Network error. Please try again.');
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = originalText;
+    }
+  });
+});
+
+// Toggle reply form
+function toggleReplyForm(commentId) {
+  const replyForm = document.getElementById(`replyForm-${commentId}`);
+  replyForm.classList.toggle('hidden');
+}
+
+// Show status message
+function showStatus(type, message) {
+  commentStatus.className = `text-sm ${type === 'success' ? 'text-green-600' : 'text-red-600'}`;
+  commentStatus.textContent = message;
+  commentStatus.classList.remove('hidden');
+  
+  setTimeout(() => {
+    commentStatus.classList.add('hidden');
+  }, 5000);
+}
+
+// Get CSRF token
+function getCookie(name) {
+  let cookieValue = null;
+  if (document.cookie && document.cookie !== '') {
+    const cookies = document.cookie.split(';');
+    for (let i = 0; i < cookies.length; i++) {
+      const cookie = cookies[i].trim();
+      if (cookie.substring(0, name.length + 1) === (name + '=')) {
+        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+        break;
+      }
+    }
+  }
+  return cookieValue;
+}
+</script>

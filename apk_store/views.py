@@ -1,7 +1,11 @@
 from django.shortcuts import render, get_object_or_404
 from django.core.paginator import Paginator
 from django.db.models import Q, Count
-from .models import APK, Category, Screenshot
+from .models import APK, Category, Screenshot, Comment
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST
+from django.views.decorators.csrf import csrf_exempt
+import json
 
 def home(request):
     """Homepage with featured and latest APKs"""
@@ -76,6 +80,9 @@ def apk_detail(request, slug):
     """Single APK detail page"""
     apk = get_object_or_404(APK.objects.prefetch_related('screenshots', 'categories', 'versions'), slug=slug)
     
+    # Get approved comments (only parent comments, not replies)
+    comments = apk.comments.filter(is_approved=True, parent=None).prefetch_related('replies').order_by('-created_at')
+    
     # Related APKs (same category or type)
     related_apks = APK.objects.filter(
         is_active=True,
@@ -85,6 +92,8 @@ def apk_detail(request, slug):
     context = {
         'apk': apk,
         'related_apks': related_apks,
+        'comments': comments,
+        'comments_count': comments.count(),
     }
     return render(request, 'apk_store/apk_detail.html', context)
 
@@ -228,3 +237,128 @@ def search(request):
         'current_type': apk_type,
     }
     return render(request, 'apk_store/search.html', context)
+
+
+
+
+
+@require_POST
+def post_comment(request, slug):
+    """Handle comment posting via AJAX"""
+    try:
+        data = json.loads(request.body)
+        apk = get_object_or_404(APK, slug=slug)
+        
+        name = data.get('name', '').strip()
+        email = data.get('email', '').strip()
+        comment_text = data.get('comment', '').strip()
+        
+        # Validation
+        if not name or not comment_text:
+            return JsonResponse({
+                'success': False,
+                'error': 'Name and comment are required.'
+            }, status=400)
+        
+        if len(name) > 100:
+            return JsonResponse({
+                'success': False,
+                'error': 'Name is too long (max 100 characters).'
+            }, status=400)
+        
+        if len(comment_text) > 1000:
+            return JsonResponse({
+                'success': False,
+                'error': 'Comment is too long (max 1000 characters).'
+            }, status=400)
+        
+        # Create comment
+        comment = Comment.objects.create(
+            apk=apk,
+            name=name,
+            email=email,
+            comment_text=comment_text
+        )
+        
+        return JsonResponse({
+            'success': True,
+            'comment': {
+                'id': comment.id,
+                'name': comment.name,
+                'comment_text': comment.comment_text,
+                'created_at': comment.created_at.strftime('%B %d, %Y at %I:%M %p'),
+                'replies_count': 0
+            }
+        })
+        
+    except json.JSONDecodeError:
+        return JsonResponse({
+            'success': False,
+            'error': 'Invalid request data.'
+        }, status=400)
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'error': 'An error occurred. Please try again.'
+        }, status=500)
+
+
+@require_POST
+def post_reply(request, comment_id):
+    """Handle reply posting via AJAX"""
+    try:
+        data = json.loads(request.body)
+        parent_comment = get_object_or_404(Comment, id=comment_id)
+        
+        name = data.get('name', '').strip()
+        email = data.get('email', '').strip()
+        comment_text = data.get('comment', '').strip()
+        
+        # Validation
+        if not name or not comment_text:
+            return JsonResponse({
+                'success': False,
+                'error': 'Name and reply are required.'
+            }, status=400)
+        
+        if len(name) > 100:
+            return JsonResponse({
+                'success': False,
+                'error': 'Name is too long (max 100 characters).'
+            }, status=400)
+        
+        if len(comment_text) > 1000:
+            return JsonResponse({
+                'success': False,
+                'error': 'Reply is too long (max 1000 characters).'
+            }, status=400)
+        
+        # Create reply
+        reply = Comment.objects.create(
+            apk=parent_comment.apk,
+            parent=parent_comment,
+            name=name,
+            email=email,
+            comment_text=comment_text
+        )
+        
+        return JsonResponse({
+            'success': True,
+            'reply': {
+                'id': reply.id,
+                'name': reply.name,
+                'comment_text': reply.comment_text,
+                'created_at': reply.created_at.strftime('%B %d, %Y at %I:%M %p')
+            }
+        })
+        
+    except json.JSONDecodeError:
+        return JsonResponse({
+            'success': False,
+            'error': 'Invalid request data.'
+        }, status=400)
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'error': 'An error occurred. Please try again.'
+        }, status=500)

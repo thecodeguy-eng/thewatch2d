@@ -20,7 +20,7 @@ from reportlab.lib.pagesizes import letter, A4
 from reportlab.pdfgen import canvas
 from reportlab.lib.utils import ImageReader
 
-from .models import Manga, Chapter, MangaCategory, MangaGenre, MangaPage, DownloadLink
+from .models import Manga, Chapter, MangaCategory, MangaGenre, MangaPage, DownloadLink, Comment
 
 logger = logging.getLogger(__name__)
 
@@ -279,22 +279,22 @@ class MangaDetailView(DetailView):
         return context
 
 
-class MangaChaptersView(DetailView):
-    model = Manga
+class MangaChaptersView(ListView):
+    model = Chapter
     template_name = 'manga/chapters.html'
-    context_object_name = 'manga'
-    slug_field = 'slug'
+    context_object_name = 'chapters'
+    paginate_by = 100
+    
+    def get_queryset(self):
+        self.manga = get_object_or_404(Manga, slug=self.kwargs['slug'])
+        return Chapter.objects.filter(
+            manga=self.manga,
+            is_active=True
+        ).order_by('-chapter_number')
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        
-        chapters = Chapter.objects.filter(
-            manga=self.object, is_active=True
-        ).order_by('-chapter_number')
-        
-        paginator = Paginator(chapters, 100)
-        page_number = self.request.GET.get('page')
-        context['chapters'] = paginator.get_page(page_number)
+        context['manga'] = self.manga
         return context
 
 
@@ -577,3 +577,165 @@ class ManagementDashboardView(TemplateView):
             'recent_chapters': recent_chapters,
         })
         return context
+
+
+    
+@method_decorator(csrf_exempt, name='dispatch')
+class AddCommentView(View):
+    """AJAX view to add a comment"""
+    
+    def post(self, request):
+        try:
+            data = json.loads(request.body)
+            
+            # Validate required fields
+            name = data.get('name', '').strip()
+            comment_text = data.get('comment', '').strip()
+            manga_id = data.get('manga_id')
+            chapter_id = data.get('chapter_id')
+            parent_id = data.get('parent_id')
+            
+            if not name or not comment_text:
+                return JsonResponse({
+                    'success': False,
+                    'error': 'Name and comment are required.'
+                }, status=400)
+            
+            if len(name) < 2:
+                return JsonResponse({
+                    'success': False,
+                    'error': 'Name must be at least 2 characters.'
+                }, status=400)
+            
+            if len(comment_text) < 3:
+                return JsonResponse({
+                    'success': False,
+                    'error': 'Comment must be at least 3 characters.'
+                }, status=400)
+            
+            # Create comment
+            comment = Comment()
+            comment.name = name
+            comment.email = data.get('email', '').strip()
+            comment.comment = comment_text
+            
+            # Set target (manga or chapter)
+            if manga_id:
+                comment.manga = get_object_or_404(Manga, id=manga_id)
+            elif chapter_id:
+                comment.chapter = get_object_or_404(Chapter, id=chapter_id)
+            else:
+                return JsonResponse({
+                    'success': False,
+                    'error': 'Invalid target.'
+                }, status=400)
+            
+            # Set parent if it's a reply
+            if parent_id:
+                comment.parent = get_object_or_404(Comment, id=parent_id)
+            
+            # Save metadata
+            comment.ip_address = self.get_client_ip(request)
+            comment.user_agent = request.META.get('HTTP_USER_AGENT', '')[:255]
+            
+            comment.save()
+            
+            # Return comment data
+            return JsonResponse({
+                'success': True,
+                'comment': {
+                    'id': comment.id,
+                    'name': comment.name,
+                    'comment': comment.comment,
+                    'created_at': comment.created_at.strftime('%B %d, %Y at %I:%M %p'),
+                    'is_reply': comment.is_reply,
+                    'parent_id': comment.parent_id,
+                }
+            })
+            
+        except json.JSONDecodeError:
+            return JsonResponse({
+                'success': False,
+                'error': 'Invalid JSON data.'
+            }, status=400)
+        except Exception as e:
+            logger.error(f"Error adding comment: {str(e)}")
+            return JsonResponse({
+                'success': False,
+                'error': 'An error occurred. Please try again.'
+            }, status=500)
+    
+    def get_client_ip(self, request):
+        """Get client IP address"""
+        x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+        if x_forwarded_for:
+            ip = x_forwarded_for.split(',')[0]
+        else:
+            ip = request.META.get('REMOTE_ADDR')
+        return ip
+
+
+class GetCommentsView(View):
+    """AJAX view to fetch comments"""
+    
+    def get(self, request):
+        try:
+            manga_id = request.GET.get('manga_id')
+            chapter_id = request.GET.get('chapter_id')
+            
+            # Base query
+            comments_query = Comment.objects.filter(
+                is_approved=True,
+                is_active=True,
+                parent=None  # Only top-level comments
+            )
+            
+            # Filter by target
+            if manga_id:
+                comments_query = comments_query.filter(manga_id=manga_id)
+            elif chapter_id:
+                comments_query = comments_query.filter(chapter_id=chapter_id)
+            else:
+                return JsonResponse({
+                    'success': False,
+                    'error': 'Invalid target.'
+                }, status=400)
+            
+            # Order and fetch
+            comments = comments_query.order_by('-created_at')
+            
+            # Serialize comments
+            comments_data = []
+            for comment in comments:
+                comment_dict = {
+                    'id': comment.id,
+                    'name': comment.name,
+                    'comment': comment.comment,
+                    'created_at': comment.created_at.strftime('%B %d, %Y at %I:%M %p'),
+                    'replies': []
+                }
+                
+                # Get replies
+                replies = comment.get_replies()
+                for reply in replies:
+                    comment_dict['replies'].append({
+                        'id': reply.id,
+                        'name': reply.name,
+                        'comment': reply.comment,
+                        'created_at': reply.created_at.strftime('%B %d, %Y at %I:%M %p'),
+                    })
+                
+                comments_data.append(comment_dict)
+            
+            return JsonResponse({
+                'success': True,
+                'comments': comments_data,
+                'count': len(comments_data)
+            })
+            
+        except Exception as e:
+            logger.error(f"Error fetching comments: {str(e)}")
+            return JsonResponse({
+                'success': False,
+                'error': 'An error occurred while fetching comments.'
+            }, status=500)

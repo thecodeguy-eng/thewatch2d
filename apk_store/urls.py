@@ -11,4 +11,6 @@ urlpatterns = [
     path('search/', views.search, name='search'),
     path('category/<slug:slug>/', views.category_detail, name='category_detail'),
     path('apk/<slug:slug>/', views.apk_detail, name='apk_detail'),
+    path('apk/<slug:slug>/comment/', views.post_comment, name='post_comment'),
+    path('apk/comment/<int:comment_id>/reply/', views.post_reply, name='post_reply'),
 ]

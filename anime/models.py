@@ -355,3 +355,109 @@ class Watchlist(models.Model):
 
     def __str__(self):
         return f"Watchlist entry for {self.anime.title}"
+    
+
+
+
+
+class Comment(models.Model):
+    """User comments on anime or episodes"""
+    # Content type - what is being commented on
+    CONTENT_CHOICES = [
+        ('anime', 'Anime'),
+        ('episode', 'Episode'),
+    ]
+    
+    content_type = models.CharField(max_length=10, choices=CONTENT_CHOICES, default='anime')
+    
+    # Foreign keys to commentable objects
+    anime = models.ForeignKey(Anime, on_delete=models.CASCADE, related_name='comments', null=True, blank=True)
+    episode = models.ForeignKey(Episode, on_delete=models.CASCADE, related_name='comments', null=True, blank=True)
+    
+    # Comment details
+    name = models.CharField(max_length=100, help_text="Your name (required)")
+    email = models.EmailField(blank=True, help_text="Optional - for notifications")
+    comment = models.TextField(max_length=1000)
+    
+    # Optional: Link to authenticated user if they're logged in
+    # user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    
+    # Moderation
+    is_approved = models.BooleanField(default=True)  # Set to False if you want manual approval
+    is_flagged = models.BooleanField(default=False)
+    
+    # Metadata
+    ip_address = models.GenericIPAddressField(null=True, blank=True)
+    user_agent = models.CharField(max_length=255, blank=True)
+    
+    # Timestamps
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['anime', 'is_approved']),
+            models.Index(fields=['episode', 'is_approved']),
+            models.Index(fields=['created_at']),
+        ]
+    
+    def __str__(self):
+        target = self.anime.title if self.anime else f"Episode {self.episode.episode_number}"
+        return f"Comment by {self.name} on {target}"
+    
+    @property
+    def is_recent(self):
+        """Check if comment is less than 24 hours old"""
+        return (timezone.now() - self.created_at).days < 1
+    
+    def get_time_since(self):
+        """Get human-readable time since comment"""
+        delta = timezone.now() - self.created_at
+        
+        if delta.days > 0:
+            return f"{delta.days} day{'s' if delta.days > 1 else ''} ago"
+        elif delta.seconds >= 3600:
+            hours = delta.seconds // 3600
+            return f"{hours} hour{'s' if hours > 1 else ''} ago"
+        elif delta.seconds >= 60:
+            minutes = delta.seconds // 60
+            return f"{minutes} minute{'s' if minutes > 1 else ''} ago"
+        else:
+            return "just now"
+
+
+class CommentReply(models.Model):
+    """Replies to comments (nested comments)"""
+    comment = models.ForeignKey(Comment, on_delete=models.CASCADE, related_name='replies')
+    
+    name = models.CharField(max_length=100)
+    email = models.EmailField(blank=True)
+    reply = models.TextField(max_length=500)
+    
+    # Moderation
+    is_approved = models.BooleanField(default=True)
+    
+    # Metadata
+    ip_address = models.GenericIPAddressField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        ordering = ['created_at']
+        verbose_name_plural = "Comment Replies"
+    
+    def __str__(self):
+        return f"Reply by {self.name} to comment #{self.comment.id}"
+    
+    def get_time_since(self):
+        """Get human-readable time since reply"""
+        delta = timezone.now() - self.created_at
+        
+        if delta.days > 0:
+            return f"{delta.days}d ago"
+        elif delta.seconds >= 3600:
+            return f"{delta.seconds // 3600}h ago"
+        elif delta.seconds >= 60:
+            return f"{delta.seconds // 60}m ago"
+        else:
+            return "now"

@@ -1,4 +1,3 @@
-<!-- ==================== chapters.html (FIXED) ==================== -->
 {% extends 'base.html' %}
 {% load static %}
 
@@ -14,6 +13,9 @@
             <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">
                 {{ manga.title }} - All Chapters
             </h1>
+            <p class="text-gray-600 dark:text-gray-400 mb-2">
+                Total Chapters: {{ paginator.count }}
+            </p>
             <a href="{{ manga.get_absolute_url }}" class="text-primary-600 dark:text-primary-400 hover:underline">
                 <i class="fas fa-arrow-left mr-2"></i>Back to manga details
             </a>
@@ -42,8 +44,100 @@
             {% endfor %}
         </div>
         
-        <!-- Pagination -->
-        {% include 'manga/includes/pagination.html' %}
+        <!-- Pagination - FIXED: Now using correct context variables -->
+        {% if is_paginated %}
+        <div class="flex flex-col items-center gap-4 mt-8">
+            <!-- Page Info -->
+            <div class="text-sm text-gray-600 dark:text-gray-400">
+                Showing {{ page_obj.start_index }} - {{ page_obj.end_index }} of {{ page_obj.paginator.count }} chapters
+            </div>
+            
+            <!-- Pagination Controls -->
+            <div class="flex items-center gap-2 flex-wrap justify-center">
+                {% if page_obj.has_previous %}
+                    <a href="?page=1" 
+                       class="px-3 py-2 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors shadow-sm"
+                       title="First Page">
+                        <i class="fas fa-angle-double-left"></i>
+                    </a>
+                    
+                    <a href="?page={{ page_obj.previous_page_number }}" 
+                       class="px-3 py-2 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors shadow-sm"
+                       title="Previous Page">
+                        <i class="fas fa-angle-left"></i>
+                    </a>
+                {% else %}
+                    <span class="px-3 py-2 bg-gray-200 dark:bg-gray-800 text-gray-400 dark:text-gray-600 rounded-lg cursor-not-allowed shadow-sm">
+                        <i class="fas fa-angle-double-left"></i>
+                    </span>
+                    <span class="px-3 py-2 bg-gray-200 dark:bg-gray-800 text-gray-400 dark:text-gray-600 rounded-lg cursor-not-allowed shadow-sm">
+                        <i class="fas fa-angle-left"></i>
+                    </span>
+                {% endif %}
+                
+                <!-- Page Numbers -->
+                {% for num in page_obj.paginator.page_range %}
+                    {% if num >= page_obj.number|add:-2 and num <= page_obj.number|add:2 %}
+                        {% if num == page_obj.number %}
+                            <span class="px-4 py-2 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-lg font-semibold shadow-lg">
+                                {{ num }}
+                            </span>
+                        {% else %}
+                            <a href="?page={{ num }}" 
+                               class="px-4 py-2 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors shadow-sm">
+                                {{ num }}
+                            </a>
+                        {% endif %}
+                    {% endif %}
+                {% endfor %}
+                
+                {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}" 
+                       class="px-3 py-2 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors shadow-sm"
+                       title="Next Page">
+                        <i class="fas fa-angle-right"></i>
+                    </a>
+                    
+                    <a href="?page={{ page_obj.paginator.num_pages }}" 
+                       class="px-3 py-2 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors shadow-sm"
+                       title="Last Page">
+                        <i class="fas fa-angle-double-right"></i>
+                    </a>
+                {% else %}
+                    <span class="px-3 py-2 bg-gray-200 dark:bg-gray-800 text-gray-400 dark:text-gray-600 rounded-lg cursor-not-allowed shadow-sm">
+                        <i class="fas fa-angle-right"></i>
+                    </span>
+                    <span class="px-3 py-2 bg-gray-200 dark:bg-gray-800 text-gray-400 dark:text-gray-600 rounded-lg cursor-not-allowed shadow-sm">
+                        <i class="fas fa-angle-double-right"></i>
+                    </span>
+                {% endif %}
+            </div>
+            
+            <!-- Quick Jump -->
+            <div class="flex items-center gap-2">
+                <label for="page-jump" class="text-sm text-gray-600 dark:text-gray-400">Go to page:</label>
+                <input type="number" 
+                       id="page-jump" 
+                       min="1" 
+                       max="{{ page_obj.paginator.num_pages }}" 
+                       value="{{ page_obj.number }}"
+                       class="w-20 px-3 py-1 text-center bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500"
+                       onkeypress="if(event.key === 'Enter') jumpToPage(this.value)">
+                <button onclick="jumpToPage(document.getElementById('page-jump').value)" 
+                        class="px-4 py-1 bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition-colors text-sm font-semibold">
+                    Go
+                </button>
+            </div>
+        </div>
+        
+        <script>
+        function jumpToPage(pageNum) {
+            const maxPage = {{ page_obj.paginator.num_pages }};
+            const page = Math.max(1, Math.min(parseInt(pageNum) || 1, maxPage));
+            window.location.href = '?page=' + page;
+        }
+        </script>
+        {% endif %}
         
         {% else %}
         <p class="text-center text-gray-600 dark:text-gray-400 py-8">No chapters available</p>

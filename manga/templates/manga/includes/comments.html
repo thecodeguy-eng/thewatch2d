@@ -1,0 +1,421 @@
+{% load static %}
+
+<!-- Comments Section -->
+<div class="glass-effect rounded-2xl p-8">
+    <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">
+        <i class="fas fa-comments mr-2"></i>Comments
+        <span id="comment-count" class="text-lg text-gray-500 dark:text-gray-400">(<span id="count-number">0</span>)</span>
+    </h3>
+    
+    <!-- Comment Form -->
+    <div class="bg-white dark:bg-gray-800 rounded-xl p-6 mb-6 border-2 border-gray-200 dark:border-gray-700">
+        <h4 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Leave a Comment</h4>
+        
+        <form id="comment-form" class="space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label for="comment-name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Name <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" 
+                           id="comment-name" 
+                           name="name" 
+                           required 
+                           placeholder="Your name"
+                           class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500">
+                </div>
+                
+                <div>
+                    <label for="comment-email" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Email <span class="text-gray-400 text-xs">(Optional, not displayed)</span>
+                    </label>
+                    <input type="email" 
+                           id="comment-email" 
+                           name="email" 
+                           placeholder="your@email.com"
+                           class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500">
+                </div>
+            </div>
+            
+            <div>
+                <label for="comment-text" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Comment <span class="text-red-500">*</span>
+                </label>
+                <textarea id="comment-text" 
+                          name="comment" 
+                          required 
+                          rows="4" 
+                          placeholder="Share your thoughts..."
+                          class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 resize-none"></textarea>
+            </div>
+            
+            <div class="flex items-center justify-between">
+                <p class="text-sm text-gray-500 dark:text-gray-400">
+                    <i class="fas fa-info-circle mr-1"></i>Your comment will be posted immediately
+                </p>
+                <button type="submit" 
+                        id="submit-comment-btn"
+                        class="px-6 py-2 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-lg hover:from-blue-600 hover:to-cyan-600 transition-all duration-300 font-semibold disabled:opacity-50 disabled:cursor-not-allowed">
+                    <i class="fas fa-paper-plane mr-2"></i>Post Comment
+                </button>
+            </div>
+        </form>
+        
+        <!-- Alert Messages -->
+        <div id="comment-alert" class="hidden mt-4 p-4 rounded-lg"></div>
+    </div>
+    
+    <!-- Comments List -->
+    <div id="comments-container" class="space-y-4">
+        <!-- Loading State -->
+        <div id="comments-loading" class="text-center py-8">
+            <i class="fas fa-spinner fa-spin text-3xl text-gray-400 mb-2"></i>
+            <p class="text-gray-500 dark:text-gray-400">Loading comments...</p>
+        </div>
+        
+        <!-- No Comments State -->
+        <div id="no-comments" class="hidden text-center py-8">
+            <i class="fas fa-comments text-5xl text-gray-300 dark:text-gray-600 mb-4"></i>
+            <p class="text-gray-500 dark:text-gray-400 text-lg">No comments yet. Be the first to comment!</p>
+        </div>
+        
+        <!-- Comments will be loaded here -->
+        <div id="comments-list"></div>
+    </div>
+</div>
+
+<style>
+    .comment-item {
+        animation: slideIn 0.3s ease-out;
+    }
+    
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .reply-item {
+        border-left: 3px solid #3b82f6;
+    }
+</style>
+
+<script>
+    // Configuration - SET THESE VALUES
+    const commentConfig = {
+        targetType: '{{ target_type }}',  // 'manga' or 'chapter'
+        targetId: {{ target_id }},
+        csrfToken: '{{ csrf_token }}'
+    };
+    
+    // Load comments on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        loadComments();
+        
+        // Setup form submission
+        document.getElementById('comment-form').addEventListener('submit', handleCommentSubmit);
+    });
+    
+    // Load comments from server
+    function loadComments() {
+        const params = new URLSearchParams();
+        if (commentConfig.targetType === 'manga') {
+            params.append('manga_id', commentConfig.targetId);
+        } else {
+            params.append('chapter_id', commentConfig.targetId);
+        }
+        
+        fetch(`/manga/ajax/comments/get/?${params.toString()}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    displayComments(data.comments);
+                    updateCommentCount(data.count);
+                } else {
+                    showError('Failed to load comments');
+                }
+            })
+            .catch(error => {
+                console.error('Error loading comments:', error);
+                showError('Failed to load comments');
+            })
+            .finally(() => {
+                document.getElementById('comments-loading').classList.add('hidden');
+            });
+    }
+    
+    // Display comments in the UI
+    function displayComments(comments) {
+        const commentsList = document.getElementById('comments-list');
+        const noComments = document.getElementById('no-comments');
+        
+        if (comments.length === 0) {
+            noComments.classList.remove('hidden');
+            return;
+        }
+        
+        noComments.classList.add('hidden');
+        commentsList.innerHTML = '';
+        
+        comments.forEach(comment => {
+            commentsList.appendChild(createCommentElement(comment));
+        });
+    }
+    
+    // Create comment HTML element
+    function createCommentElement(comment) {
+        const div = document.createElement('div');
+        div.className = 'comment-item bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700';
+        div.dataset.commentId = comment.id;
+        
+        let html = `
+            <div class="flex items-start space-x-4">
+                <div class="flex-shrink-0">
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-cyan-500 flex items-center justify-center text-white font-bold text-lg">
+                        ${comment.name.charAt(0).toUpperCase()}
+                    </div>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <div class="flex items-center justify-between mb-2">
+                        <h4 class="text-lg font-semibold text-gray-900 dark:text-white">${escapeHtml(comment.name)}</h4>
+                        <span class="text-sm text-gray-500 dark:text-gray-400">
+                            <i class="fas fa-clock mr-1"></i>${comment.created_at}
+                        </span>
+                    </div>
+                    <p class="text-gray-700 dark:text-gray-300 whitespace-pre-wrap">${escapeHtml(comment.comment)}</p>
+                    
+                    <div class="mt-3 flex items-center space-x-4">
+                        <button onclick="showReplyForm(${comment.id}, '${escapeHtml(comment.name)}')" 
+                                class="text-sm text-primary-600 dark:text-primary-400 hover:underline font-semibold">
+                            <i class="fas fa-reply mr-1"></i>Reply
+                        </button>
+                    </div>
+                    
+                    <!-- Reply Form (Initially Hidden) -->
+                    <div id="reply-form-${comment.id}" class="hidden mt-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4 border-l-4 border-primary-500">
+                        <form onsubmit="handleReplySubmit(event, ${comment.id})" class="space-y-3">
+                            <input type="text" 
+                                   name="reply-name-${comment.id}"
+                                   placeholder="Your name" 
+                                   required
+                                   class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500">
+                            <textarea name="reply-text-${comment.id}"
+                                      placeholder="Your reply..." 
+                                      required 
+                                      rows="3"
+                                      class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 resize-none"></textarea>
+                            <div class="flex items-center justify-end space-x-2">
+                                <button type="button" 
+                                        onclick="hideReplyForm(${comment.id})"
+                                        class="px-4 py-2 text-sm bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-500 transition-colors">
+                                    Cancel
+                                </button>
+                                <button type="submit" 
+                                        class="px-4 py-2 text-sm bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-lg hover:from-blue-600 hover:to-cyan-600 transition-all font-semibold">
+                                    <i class="fas fa-paper-plane mr-1"></i>Reply
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                    
+                    <!-- Replies -->
+                    ${comment.replies.length > 0 ? `
+                        <div class="mt-4 space-y-3">
+                            ${comment.replies.map(reply => `
+                                <div class="reply-item bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4 pl-6">
+                                    <div class="flex items-start space-x-3">
+                                        <div class="flex-shrink-0">
+                                            <div class="w-8 h-8 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center text-white font-bold text-sm">
+                                                ${reply.name.charAt(0).toUpperCase()}
+                                            </div>
+                                        </div>
+                                        <div class="flex-1 min-w-0">
+                                            <div class="flex items-center justify-between mb-1">
+                                                <h5 class="text-sm font-semibold text-gray-900 dark:text-white">${escapeHtml(reply.name)}</h5>
+                                                <span class="text-xs text-gray-500 dark:text-gray-400">${reply.created_at}</span>
+                                            </div>
+                                            <p class="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap">${escapeHtml(reply.comment)}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    ` : ''}
+                </div>
+            </div>
+        `;
+        
+        div.innerHTML = html;
+        return div;
+    }
+    
+    // Handle main comment form submission
+    function handleCommentSubmit(e) {
+        e.preventDefault();
+        
+        const form = e.target;
+        const submitBtn = document.getElementById('submit-comment-btn');
+        const name = document.getElementById('comment-name').value.trim();
+        const email = document.getElementById('comment-email').value.trim();
+        const comment = document.getElementById('comment-text').value.trim();
+        
+        // Validate
+        if (!name || !comment) {
+            showAlert('Please fill in all required fields', 'error');
+            return;
+        }
+        
+        // Disable submit button
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Posting...';
+        
+        // Prepare data
+        const data = {
+            name: name,
+            email: email,
+            comment: comment
+        };
+        
+        if (commentConfig.targetType === 'manga') {
+            data.manga_id = commentConfig.targetId;
+        } else {
+            data.chapter_id = commentConfig.targetId;
+        }
+        
+        // Submit
+        fetch('/manga/ajax/comments/add/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showAlert('Comment posted successfully!', 'success');
+                form.reset();
+                loadComments(); // Reload comments
+            } else {
+                showAlert(data.error || 'Failed to post comment', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showAlert('An error occurred. Please try again.', 'error');
+        })
+        .finally(() => {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="fas fa-paper-plane mr-2"></i>Post Comment';
+        });
+    }
+    
+    // Handle reply form submission
+    function handleReplySubmit(e, parentId) {
+        e.preventDefault();
+        
+        const form = e.target;
+        const name = form.querySelector(`[name="reply-name-${parentId}"]`).value.trim();
+        const comment = form.querySelector(`[name="reply-text-${parentId}"]`).value.trim();
+        
+        if (!name || !comment) {
+            showAlert('Please fill in all fields', 'error');
+            return;
+        }
+        
+        const data = {
+            name: name,
+            comment: comment,
+            parent_id: parentId
+        };
+        
+        if (commentConfig.targetType === 'manga') {
+            data.manga_id = commentConfig.targetId;
+        } else {
+            data.chapter_id = commentConfig.targetId;
+        }
+        
+        fetch('/manga/ajax/comments/add/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showAlert('Reply posted successfully!', 'success');
+                hideReplyForm(parentId);
+                loadComments(); // Reload comments
+            } else {
+                showAlert(data.error || 'Failed to post reply', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showAlert('An error occurred. Please try again.', 'error');
+        });
+    }
+    
+    // Show reply form
+    function showReplyForm(commentId, replyingTo) {
+        // Hide all other reply forms
+        document.querySelectorAll('[id^="reply-form-"]').forEach(form => {
+            form.classList.add('hidden');
+        });
+        
+        // Show this reply form
+        const replyForm = document.getElementById(`reply-form-${commentId}`);
+        replyForm.classList.remove('hidden');
+        
+        // Focus on name input
+        replyForm.querySelector('input').focus();
+    }
+    
+    // Hide reply form
+    function hideReplyForm(commentId) {
+        document.getElementById(`reply-form-${commentId}`).classList.add('hidden');
+    }
+    
+    // Update comment count
+    function updateCommentCount(count) {
+        document.getElementById('count-number').textContent = count;
+    }
+    
+    // Show alert message
+    function showAlert(message, type) {
+        const alert = document.getElementById('comment-alert');
+        alert.className = `mt-4 p-4 rounded-lg ${type === 'success' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'}`;
+        alert.innerHTML = `
+            <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'} mr-2"></i>
+            ${message}
+        `;
+        alert.classList.remove('hidden');
+        
+        setTimeout(() => {
+            alert.classList.add('hidden');
+        }, 5000);
+    }
+    
+    // Show error message
+    function showError(message) {
+        const loading = document.getElementById('comments-loading');
+        loading.innerHTML = `
+            <i class="fas fa-exclamation-triangle text-3xl text-red-500 mb-2"></i>
+            <p class="text-red-600 dark:text-red-400">${message}</p>
+        `;
+    }
+    
+    // Escape HTML to prevent XSS
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+</script>

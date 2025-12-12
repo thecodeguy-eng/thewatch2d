@@ -25,6 +25,10 @@ from .models import DownloadLink
 from django.core.cache import cache
 from django.db.models import F
 
+# Add these imports at the top of views.py
+from django.template.loader import render_to_string
+from django.views.decorators.http import require_POST
+
 # Cache key constants
 SIDEBAR_CATEGORIES_CACHE_KEY = 'sidebar_categories_v2'
 CACHE_VERSION = 1
@@ -183,7 +187,7 @@ class CategoryMoviesView(ListView):
         context['categories'] = get_sidebar_categories()
         return context
 
-@method_decorator(cache_page(60 * 60 * 2), name='dispatch')  # 2 hours
+
 class MovieDetailView(DetailView):
     model = Movie
     template_name = 'movies/movie_detail.html'
@@ -215,7 +219,14 @@ class MovieDetailView(DetailView):
         
         context['is_liked'] = user.is_authenticated and user in liked_users
         context['is_watchlisted'] = user.is_authenticated and user in watchlisted_users
-        context['comments'] = movie.comments.select_related('user').order_by('-created_at')
+        
+        # Updated comments query - only top-level comments with replies prefetched
+        context['comments'] = movie.comments.filter(
+            parent__isnull=True
+        ).select_related('user').prefetch_related(
+            'replies__user'
+        ).order_by('-created_at')
+        
         context['comment_form'] = CommentForm()
 
         # Related movies
@@ -376,3 +387,161 @@ def sync_offline_actions(request):
             return JsonResponse({'success': False, 'error': str(e)})
     
     return JsonResponse({'success': False, 'error': 'Invalid method'})
+
+# Add these view functions to your views.py
+
+@require_POST
+def add_comment(request, pk):
+    """
+    Add a comment to a movie (AJAX endpoint)
+    Supports both authenticated and anonymous users
+    """
+    movie = get_object_or_404(Movie, pk=pk)
+    
+    # Check if AJAX request
+    is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+    
+    content = request.POST.get('content', '').strip()
+    
+    if not content:
+        if is_ajax:
+            return JsonResponse({
+                'success': False,
+                'message': 'Comment cannot be empty'
+            })
+        messages.error(request, 'Comment cannot be empty')
+        return redirect(movie.get_absolute_url())
+    
+    # Create comment
+    comment = Comment()
+    comment.movie = movie
+    comment.content = content
+    
+    if request.user.is_authenticated:
+        comment.user = request.user
+    else:
+        guest_name = request.POST.get('name', '').strip()
+        if not guest_name:
+            if is_ajax:
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Please provide your name'
+                })
+            messages.error(request, 'Please provide your name')
+            return redirect(movie.get_absolute_url())
+        comment.guest_name = guest_name
+    
+    comment.save()
+    
+    if is_ajax:
+        # Render the comment HTML
+        html = render_to_string('movies/components/comment_item.html', {
+            'comment': comment,
+            'movie': movie,
+            'user': request.user
+        })
+        
+        return JsonResponse({
+            'success': True,
+            'message': 'Comment posted successfully!',
+            'html': html,
+            'comment_id': comment.id
+        })
+    
+    messages.success(request, 'Comment posted successfully!')
+    return redirect(movie.get_absolute_url() + '#comments-section')
+
+
+@require_POST
+def add_reply(request, movie_pk, comment_pk):
+    """
+    Add a reply to a comment (AJAX endpoint)
+    """
+    movie = get_object_or_404(Movie, pk=movie_pk)
+    parent_comment = get_object_or_404(Comment, pk=comment_pk)
+    
+    # Check if AJAX request
+    is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+    
+    content = request.POST.get('content', '').strip()
+    
+    if not content:
+        if is_ajax:
+            return JsonResponse({
+                'success': False,
+                'message': 'Reply cannot be empty'
+            })
+        messages.error(request, 'Reply cannot be empty')
+        return redirect(movie.get_absolute_url())
+    
+    # Create reply
+    reply = Comment()
+    reply.movie = movie
+    reply.parent = parent_comment
+    reply.content = content
+    
+    if request.user.is_authenticated:
+        reply.user = request.user
+    else:
+        guest_name = request.POST.get('name', '').strip()
+        if not guest_name:
+            if is_ajax:
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Please provide your name'
+                })
+            messages.error(request, 'Please provide your name')
+            return redirect(movie.get_absolute_url())
+        reply.guest_name = guest_name
+    
+    reply.save()
+    
+    if is_ajax:
+        # Render the reply HTML
+        html = render_to_string('movies/components/comment_item.html', {
+            'comment': reply,
+            'movie': movie,
+            'user': request.user
+        })
+        
+        return JsonResponse({
+            'success': True,
+            'message': 'Reply posted successfully!',
+            'html': html,
+            'comment_id': reply.id
+        })
+    
+    messages.success(request, 'Reply posted successfully!')
+    return redirect(movie.get_absolute_url() + '#comments-section')
+
+
+@require_POST
+def delete_comment(request, pk):
+    """
+    Delete a comment (only owner or staff)
+    """
+    comment = get_object_or_404(Comment, pk=pk)
+    movie = comment.movie
+    
+    # Check permissions
+    if request.user.is_authenticated and (request.user == comment.user or request.user.is_staff):
+        comment.delete()
+        
+        # Check if AJAX request
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({
+                'success': True,
+                'message': 'Comment deleted successfully'
+            })
+        
+        messages.success(request, 'Comment deleted successfully')
+    else:
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({
+                'success': False,
+                'message': 'You do not have permission to delete this comment'
+            })
+        
+        messages.error(request, 'You do not have permission to delete this comment')
+    
+    return redirect(movie.get_absolute_url() + '#comments-section')

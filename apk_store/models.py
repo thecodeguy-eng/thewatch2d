@@ -103,7 +103,7 @@ class APK(models.Model):
         super().save(*args, **kwargs)
 
     def get_absolute_url(self):
-        return reverse('apk_detail', kwargs={'slug': self.slug})
+        return reverse('apk_store:apk_detail', kwargs={'slug': self.slug})
 
 
 class Screenshot(models.Model):
@@ -171,3 +171,29 @@ class DownloadFile(models.Model):
 
     def __str__(self):
         return f"{self.get_file_type_display()} for {self.apk.title}"
+
+
+
+class Comment(models.Model):
+    apk = models.ForeignKey(APK, on_delete=models.CASCADE, related_name='comments')
+    parent = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='replies')
+    name = models.CharField(max_length=100)
+    email = models.EmailField(blank=True)  # Optional
+    comment_text = models.TextField()
+    is_approved = models.BooleanField(default=True)  # Auto-approve or moderate
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = "Comment"
+        verbose_name_plural = "Comments"
+
+    def __str__(self):
+        return f"Comment by {self.name} on {self.apk.title}"
+
+    def get_replies(self):
+        return self.replies.filter(is_approved=True).order_by('created_at')
+
+
+# ============================================
