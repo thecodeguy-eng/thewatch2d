@@ -147,12 +147,12 @@
         
         <!-- Game Cover -->
         <div class="relative aspect-video bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-900">
-          {% elif game.cover_image %}
+          {% if game.cover_image %}
           <img src="{{ game.cover_image }}" 
                alt="{{ game.title }}"
                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                loading="lazy" />
-         {% if game.screenshots.first %}
+         {% elif game.screenshots.first %}
           <img src="{{ game.screenshots.first.image_url }}" 
                alt="{{ game.title }}"
                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
