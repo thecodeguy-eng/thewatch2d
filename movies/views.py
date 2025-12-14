@@ -80,7 +80,7 @@ def robots_txt(request):
     lines = [
         "User-agent: *",
         "Disallow: /admin/",
-        "Sitemap: https://AlphaGL.store/sitemap.xml",
+        "Sitemap: https://watch2d.com/sitemap.xml",
     ]
     return HttpResponse("\n".join(lines), content_type="text/plain")
 

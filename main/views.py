@@ -11,6 +11,62 @@ from manga.models import Manga, Chapter
 from apk_store.models import APK, Category as APKCategory
 from pc_games.models import Game as PCGame 
 
+
+
+
+# ============================================
+# Custom Error Handlers
+# ============================================
+
+def custom_404_view(request, exception):
+    """
+    Custom 404 Not Found error page
+    """
+    # You can add any context data here
+    context = {
+        'exception': str(exception) if exception else None,
+    }
+    return render(request, '404.html', context, status=404)
+
+
+def custom_500_view(request):
+    """
+    Custom 500 Internal Server Error page
+    """
+    context = {}
+    return render(request, '500.html', context, status=500)
+
+
+def custom_403_view(request, exception):
+    """
+    Custom 403 Forbidden error page
+    """
+    context = {
+        'exception': str(exception) if exception else None,
+    }
+    return render(request, '403.html', context, status=403)
+
+
+def custom_400_view(request, exception):
+    """
+    Custom 400 Bad Request error page
+    """
+    context = {
+        'exception': str(exception) if exception else None,
+    }
+    return render(request, '400.html', context, status=400)
+
+
+def custom_503_view(request):
+    """
+    Custom 503 Service Unavailable page (for maintenance)
+    Call this manually when needed
+    """
+    return render(request, '503.html', status=503)
+
+
+
+@method_decorator(cache_page(60 * 60 * 2), name='dispatch')  # 2 hours instead of 24
 class UnifiedHomeView(TemplateView):
     """
     Unified homepage combining content from all apps:

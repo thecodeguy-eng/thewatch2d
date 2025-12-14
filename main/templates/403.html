@@ -1,0 +1,131 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block title %}403 - Access Forbidden | Watch2D{% endblock %}
+
+{% block content %}
+<div class="min-h-screen flex items-center justify-center px-4 py-16">
+  <div class="max-w-2xl w-full text-center">
+    
+    {# Animated Lock Icon #}
+    <div class="mb-8">
+      <div class="relative inline-block">
+        <svg class="w-64 h-64 text-red-500 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+        </svg>
+        <div class="absolute inset-0 flex items-center justify-center">
+          <span class="text-6xl animate-bounce">🚫</span>
+        </div>
+      </div>
+    </div>
+
+    {# Error Message #}
+    <h1 class="text-6xl lg:text-8xl font-black text-gray-900 dark:text-white mb-4">
+      403
+    </h1>
+    
+    <h2 class="text-2xl lg:text-3xl font-bold text-gray-800 dark:text-gray-200 mb-4">
+      Access Forbidden
+    </h2>
+    
+    <p class="text-lg text-gray-600 dark:text-gray-400 mb-8 max-w-lg mx-auto">
+      Whoa there! 🛑 You don't have permission to access this area. 
+      This section might be restricted or require special access.
+    </p>
+
+    {# Reason Box (Optional - shows if exception message exists) #}
+    {% if exception %}
+    <div class="bg-red-50 dark:bg-red-900/20 border-2 border-red-200 dark:border-red-800 rounded-xl p-6 mb-8 max-w-lg mx-auto">
+      <div class="flex items-start gap-3">
+        <i class="fas fa-exclamation-triangle text-red-500 text-xl mt-1"></i>
+        <div class="text-left">
+          <h3 class="font-bold text-red-800 dark:text-red-300 mb-2">Why am I seeing this?</h3>
+          <p class="text-sm text-red-700 dark:text-red-400">{{ exception }}</p>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
+    {# Action Buttons #}
+    <div class="flex flex-col sm:flex-row gap-4 justify-center mb-12">
+      <a href="{% url 'main:home' %}" 
+         class="inline-flex items-center justify-center px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold rounded-xl hover:scale-105 transition-all shadow-lg hover:shadow-xl">
+        <i class="fas fa-home mr-2"></i>
+        Back to Home
+      </a>
+      
+      <button onclick="history.back()" 
+              class="inline-flex items-center justify-center px-8 py-4 bg-white dark:bg-gray-800 text-gray-900 dark:text-white font-bold rounded-xl hover:scale-105 transition-all shadow-lg border-2 border-gray-200 dark:border-gray-700">
+        <i class="fas fa-arrow-left mr-2"></i>
+        Go Back
+      </button>
+    </div>
+
+    {# Help Section #}
+    <div class="glass-effect rounded-2xl p-8">
+      <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-6">
+        What can I do?
+      </h3>
+      
+      <div class="grid md:grid-cols-3 gap-6 text-left">
+        <div class="flex gap-4">
+          <div class="flex-shrink-0">
+            <div class="w-12 h-12 bg-blue-500 rounded-xl flex items-center justify-center">
+              <i class="fas fa-sign-in-alt text-white text-xl"></i>
+            </div>
+          </div>
+          <div>
+            <h4 class="font-bold text-gray-900 dark:text-white mb-1">Login</h4>
+            <p class="text-sm text-gray-600 dark:text-gray-400">
+              If you have an account, try logging in to access this content
+            </p>
+          </div>
+        </div>
+
+        <div class="flex gap-4">
+          <div class="flex-shrink-0">
+            <div class="w-12 h-12 bg-purple-500 rounded-xl flex items-center justify-center">
+              <i class="fas fa-envelope text-white text-xl"></i>
+            </div>
+          </div>
+          <div>
+            <h4 class="font-bold text-gray-900 dark:text-white mb-1">Contact Us</h4>
+            <p class="text-sm text-gray-600 dark:text-gray-400">
+              Think this is a mistake? Reach out to our support team
+            </p>
+          </div>
+        </div>
+
+        <div class="flex gap-4">
+          <div class="flex-shrink-0">
+            <div class="w-12 h-12 bg-green-500 rounded-xl flex items-center justify-center">
+              <i class="fas fa-home text-white text-xl"></i>
+            </div>
+          </div>
+          <div>
+            <h4 class="font-bold text-gray-900 dark:text-white mb-1">Browse Public Content</h4>
+            <p class="text-sm text-gray-600 dark:text-gray-400">
+              Explore our publicly available movies, anime, and more
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {# Contact Options #}
+    <div class="mt-8 flex justify-center gap-4">
+      <a href="https://t.me/Watch2Dchats" target="_blank" 
+         class="inline-flex items-center gap-2 px-6 py-3 bg-sky-500 text-white rounded-xl hover:bg-sky-600 transition-all">
+        <i class="fab fa-telegram-plane"></i>
+        <span>Telegram Support</span>
+      </a>
+      <a href="https://whatsapp.com/channel/0029VavDAbsEFeXpbo2lEg3f" target="_blank" 
+         class="inline-flex items-center gap-2 px-6 py-3 bg-green-500 text-white rounded-xl hover:bg-green-600 transition-all">
+        <i class="fab fa-whatsapp"></i>
+        <span>WhatsApp</span>
+      </a>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

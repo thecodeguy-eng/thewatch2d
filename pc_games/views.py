@@ -3,7 +3,11 @@ from django.shortcuts import render, get_object_or_404
 from django.core.paginator import Paginator
 from django.db.models import Q, Count
 from .models import Game, Category, Tag, DownloadMirror
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
 
+
+@method_decorator(cache_page(60 * 60 * 2), name='dispatch')  # 4 hours instead of 24
 def game_list(request):
     """List all games with filtering and pagination"""
     games = Game.objects.filter(is_active=True).prefetch_related(
@@ -91,6 +95,8 @@ def game_detail(request, slug):
     return render(request, 'pc_games/game_detail.html', context)
 
 
+
+@method_decorator(cache_page(60 * 60 * 2), name='dispatch')  # 4 hours instead of 24
 def category_list(request):
     """List all categories"""
     categories = Category.objects.annotate(
@@ -111,6 +117,8 @@ def latest_games(request):
     return render(request, 'pc_games/latest.html', context)
 
 
+
+@method_decorator(cache_page(60 * 15), name='dispatch')  # 15mins instead of 24
 def search_games(request):
     """Advanced search functionality"""
     query = request.GET.get('q', '')

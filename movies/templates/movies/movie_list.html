@@ -4,14 +4,14 @@
 
 {# -- SEO Meta Tags -- #}
 {% block title %}
-  {% if category %}{{ category.name }} Movies{% else %}All Movies{% endif %} – AlphaGL
+  {% if category %}{{ category.name }} Movies{% else %}All Movies{% endif %} – Watch2D
 {% endblock %}
 
 {% block meta_description %}
   {% if category %}
-    Browse {{ category.name }} movies on AlphaGL. Download or stream in HD. Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+    Browse {{ category.name }} movies on Watch2D. Download or stream in HD. Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
   {% else %}
-    Browse all movies on AlphaGL. Download or stream in HD. Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+    Browse all movies on Watch2D. Download or stream in HD. Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
   {% endif %}
 {% endblock %}
 
@@ -29,13 +29,13 @@
 
 {% block og_type %}website{% endblock %}
 {% block og_title %}
-  {% if category %}{{ category.name }} Movies – AlphaGL{% else %}All Movies – AlphaGL{% endif %}
+  {% if category %}{{ category.name }} Movies – Watch2D{% else %}All Movies – Watch2D{% endif %}
 {% endblock %}
 {% block og_description %}
   {% if category %}
-    Browse and download {{ category.name }} movies in HD on AlphaGL. Page {{ page_obj.number }}.
+    Browse and download {{ category.name }} movies in HD on Watch2D. Page {{ page_obj.number }}.
   {% else %}
-    Browse and download free movies in HD on AlphaGL. Page {{ page_obj.number }}.
+    Browse and download free movies in HD on Watch2D. Page {{ page_obj.number }}.
   {% endif %}
 {% endblock %}
 {% block og_url %}{{ request.build_absolute_uri }}{% endblock %}
@@ -46,7 +46,7 @@
   {
     "@context": "https://schema.org",
     "@type": "ItemList",
-    "name": "{% if category %}{{ category.name }} Movies{% else %}All Movies{% endif %} – AlphaGL",
+    "name": "{% if category %}{{ category.name }} Movies{% else %}All Movies{% endif %} – Watch2D",
     "itemListElement": [
       {% for movie in movies %}
       {

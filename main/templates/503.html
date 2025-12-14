@@ -1,0 +1,64 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block title %}503 - Service Unavailable | Watch2D{% endblock %}
+
+{% block content %}
+<div class="min-h-screen flex items-center justify-center px-4 py-16">
+  <div class="max-w-2xl w-full text-center">
+    
+    <div class="mb-8">
+      <svg class="w-64 h-64 mx-auto text-indigo-500 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+      </svg>
+    </div>
+
+    <h1 class="text-6xl lg:text-8xl font-black text-gray-900 dark:text-white mb-4">503</h1>
+    <h2 class="text-2xl lg:text-3xl font-bold text-gray-800 dark:text-gray-200 mb-4">Under Maintenance</h2>
+    <p class="text-lg text-gray-600 dark:text-gray-400 mb-8 max-w-lg mx-auto">
+      We're currently performing scheduled maintenance to make Watch2D even better! 
+      We'll be back shortly. Thank you for your patience! 🛠️
+    </p>
+
+    <div class="bg-indigo-50 dark:bg-indigo-900/20 border-2 border-indigo-200 dark:border-indigo-800 rounded-xl p-6 mb-8 max-w-lg mx-auto">
+      <div class="flex items-start gap-3">
+        <i class="fas fa-clock text-indigo-500 text-xl mt-1"></i>
+        <div class="text-left">
+          <h3 class="font-bold text-indigo-800 dark:text-indigo-300 mb-2">Expected Downtime</h3>
+          <p class="text-sm text-indigo-700 dark:text-indigo-400">
+            We're working as fast as we can! The site should be back up within the next hour.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex justify-center gap-4">
+      <a href="https://t.me/Watch2Dchats" target="_blank" class="inline-flex items-center gap-2 px-6 py-3 bg-sky-500 text-white rounded-xl hover:bg-sky-600 transition-all">
+        <i class="fab fa-telegram-plane"></i>
+        <span>Join Telegram for Updates</span>
+      </a>
+    </div>
+
+    <div id="countdown" class="mt-8 text-gray-600 dark:text-gray-400">
+      <p>Auto-refresh in <span id="timer" class="font-bold text-indigo-600">60</span> seconds...</p>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  let seconds = 60;
+  const timerEl = document.getElementById('timer');
+  
+  const countdown = setInterval(() => {
+    seconds--;
+    timerEl.textContent = seconds;
+    
+    if (seconds <= 0) {
+      clearInterval(countdown);
+      location.reload();
+    }
+  }, 1000);
+</script>
+{% endblock %}

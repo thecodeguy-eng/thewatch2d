@@ -1,5 +1,5 @@
-// PWA Registration and Management for AlphaGL
-class AlphaGLPWA {
+// PWA Registration and Management for Watch2D
+class Watch2DPWA {
   constructor() {
     this.deferredPrompt = null;
     this.isInstalled = false;
@@ -34,7 +34,7 @@ class AlphaGLPWA {
                       window.navigator.standalone === true;
     
     if (this.isInstalled) {
-      console.log('AlphaGL PWA is installed');
+      console.log('Watch2D PWA is installed');
       this.hideInstallPrompts();
     }
   }
@@ -85,7 +85,7 @@ class AlphaGLPWA {
 
     // Handle successful installation
     window.addEventListener('appinstalled', () => {
-      console.log('AlphaGL PWA installed successfully');
+      console.log('Watch2D PWA installed successfully');
       this.isInstalled = true;
       this.hideInstallPrompts();
       this.showInstallSuccess();
@@ -118,10 +118,10 @@ class AlphaGLPWA {
     banner.innerHTML = `
       <div class="pwa-banner-content">
         <div class="pwa-banner-icon">
-          <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEi4wf2VISeXx06xSasx_N07k5BysFqDs8N5ysPnYLcVKWIlMHJx2JtobthX3yEE1W-LUgXPuLOHApGnPFMkLOaaVf_JBsPU-qdPiZATVZvCQyRUzI__pdU_OaxfyHRf4BM1hCw7X534tQKBa5wC-50JuchJof0m-q5xxZ2EpxTnw5UOnLwgdyfMpzWMIOE/s1600/alphagl-logo.jpg" alt="AlphaGL" />
+          <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgGDg63ESTUKkQx6xcxK4dBd8LDkHo5VjiLkh1drq5WGGSG1dLVGQdwY7eXuVQ6Rxtz2mVSkcVvK7f7pFk5_4UVQc8uuX5HI_2J5IUZxR7uhvdmjxb-LEBmqR7zDjqiwjJVSmzv1fKtAt6nHr0EiDAMNPTNMq1yUnkdcMsA_9Z4Dasfc8bxJ0pnFLwafJk/s320/logo%20(3).png" alt="Watch2D" />
         </div>
         <div class="pwa-banner-text">
-          <h3>Install AlphaGL App</h3>
+          <h3>Install Watch2D App</h3>
           <p>Get the full app experience with offline access</p>
         </div>
         <div class="pwa-banner-actions">
@@ -191,7 +191,7 @@ class AlphaGLPWA {
 
   // Show install success message
   showInstallSuccess() {
-    this.showToast('AlphaGL app installed successfully! 🎉', 'success');
+    this.showToast('Watch2D app installed successfully! 🎉', 'success');
   }
 
   // Show app update available
@@ -210,7 +210,7 @@ class AlphaGLPWA {
       <div class="pwa-banner-content">
         <div class="pwa-banner-text">
           <h3>Update Available</h3>
-          <p>A new version of AlphaGL is ready</p>
+          <p>A new version of Watch2D is ready</p>
         </div>
         <div class="pwa-banner-actions">
           <button id="pwa-update-btn" class="pwa-btn-update">Update Now</button>
@@ -706,12 +706,12 @@ class AlphaGLPWA {
 document.addEventListener('DOMContentLoaded', () => {
   // Only initialize PWA in modern browsers
   if ('serviceWorker' in navigator && 'Promise' in window) {
-    window.AlphaGLPWA = new AlphaGLPWA();
-    console.log('AlphaGL PWA initialized');
+    window.Watch2DPWA = new Watch2DPWA();
+    console.log('Watch2D PWA initialized');
   } else {
     console.warn('PWA features not supported in this browser');
   }
 });
 
 // Export for global access
-window.AlphaGLPWA = AlphaGLPWA;
+window.Watch2DPWA = Watch2DPWA;

@@ -24,6 +24,64 @@
         <span class="text-[9px] font-semibold mt-0.5">Home</span>
       </a>
 
+      {# Movies #}
+      <a href="{% url 'movies:home' %}" 
+         class="flex flex-col items-center justify-center py-2.5 transition-all relative group
+                {% if 'movies' in request.path %}
+                  text-blue-600 dark:text-blue-400
+                {% else %}
+                  text-gray-500 dark:text-gray-400
+                {% endif %}">
+        <div class="w-10 h-10 flex items-center justify-center rounded-xl mb-0.5 transition-all
+                    {% if 'movies' in request.path %}
+                      bg-blue-100 dark:bg-blue-900/30 scale-100
+                    {% else %}
+                      group-active:scale-90 group-active:bg-gray-100 dark:group-active:bg-gray-800/50
+                    {% endif %}">
+          <i class="fas fa-film text-base"></i>
+        </div>
+        <span class="text-[9px] font-semibold mt-0.5">Movies</span>
+      </a>
+            
+      {# Anime #}
+      <a href="{% url 'anime:list' %}" 
+         class="flex flex-col items-center justify-center py-2.5 transition-all relative group
+                {% if 'anime' in request.path %}
+                  text-purple-600 dark:text-purple-400
+                {% else %}
+                  text-gray-500 dark:text-gray-400
+                {% endif %}">
+        <div class="w-10 h-10 flex items-center justify-center rounded-xl mb-0.5 transition-all
+                    {% if 'anime' in request.path %}
+                      bg-purple-100 dark:bg-purple-900/30 scale-100
+                    {% else %}
+                      group-active:scale-90 group-active:bg-gray-100 dark:group-active:bg-gray-800/50
+                    {% endif %}">
+          <i class="fas fa-play-circle text-base"></i>
+        </div>
+        <span class="text-[9px] font-semibold mt-0.5">Anime</span>
+      </a>
+
+    {# Manga #}
+      <a href="{% url 'manga:list' %}" 
+         class="flex flex-col items-center justify-center py-2.5 transition-all relative group
+                {% if 'manga' in request.path %}
+                  text-pink-600 dark:text-pink-400
+                {% else %}
+                  text-gray-500 dark:text-gray-400
+                {% endif %}">
+        <div class="w-10 h-10 flex items-center justify-center rounded-xl mb-0.5 transition-all
+                    {% if 'manga' in request.path %}
+                      bg-pink-100 dark:bg-pink-900/30 scale-100
+                    {% else %}
+                      group-active:scale-90 group-active:bg-gray-100 dark:group-active:bg-gray-800/50
+                    {% endif %}">
+          <i class="fas fa-book text-base"></i>
+        </div>
+        <span class="text-[9px] font-semibold mt-0.5">Manga</span>
+      </a>
+
+
       {# PC Games - NEW #}
       <a href="{% url 'pc_games:game_list' %}" 
          class="flex flex-col items-center justify-center py-2.5 transition-all relative group
@@ -61,63 +119,6 @@
         </div>
         <span class="text-[9px] font-semibold mt-0.5">Apps</span>
       </a>
-
-      {# Movies #}
-      <a href="{% url 'movies:home' %}" 
-         class="flex flex-col items-center justify-center py-2.5 transition-all relative group
-                {% if 'movies' in request.path %}
-                  text-blue-600 dark:text-blue-400
-                {% else %}
-                  text-gray-500 dark:text-gray-400
-                {% endif %}">
-        <div class="w-10 h-10 flex items-center justify-center rounded-xl mb-0.5 transition-all
-                    {% if 'movies' in request.path %}
-                      bg-blue-100 dark:bg-blue-900/30 scale-100
-                    {% else %}
-                      group-active:scale-90 group-active:bg-gray-100 dark:group-active:bg-gray-800/50
-                    {% endif %}">
-          <i class="fas fa-film text-base"></i>
-        </div>
-        <span class="text-[9px] font-semibold mt-0.5">Movies</span>
-      </a>
-      
-      {# Anime #}
-      <a href="{% url 'anime:list' %}" 
-         class="flex flex-col items-center justify-center py-2.5 transition-all relative group
-                {% if 'anime' in request.path %}
-                  text-purple-600 dark:text-purple-400
-                {% else %}
-                  text-gray-500 dark:text-gray-400
-                {% endif %}">
-        <div class="w-10 h-10 flex items-center justify-center rounded-xl mb-0.5 transition-all
-                    {% if 'anime' in request.path %}
-                      bg-purple-100 dark:bg-purple-900/30 scale-100
-                    {% else %}
-                      group-active:scale-90 group-active:bg-gray-100 dark:group-active:bg-gray-800/50
-                    {% endif %}">
-          <i class="fas fa-play-circle text-base"></i>
-        </div>
-        <span class="text-[9px] font-semibold mt-0.5">Anime</span>
-      </a>
-      
-      {# Manga #}
-      <a href="{% url 'manga:list' %}" 
-         class="flex flex-col items-center justify-center py-2.5 transition-all relative group
-                {% if 'manga' in request.path %}
-                  text-pink-600 dark:text-pink-400
-                {% else %}
-                  text-gray-500 dark:text-gray-400
-                {% endif %}">
-        <div class="w-10 h-10 flex items-center justify-center rounded-xl mb-0.5 transition-all
-                    {% if 'manga' in request.path %}
-                      bg-pink-100 dark:bg-pink-900/30 scale-100
-                    {% else %}
-                      group-active:scale-90 group-active:bg-gray-100 dark:group-active:bg-gray-800/50
-                    {% endif %}">
-          <i class="fas fa-book text-base"></i>
-        </div>
-        <span class="text-[9px] font-semibold mt-0.5">Manga</span>
-      </a>
       
     </div>
   </div>
@@ -141,6 +142,48 @@
       </span>
     </a>
 
+    {# Movies #}
+    <a href="{% url 'movies:home' %}" 
+       class="group relative flex items-center justify-center w-14 h-14 rounded-2xl transition-all
+              {% if 'movies' in request.path %}
+                bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-lg shadow-blue-500/30
+              {% else %}
+                text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:scale-105
+              {% endif %}">
+      <i class="fas fa-film text-xl"></i>
+      <span class="absolute left-full ml-4 px-4 py-2.5 bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-sm font-semibold rounded-xl opacity-0 group-hover:opacity-100 pointer-events-none transition-all whitespace-nowrap shadow-xl scale-90 group-hover:scale-100">
+        Movies
+      </span>
+    </a>
+
+    {# Anime #}
+    <a href="{% url 'anime:list' %}" 
+       class="group relative flex items-center justify-center w-14 h-14 rounded-2xl transition-all
+              {% if 'anime' in request.path %}
+                bg-gradient-to-br from-purple-500 to-purple-600 text-white shadow-lg shadow-purple-500/30
+              {% else %}
+                text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:scale-105
+              {% endif %}">
+      <i class="fas fa-play-circle text-xl"></i>
+      <span class="absolute left-full ml-4 px-4 py-2.5 bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-sm font-semibold rounded-xl opacity-0 group-hover:opacity-100 pointer-events-none transition-all whitespace-nowrap shadow-xl scale-90 group-hover:scale-100">
+        Anime
+      </span>
+    </a>
+
+    {# Manga #}
+    <a href="{% url 'manga:list' %}" 
+       class="group relative flex items-center justify-center w-14 h-14 rounded-2xl transition-all
+              {% if 'manga' in request.path %}
+                bg-gradient-to-br from-pink-500 to-pink-600 text-white shadow-lg shadow-pink-500/30
+              {% else %}
+                text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:scale-105
+              {% endif %}">
+      <i class="fas fa-book text-xl"></i>
+      <span class="absolute left-full ml-4 px-4 py-2.5 bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-sm font-semibold rounded-xl opacity-0 group-hover:opacity-100 pointer-events-none transition-all whitespace-nowrap shadow-xl scale-90 group-hover:scale-100">
+        Manga
+      </span>
+    </a>
+
     {# PC Games - NEW #}
     <a href="{% url 'pc_games:game_list' %}" 
        class="group relative flex items-center justify-center w-14 h-14 rounded-2xl transition-all
@@ -155,6 +198,7 @@
       </span>
     </a>
     
+    
     {# Apps & Games #}
     <a href="{% url 'apk_store:home' %}" 
        class="group relative flex items-center justify-center w-14 h-14 rounded-2xl transition-all
@@ -166,48 +210,6 @@
       <i class="fas fa-mobile-alt text-xl"></i>
       <span class="absolute left-full ml-4 px-4 py-2.5 bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-sm font-semibold rounded-xl opacity-0 group-hover:opacity-100 pointer-events-none transition-all whitespace-nowrap shadow-xl scale-90 group-hover:scale-100">
         Apps & Games
-      </span>
-    </a>
-
-    {# Movies #}
-    <a href="{% url 'movies:home' %}" 
-       class="group relative flex items-center justify-center w-14 h-14 rounded-2xl transition-all
-              {% if 'movies' in request.path %}
-                bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-lg shadow-blue-500/30
-              {% else %}
-                text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:scale-105
-              {% endif %}">
-      <i class="fas fa-film text-xl"></i>
-      <span class="absolute left-full ml-4 px-4 py-2.5 bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-sm font-semibold rounded-xl opacity-0 group-hover:opacity-100 pointer-events-none transition-all whitespace-nowrap shadow-xl scale-90 group-hover:scale-100">
-        Movies
-      </span>
-    </a>
-    
-    {# Anime #}
-    <a href="{% url 'anime:list' %}" 
-       class="group relative flex items-center justify-center w-14 h-14 rounded-2xl transition-all
-              {% if 'anime' in request.path %}
-                bg-gradient-to-br from-purple-500 to-purple-600 text-white shadow-lg shadow-purple-500/30
-              {% else %}
-                text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:scale-105
-              {% endif %}">
-      <i class="fas fa-play-circle text-xl"></i>
-      <span class="absolute left-full ml-4 px-4 py-2.5 bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-sm font-semibold rounded-xl opacity-0 group-hover:opacity-100 pointer-events-none transition-all whitespace-nowrap shadow-xl scale-90 group-hover:scale-100">
-        Anime
-      </span>
-    </a>
-    
-    {# Manga #}
-    <a href="{% url 'manga:list' %}" 
-       class="group relative flex items-center justify-center w-14 h-14 rounded-2xl transition-all
-              {% if 'manga' in request.path %}
-                bg-gradient-to-br from-pink-500 to-pink-600 text-white shadow-lg shadow-pink-500/30
-              {% else %}
-                text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:scale-105
-              {% endif %}">
-      <i class="fas fa-book text-xl"></i>
-      <span class="absolute left-full ml-4 px-4 py-2.5 bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-sm font-semibold rounded-xl opacity-0 group-hover:opacity-100 pointer-events-none transition-all whitespace-nowrap shadow-xl scale-90 group-hover:scale-100">
-        Manga
       </span>
     </a>
   

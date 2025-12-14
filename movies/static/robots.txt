@@ -1,4 +1,4 @@
 User-agent: *
-Disallow: /admin/
+Disallow: /watch2D/watch2d_admin/admin/
 
-Sitemap: https://AlphaGL.store/sitemap.xml
+Sitemap: https://watch2d.com/sitemap.xml

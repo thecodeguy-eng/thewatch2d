@@ -1,0 +1,111 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block title %}404 - Page Not Found | Watch2D{% endblock %}
+
+{% block content %}
+<div class="min-h-screen flex items-center justify-center px-4 py-16">
+  <div class="max-w-2xl w-full text-center">
+    
+    {# Animated 404 Illustration #}
+    <div class="mb-8 animate-bounce">
+      <svg class="w-64 h-64 mx-auto text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+      </svg>
+    </div>
+
+    {# Error Message #}
+    <h1 class="text-6xl lg:text-8xl font-black text-gray-900 dark:text-white mb-4">
+      404
+    </h1>
+    
+    <h2 class="text-2xl lg:text-3xl font-bold text-gray-800 dark:text-gray-200 mb-4">
+      Oops! Page Not Found
+    </h2>
+    
+    <p class="text-lg text-gray-600 dark:text-gray-400 mb-8 max-w-lg mx-auto">
+      The page you're looking for seems to have taken a detour to another dimension. 
+      Let's get you back on track! 🎬
+    </p>
+
+    {# Action Buttons #}
+    <div class="flex flex-col sm:flex-row gap-4 justify-center mb-12">
+      <a href="{% url 'main:home' %}" 
+         class="inline-flex items-center justify-center px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold rounded-xl hover:scale-105 transition-all shadow-lg hover:shadow-xl">
+        <i class="fas fa-home mr-2"></i>
+        Back to Home
+      </a>
+      
+      <button onclick="history.back()" 
+              class="inline-flex items-center justify-center px-8 py-4 bg-white dark:bg-gray-800 text-gray-900 dark:text-white font-bold rounded-xl hover:scale-105 transition-all shadow-lg border-2 border-gray-200 dark:border-gray-700">
+        <i class="fas fa-arrow-left mr-2"></i>
+        Go Back
+      </button>
+    </div>
+
+    {# Quick Links Section #}
+    <div class="glass-effect rounded-2xl p-8">
+      <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-6">
+        Popular Sections
+      </h3>
+      
+      <div class="grid grid-cols-2 lg:grid-cols-5 gap-4">
+        <a href="{% url 'movies:home' %}" 
+           class="flex flex-col items-center p-4 rounded-xl hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all group">
+          <div class="w-12 h-12 bg-blue-500 rounded-xl flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
+            <i class="fas fa-film text-white text-xl"></i>
+          </div>
+          <span class="text-sm font-semibold text-gray-700 dark:text-gray-300">Movies</span>
+        </a>
+
+        <a href="{% url 'anime:list' %}" 
+           class="flex flex-col items-center p-4 rounded-xl hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-all group">
+          <div class="w-12 h-12 bg-purple-500 rounded-xl flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
+            <i class="fas fa-play-circle text-white text-xl"></i>
+          </div>
+          <span class="text-sm font-semibold text-gray-700 dark:text-gray-300">Anime</span>
+        </a>
+
+        <a href="{% url 'manga:list' %}" 
+           class="flex flex-col items-center p-4 rounded-xl hover:bg-pink-50 dark:hover:bg-pink-900/20 transition-all group">
+          <div class="w-12 h-12 bg-pink-500 rounded-xl flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
+            <i class="fas fa-book text-white text-xl"></i>
+          </div>
+          <span class="text-sm font-semibold text-gray-700 dark:text-gray-300">Manga</span>
+        </a>
+
+        <a href="{% url 'pc_games:game_list' %}" 
+           class="flex flex-col items-center p-4 rounded-xl hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-all group">
+          <div class="w-12 h-12 bg-indigo-600 rounded-xl flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
+            <i class="fas fa-gamepad text-white text-xl"></i>
+          </div>
+          <span class="text-sm font-semibold text-gray-700 dark:text-gray-300">PC Games</span>
+        </a>
+
+        <a href="{% url 'apk_store:home' %}" 
+           class="flex flex-col items-center p-4 rounded-xl hover:bg-green-50 dark:hover:bg-green-900/20 transition-all group">
+          <div class="w-12 h-12 bg-green-500 rounded-xl flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
+            <i class="fas fa-mobile-alt text-white text-xl"></i>
+          </div>
+          <span class="text-sm font-semibold text-gray-700 dark:text-gray-300">Mobile</span>
+        </a>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  // Add some fun interaction
+  document.addEventListener('DOMContentLoaded', function() {
+    const svg = document.querySelector('svg');
+    svg.addEventListener('click', function() {
+      this.classList.add('animate-spin');
+      setTimeout(() => {
+        this.classList.remove('animate-spin');
+        this.classList.add('animate-bounce');
+      }, 1000);
+    });
+  });
+</script>
+{% endblock %}

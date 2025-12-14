@@ -7,7 +7,7 @@ from .models import Movie, Category
 class CustomSitemapMixin:
     def get_urls(self, site=None, **kwargs):
         # Force correct domain to prevent Google "URL not allowed" errors
-        site = site or Site(domain='AlphaGL.store', name='AlphaGL')
+        site = site or Site(domain='watch2d.com', name='Watch2D')
         return super().get_urls(site=site, **kwargs)
 
 

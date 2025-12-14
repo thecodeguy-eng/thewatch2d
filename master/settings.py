@@ -14,13 +14,16 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = config('SECRET_KEY', default='your-secret-key-here')
 
 DEBUG = config('DEBUG', default=False, cast=bool)
+# DEBUG = False
 
+# Add your actual domain
 ALLOWED_HOSTS = [
-    'alphagl.vercel.app',
-    '.vercel.app',  # This allows all preview deployments
+    'watch2d.vercel.app',
+    '.vercel.app',
     'localhost',
     '127.0.0.1',
     '.store',
+    '*',  # ← Add this for testing (REMOVE in production!)
 ]
 
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
@@ -89,7 +92,7 @@ TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
-            BASE_DIR / 'main' / 'templates',
+            BASE_DIR / 'main' / 'templates',  # This is the key one!
             BASE_DIR / 'movies' / 'templates',
             BASE_DIR / 'anime' / 'templates',
             BASE_DIR / 'manga' / 'templates',
@@ -122,8 +125,8 @@ WSGI_APPLICATION = 'master.wsgi.application'
 
 # PWA Settings
 PWA_SETTINGS = {
-    'name': 'AlphaGL - Movies, Anime, Manga & Apps',
-    'short_name': 'AlphaGL',
+    'name': 'Watch2D - Movies, Anime, Manga & Apps',
+    'short_name': 'Watch2D',
     'description': 'All entertainment in one place. Stream movies, watch anime, read manga, and download premium APKs.',
     'theme_color': '#3b82f6',
     'background_color': '#ffffff',
@@ -133,12 +136,12 @@ PWA_SETTINGS = {
     'orientation': 'portrait-primary',
     'icons': [
         {
-            'src': 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEi4wf2VISeXx06xSasx_N07k5BysFqDs8N5ysPnYLcVKWIlMHJx2JtobthX3yEE1W-LUgXPuLOHApGnPFMkLOaaVf_JBsPU-qdPiZATVZvCQyRUzI__pdU_OaxfyHRf4BM1hCw7X534tQKBa5wC-50JuchJof0m-q5xxZ2EpxTnw5UOnLwgdyfMpzWMIOE/s1600/alphagl-logo.jpg',
+            'src': 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgGDg63ESTUKkQx6xcxK4dBd8LDkHo5VjiLkh1drq5WGGSG1dLVGQdwY7eXuVQ6Rxtz2mVSkcVvK7f7pFk5_4UVQc8uuX5HI_2J5IUZxR7uhvdmjxb-LEBmqR7zDjqiwjJVSmzv1fKtAt6nHr0EiDAMNPTNMq1yUnkdcMsA_9Z4Dasfc8bxJ0pnFLwafJk/s320/logo%20(3).png',
             'sizes': '192x192',
             'type': 'image/png',
         },
         {
-            'src': 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEi4wf2VISeXx06xSasx_N07k5BysFqDs8N5ysPnYLcVKWIlMHJx2JtobthX3yEE1W-LUgXPuLOHApGnPFMkLOaaVf_JBsPU-qdPiZATVZvCQyRUzI__pdU_OaxfyHRf4BM1hCw7X534tQKBa5wC-50JuchJof0m-q5xxZ2EpxTnw5UOnLwgdyfMpzWMIOE/s1600/alphagl-logo.jpg',
+            'src': 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgGDg63ESTUKkQx6xcxK4dBd8LDkHo5VjiLkh1drq5WGGSG1dLVGQdwY7eXuVQ6Rxtz2mVSkcVvK7f7pFk5_4UVQc8uuX5HI_2J5IUZxR7uhvdmjxb-LEBmqR7zDjqiwjJVSmzv1fKtAt6nHr0EiDAMNPTNMq1yUnkdcMsA_9Z4Dasfc8bxJ0pnFLwafJk/s320/logo%20(3).png',
             'sizes': '512x512',
             'type': 'image/png',
         }
@@ -193,15 +196,15 @@ STATICFILES_DIRS = [
 
 # Static files storage - WhiteNoise configuration
 # Use ManifestStaticFilesStorage for better caching and versioning
+# To this:
 STORAGES = {
     "default": {
         "BACKEND": "django.core.files.storage.FileSystemStorage",
     },
     "staticfiles": {
-        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+        "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",  # ✅ More forgiving
     },
 }
-
 # WhiteNoise settings for better performance
 WHITENOISE_USE_FINDERS = True
 WHITENOISE_MANIFEST_STRICT = False  # Don't fail if a file is missing from manifest
@@ -211,7 +214,7 @@ WHITENOISE_ALLOW_ALL_ORIGINS = True
 CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
-        'LOCATION': 'AlphaGL-cache',
+        'LOCATION': 'Watch2D-cache',
         'OPTIONS': {
             'MAX_ENTRIES': 1000
         }
@@ -228,7 +231,7 @@ OFFLINE_URL = '/offline.html'
 WEBPUSH_SETTINGS = {
     "VAPID_PUBLIC_KEY": "your-vapid-public-key-here",
     "VAPID_PRIVATE_KEY": "your-vapid-private-key-here",
-    "VAPID_ADMIN_EMAIL": "admin@alphagl.store"
+    "VAPID_ADMIN_EMAIL": "admin@watch2d.com"
 }
 
 # Crispy Forms
@@ -237,3 +240,72 @@ CRISPY_TEMPLATE_PACK = "bootstrap5"
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+# Create logs directory
+LOGS_DIR = BASE_DIR / 'logs'
+os.makedirs(LOGS_DIR, exist_ok=True)
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '[{levelname}] {asctime} {module} {process:d} {thread:d} {message}',
+            'style': '{',
+        },
+        'simple': {
+            'format': '[{levelname}] {message}',
+            'style': '{',
+        },
+    },
+    'filters': {
+        'require_debug_false': {
+            '()': 'django.utils.log.RequireDebugFalse',
+        },
+        'require_debug_true': {
+            '()': 'django.utils.log.RequireDebugTrue',
+        },
+    },
+    'handlers': {
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose'
+        },
+        'file': {
+            'level': 'ERROR',
+            'class': 'logging.FileHandler',
+            'filename': LOGS_DIR / 'errors.log',
+            'formatter': 'verbose',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console', 'file'],
+            'level': 'DEBUG',
+            'propagate': False,
+        },
+        'django.request': {
+            'handlers': ['console', 'file'],
+            'level': 'ERROR',
+            'propagate': False,
+        },
+        'django.template': {
+            'handlers': ['console', 'file'],
+            'level': 'DEBUG',
+            'propagate': False,
+        },
+    },
+}
+
+
+
+
+# HOSTING EMAILS:
+    # ibeawuchinzechukwu@gmail.com
+    # enukorafavour7@gmail.com
+    # nzechukwuibeawuchi@gmail.com
+
+# DATABASES EMAIL
+    # nchukwugozirim@gmail.com

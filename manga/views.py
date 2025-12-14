@@ -134,7 +134,7 @@ class DownloadChapterView(View):
         
         return response
 
-# @method_decorator(cache_page(60 * 60 * 4), name='dispatch')  # cache 4h
+@method_decorator(cache_page(60 * 60 * 4), name='dispatch')  # cache 4h
 class MangaListView(ListView):
     model = Manga
     template_name = 'manga/list.html'
@@ -195,7 +195,7 @@ class MangaListView(ListView):
         return context
 
 
-# @method_decorator(cache_page(60 * 15), name='dispatch')  # 15 minutes for search
+@method_decorator(cache_page(60 * 15), name='dispatch')  # 15 minutes for search
 class MangaSearchView(ListView):
     model = Manga
     template_name = 'manga/search_results.html'
@@ -222,7 +222,7 @@ class MangaSearchView(ListView):
         return context
 
 
-# @method_decorator(cache_page(60 * 60 * 4), name='dispatch')
+@method_decorator(cache_page(60 * 60 * 4), name='dispatch')
 class TrendingMangaView(ListView):
     model = Manga
     template_name = 'manga/trending.html'
@@ -235,7 +235,7 @@ class TrendingMangaView(ListView):
         ).select_related('category').prefetch_related('genres').order_by('-views', '-likes')
 
 
-# @method_decorator(cache_page(60 * 60 * 4), name='dispatch')
+@method_decorator(cache_page(60 * 60 * 4), name='dispatch')
 class FeaturedMangaView(ListView):
     model = Manga
     template_name = 'manga/featured.html'
@@ -248,7 +248,7 @@ class FeaturedMangaView(ListView):
         ).select_related('category').prefetch_related('genres').order_by('-created_at')
 
 
-# @method_decorator(cache_page(60 * 60 * 2), name='dispatch')
+@method_decorator(cache_page(60 * 60 * 2), name='dispatch')
 class MangaDetailView(DetailView):
     model = Manga
     template_name = 'manga/detail.html'

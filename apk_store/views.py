@@ -5,8 +5,13 @@ from .models import APK, Category, Screenshot, Comment
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_exempt
+
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
 import json
 
+
+@method_decorator(cache_page(60 * 60 * 4), name='dispatch')  # 4 hours instead of 24
 def home(request):
     """Homepage with featured and latest APKs"""
     featured_apks = APK.objects.filter(is_active=True, featured=True)[:6]
@@ -25,6 +30,7 @@ def home(request):
     return render(request, 'apk_store/home.html', context)
 
 
+@method_decorator(cache_page(60 * 60 * 4), name='dispatch')  # 4 hours instead of 24
 def apk_list(request):
     """List all APKs with filters"""
     apks = APK.objects.filter(is_active=True).select_related().prefetch_related('categories', 'screenshots')
@@ -98,6 +104,7 @@ def apk_detail(request, slug):
     return render(request, 'apk_store/apk_detail.html', context)
 
 
+@method_decorator(cache_page(60 * 60 * 4), name='dispatch')  # 4 hours instead of 24
 def games_list(request):
     """List only games"""
     games = APK.objects.filter(is_active=True, apk_type='game').select_related().prefetch_related('categories', 'screenshots')
@@ -139,6 +146,7 @@ def games_list(request):
     return render(request, 'apk_store/games_list.html', context)
 
 
+@method_decorator(cache_page(60 * 60 * 4), name='dispatch')  # 4 hours instead of 24
 def apps_list(request):
     """List only apps"""
     apps = APK.objects.filter(is_active=True, apk_type='app').select_related().prefetch_related('categories', 'screenshots')
@@ -180,6 +188,7 @@ def apps_list(request):
     return render(request, 'apk_store/apps_list.html', context)
 
 
+@method_decorator(cache_page(60 * 60 * 2), name='dispatch')  # 4 hours instead of 24
 def category_detail(request, slug):
     """View APKs in a specific category"""
     category = get_object_or_404(Category, slug=slug)
@@ -208,6 +217,7 @@ def category_detail(request, slug):
     return render(request, 'apk_store/category_detail.html', context)
 
 
+@method_decorator(cache_page(60 * 15), name='dispatch')  # 15 minutes for search
 def search(request):
     """Search APKs"""
     query = request.GET.get('q', '')

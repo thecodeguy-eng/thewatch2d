@@ -25,7 +25,7 @@ sitemaps = {
 
 urlpatterns = [
     # Admin
-    path('alphagl/alphagl_admin/admin', admin.site.urls),
+    path('watch2D/watch2d_admin/admin/', admin.site.urls),
     
     # ⭐ UNIFIED HOMEPAGE (Main app) - Now includes PWA URLs
     path('', include('main.urls')),
@@ -56,8 +56,11 @@ urlpatterns = [
     # PWA URLs are now handled by main.urls (included above with path('', include('main.urls')))
 ]
 
-# Custom 404 handler
-handler404 = 'movies.views.custom_404_view'
+# Custom error handlers
+handler404 = 'main.views.custom_404_view'
+handler500 = 'main.views.custom_500_view'
+handler403 = 'main.views.custom_403_view'
+handler400 = 'main.views.custom_400_view'
 
 # Static/Media files in development
 if settings.DEBUG:
