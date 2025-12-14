@@ -66,7 +66,7 @@ def custom_503_view(request):
 
 
 
-@method_decorator(cache_page(60 * 60 * 2), name='dispatch')  # 2 hours instead of 24
+# @method_decorator(cache_page(60 * 60 * 2), name='dispatch')  # 2 hours instead of 24
 class UnifiedHomeView(TemplateView):
     """
     Unified homepage combining content from all apps:
