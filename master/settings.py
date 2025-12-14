@@ -64,7 +64,7 @@ SITE_ID = 1
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',  # Must be after SecurityMiddleware
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # ← Must be here, right after SecurityMiddleware
     "allauth.account.middleware.AccountMiddleware",
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -181,13 +181,16 @@ USE_TZ = True
 # STATIC FILES CONFIGURATION (CRITICAL FOR DEPLOYMENT)
 # =============================================================================
 
-# Static files URL
-STATIC_URL = '/static/'
+# Add these settings if not already present:
+STATICFILES_FINDERS = [
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',  # ← This is crucial for admin
+]
 
-# Directory where collectstatic will gather all static files
+# Make sure these are correct:
+STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-# Additional directories to look for static files
 STATICFILES_DIRS = [
     BASE_DIR / 'main' / 'static',
     BASE_DIR / 'movies' / 'static',
@@ -202,9 +205,11 @@ STORAGES = {
         "BACKEND": "django.core.files.storage.FileSystemStorage",
     },
     "staticfiles": {
-        "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",  # ✅ More forgiving
+        "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
     },
 }
+
+
 # WhiteNoise settings for better performance
 WHITENOISE_USE_FINDERS = True
 WHITENOISE_MANIFEST_STRICT = False  # Don't fail if a file is missing from manifest

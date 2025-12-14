@@ -30,7 +30,7 @@ sitemaps = {
 
 urlpatterns = [
     # Admin
-    path('watch2D/watch2d_admin/admin/', admin.site.urls),
+    path('watch2d/watch2d_admin/admin/', admin.site.urls),
     
     # ⭐ UNIFIED HOMEPAGE (Main app) - Now includes PWA URLs
     path('', include('main.urls')),
