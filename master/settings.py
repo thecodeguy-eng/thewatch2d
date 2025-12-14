@@ -22,7 +22,7 @@ ALLOWED_HOSTS = [
     '.vercel.app',
     'localhost',
     '127.0.0.1',
-    '.store',
+    '.com',
     '*',  # ← Add this for testing (REMOVE in production!)
 ]
 
