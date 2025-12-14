@@ -19,11 +19,11 @@ DEBUG = config('DEBUG', default=False, cast=bool)
 # Add your actual domain
 ALLOWED_HOSTS = [
     'watch2d.vercel.app',
+    'watch2d.com',
     '.vercel.app',
     'localhost',
     '127.0.0.1',
     '.com',
-    '*',  # ← Add this for testing (REMOVE in production!)
 ]
 
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
