@@ -4,7 +4,8 @@ from django.urls import path, include
 from django.contrib.sitemaps.views import sitemap
 from movies.sitemaps import (
     HomeSitemap, SearchSitemap,
-    CategorySitemap, mastermap
+    CategorySitemap, mastermap,
+    AnimeSitemap, MangaSitemap, APKSitemap, PCGamesSitemap  # Add these
 )
 from movies.views import robots_txt
 from django.contrib.auth.views import LogoutView
@@ -17,6 +18,10 @@ sitemaps = {
     'search': SearchSitemap(),
     'categories': CategorySitemap(),
     'movies': mastermap(),
+    'anime': AnimeSitemap(),      # Add
+    'manga': MangaSitemap(),      # Add
+    'apks': APKSitemap(),         # Add
+    'pc_games': PCGamesSitemap(), # Add
 }
 
 # =============================================================================
