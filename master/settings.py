@@ -242,9 +242,6 @@ CRISPY_TEMPLATE_PACK = "bootstrap5"
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
-# Create logs directory
-LOGS_DIR = BASE_DIR / 'logs'
-os.makedirs(LOGS_DIR, exist_ok=True)
 
 LOGGING = {
     'version': 1,
