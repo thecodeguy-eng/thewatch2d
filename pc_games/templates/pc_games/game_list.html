@@ -105,19 +105,14 @@
     {% for game in page_obj %}
     <a href="{% url 'pc_games:game_detail' game.slug %}" 
        class="game-card group relative overflow-hidden rounded-2xl bg-white dark:bg-gray-800 shadow-lg hover:shadow-2xl">
-      
+
       {# Cover Image #}
       <div class="relative h-64 overflow-hidden bg-gradient-to-br from-purple-400 to-indigo-500">
-        {% if game.cover_image %}
-        <img src="{{ game.cover_image }}" 
-             alt="{{ game.title }}"
-             class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-             loading="lazy">
-        {% else %}
-        <div class="flex items-center justify-center h-full">
-          <i class="fas fa-gamepad text-6xl text-white/50"></i>
-        </div>
-        {% endif %}
+        <img src="{{ game.cover_image|default:'https://via.placeholder.com/300x400/4c1d95/ffffff?text=Game' }}" 
+            alt="{{ game.title }}"
+            onerror="this.src='https://via.placeholder.com/300x400/4c1d95/ffffff?text=No+Image'"
+            class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+            loading="lazy">
         
         {# Status Badge #}
         {% if game.status == 'new' %}
