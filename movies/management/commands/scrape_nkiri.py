@@ -7,7 +7,7 @@ import re
 import cloudscraper 
 from urllib.parse import urlparse, unquote
 
-API_URL = 'https://nkiri.co.za/wp-json/wp/v2/posts/'
+API_URL = 'https://thenkiri.ng/wp-json/wp/v2/posts/'
 
 KNOWN_DOWNLOAD_DOMAINS = [
     'dl.downloadwella.com.ng', 'archive.org', 'mega.nz', 'drive.google.com',
@@ -36,7 +36,7 @@ def extract_real_download_link(url):
             headers = {
                 "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
                               "(KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-                "Referer": "https://nkiri.co.za/",
+                "Referer": "https://thenkiri.ng/",
                 "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
                 "Accept-Language": "en-US,en;q=0.9",
                 "Accept-Encoding": "gzip, deflate, br",
@@ -359,7 +359,7 @@ class Command(BaseCommand):
                 media_id = item.get('featured_media')
                 if media_id:
                     try:
-                        img_res = scraper.get(f"https://nkiri.co.za/wp-json/wp/v2/media/{media_id}", headers=headers)
+                        img_res = scraper.get(f"https://thenkiri.ng/wp-json/wp/v2/media/{media_id}", headers=headers)
                         img_res.raise_for_status()
                         image_url = img_res.json().get('source_url', '')
                         print(f"🖼️ Image: {image_url}")
@@ -447,7 +447,7 @@ class Command(BaseCommand):
 
                     for cat_id in item.get('categories', []):
                         try:
-                            r = scraper.get(f"https://nkiri.co.za/wp-json/wp/v2/categories/{cat_id}", headers=headers)
+                            r = scraper.get(f"https://thenkiri.ng/wp-json/wp/v2/categories/{cat_id}", headers=headers)
                             r.raise_for_status()
                             cat_name = r.json().get('name')
                             if cat_name:

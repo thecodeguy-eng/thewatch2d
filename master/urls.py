@@ -57,6 +57,8 @@ urlpatterns = [
     # SEO
     path('sitemap.xml', sitemap, {'sitemaps': sitemaps}, name='sitemap'),
     path("robots.txt", robots_txt),
+
+    path('news/', include('news.urls')),
     
     # PWA URLs are now handled by main.urls (included above with path('', include('main.urls')))
 ]

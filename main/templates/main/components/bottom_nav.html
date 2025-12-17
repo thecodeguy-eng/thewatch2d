@@ -3,7 +3,7 @@
 {# Mobile Bottom Navigation - Collapsible iOS Style #}
 <nav id="bottomNav" class="lg:hidden fixed bottom-0 left-0 right-0 z-50 transition-transform duration-300 safe-area-bottom">
   <div class="mx-3 mb-3 bg-white/95 dark:bg-gray-900/95 backdrop-blur-2xl rounded-3xl shadow-2xl border border-gray-200/50 dark:border-gray-700/50">
-    <div class="grid grid-cols-6 gap-0 px-2">
+    <div class="grid grid-cols-7 gap-0 px-2">
       
       {# Home #}
       <a href="{% url 'main:home' %}" 
@@ -82,23 +82,46 @@
       </a>
 
 
-      {# PC Games - NEW #}
+      {# PC Games #}
       <a href="{% url 'pc_games:game_list' %}" 
          class="flex flex-col items-center justify-center py-2.5 transition-all relative group
                 {% if 'pc-games' in request.path or 'pc_games' in request.path %}
-                  text-blue-600 dark:text-blue-400
+                  text-indigo-600 dark:text-indigo-400
                 {% else %}
                   text-gray-500 dark:text-gray-400
                 {% endif %}">
         <div class="w-10 h-10 flex items-center justify-center rounded-xl mb-0.5 transition-all
                     {% if 'pc-games' in request.path or 'pc_games' in request.path %}
-                      bg-blue-100 dark:bg-blue-900/30 scale-100
+                      bg-indigo-100 dark:bg-indigo-900/30 scale-100
                     {% else %}
                       group-active:scale-90 group-active:bg-gray-100 dark:group-active:bg-gray-800/50
                     {% endif %}">
           <i class="fas fa-gamepad text-base"></i>
         </div>
-        <span class="text-[9px] font-semibold mt-0.5">PC Games</span>
+        <span class="text-[9px] font-semibold mt-0.5">Games</span>
+      </a>
+
+      {# News - NEW with notification badge #}
+      <a href="{% url 'news:home' %}" 
+         class="flex flex-col items-center justify-center py-2.5 transition-all relative group
+                {% if 'news' in request.path %}
+                  text-red-600 dark:text-red-400
+                {% else %}
+                  text-gray-500 dark:text-gray-400
+                {% endif %}">
+        <div class="relative w-10 h-10 flex items-center justify-center rounded-xl mb-0.5 transition-all
+                    {% if 'news' in request.path %}
+                      bg-red-100 dark:bg-red-900/30 scale-100
+                    {% else %}
+                      group-active:scale-90 group-active:bg-gray-100 dark:group-active:bg-gray-800/50
+                    {% endif %}">
+          <i class="fas fa-newspaper text-base"></i>
+          <!-- Notification Badge -->
+          <span class="absolute -top-1 -right-1 w-4 h-4 bg-red-600 text-white text-[8px] font-bold rounded-full flex items-center justify-center shadow-lg animate-pulse">
+            !
+          </span>
+        </div>
+        <span class="text-[9px] font-semibold mt-0.5">News</span>
       </a>
 
       {# Apps #}
@@ -184,17 +207,35 @@
       </span>
     </a>
 
-    {# PC Games - NEW #}
+    {# PC Games #}
     <a href="{% url 'pc_games:game_list' %}" 
        class="group relative flex items-center justify-center w-14 h-14 rounded-2xl transition-all
               {% if 'pc-games' in request.path or 'pc_games' in request.path %}
-                bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-lg shadow-blue-500/30
+                bg-gradient-to-br from-indigo-500 to-indigo-600 text-white shadow-lg shadow-indigo-500/30
               {% else %}
                 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:scale-105
               {% endif %}">
       <i class="fas fa-gamepad text-xl"></i>
       <span class="absolute left-full ml-4 px-4 py-2.5 bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-sm font-semibold rounded-xl opacity-0 group-hover:opacity-100 pointer-events-none transition-all whitespace-nowrap shadow-xl scale-90 group-hover:scale-100">
         PC Games
+      </span>
+    </a>
+
+    {# News - NEW with notification badge #}
+    <a href="{% url 'news:home' %}" 
+       class="group relative flex items-center justify-center w-14 h-14 rounded-2xl transition-all
+              {% if 'news' in request.path %}
+                bg-gradient-to-br from-red-500 to-red-600 text-white shadow-lg shadow-red-500/30
+              {% else %}
+                text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:scale-105
+              {% endif %}">
+      <div class="relative">
+        <i class="fas fa-newspaper text-xl"></i>
+        <!-- Notification Badge -->
+        <span class="absolute -top-2 -right-2 w-3 h-3 bg-red-600 rounded-full shadow-lg animate-pulse"></span>
+      </div>
+      <span class="absolute left-full ml-4 px-4 py-2.5 bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-sm font-semibold rounded-xl opacity-0 group-hover:opacity-100 pointer-events-none transition-all whitespace-nowrap shadow-xl scale-90 group-hover:scale-100">
+        News
       </span>
     </a>
     

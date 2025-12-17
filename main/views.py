@@ -1,17 +1,17 @@
 from django.shortcuts import render
 from django.views.generic import TemplateView
-from django.db.models import Q, Prefetch
+from django.db.models import Q, Prefetch, Count
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
+from django.utils import timezone
 
 # Import models from all apps
 from movies.models import Movie, Category as MovieCategory
 from anime.models import Anime, Episode
 from manga.models import Manga, Chapter
 from apk_store.models import APK, Category as APKCategory
-from pc_games.models import Game as PCGame 
-
-
+from pc_games.models import Game as PCGame
+from news.models import NewsArticle, NewsCategory
 
 
 # ============================================
@@ -22,7 +22,6 @@ def custom_404_view(request, exception):
     """
     Custom 404 Not Found error page
     """
-    # You can add any context data here
     context = {
         'exception': str(exception) if exception else None,
     }
@@ -73,6 +72,7 @@ class UnifiedHomeView(TemplateView):
     - Movies (featured, trending, latest)
     - Anime (latest anime with their episodes)
     - Manga (latest manga with their chapters)
+    - News (featured and latest articles)
     - APKs (featured games & apps)
     - PC Games (latest game repacks)
     """
@@ -95,6 +95,38 @@ class UnifiedHomeView(TemplateView):
         ).order_by('-created_at')[:12]
         
         context['movie_categories'] = MovieCategory.objects.all()[:6]
+        
+        
+        # ========== NEWS SECTION (NEW!) ==========
+        # Featured news articles (for breaking news ticker and hero)
+        context['featured_news'] = NewsArticle.objects.filter(
+            status='published',
+            featured=True
+        ).select_related('category', 'author').order_by('-published_at')[:5]
+        
+        # If no featured articles, use latest
+        if not context['featured_news'].exists():
+            context['featured_news'] = NewsArticle.objects.filter(
+                status='published'
+            ).select_related('category', 'author').order_by('-published_at')[:5]
+        
+        # Latest news articles
+        context['latest_news'] = NewsArticle.objects.filter(
+            status='published'
+        ).select_related('category', 'author').order_by('-published_at')[:8]
+        
+        # Trending news (by views)
+        context['trending_news'] = NewsArticle.objects.filter(
+            status='published'
+        ).select_related('category', 'author').order_by('-views', '-published_at')[:5]
+        
+        # News categories with article count
+        context['news_categories'] = NewsCategory.objects.annotate(
+            article_count=Count('articles', filter=Q(articles__status='published'))
+        ).order_by('-article_count')[:6]
+        
+        # Today's date for news section
+        context['today_date'] = timezone.now()
         
         
         # ========== ANIME SECTION (Latest Anime with Episodes) ==========
@@ -210,7 +242,7 @@ class UnifiedHomeView(TemplateView):
         context['apk_categories'] = APKCategory.objects.all()[:12]
         
         
-        # ========== PC GAMES SECTION (FIXED) ==========
+        # ========== PC GAMES SECTION ==========
         # Get latest PC games with proper prefetch
         context['latest_pc_games'] = PCGame.objects.filter(
             is_active=True
@@ -231,6 +263,7 @@ class UnifiedHomeView(TemplateView):
         context['total_movies'] = Movie.objects.count()
         context['total_anime'] = Anime.objects.filter(is_active=True).count()
         context['total_manga'] = Manga.objects.filter(is_active=True).count()
+        context['total_news'] = NewsArticle.objects.filter(status='published').count()
         context['total_apks'] = APK.objects.filter(is_active=True).count()
         context['total_pc_games'] = PCGame.objects.filter(is_active=True).count()
         
