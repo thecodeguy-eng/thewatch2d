@@ -151,7 +151,7 @@
     </div>
   </div>
 
-  {# Trailer Section #}
+{# Trailer Section #}
   <div id="trailer-section" class="container mx-auto px-4 py-12">
     <div class="max-w-4xl mx-auto">
       
@@ -188,54 +188,15 @@
       {# Video Player #}
       <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl overflow-hidden border border-gray-200 dark:border-gray-700">
         {% if movie.video_url %}
-          {# Check if it's a YouTube URL #}
-          {% if "youtube.com" in movie.video_url or "youtu.be" in movie.video_url %}
-            <div class="w-full aspect-video bg-black">
-              <iframe class="w-full h-full" 
-                      src="{{ movie.video_url }}" 
-                      title="Movie Trailer"
-                      frameborder="0" 
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                      allowfullscreen>
-              </iframe>
+          {# Video Container - JavaScript will handle the embed #}
+          <div id="video-container" class="w-full aspect-video bg-black" data-video-url="{{ movie.video_url }}" data-poster="{{ movie.image_url }}">
+            <div class="flex items-center justify-center h-full">
+              <div class="text-center text-white">
+                <i class="fas fa-spinner fa-spin text-4xl mb-4"></i>
+                <p>Loading video...</p>
+              </div>
             </div>
-          
-          {# Check if it's a Vimeo URL #}
-          {% elif "vimeo.com" in movie.video_url %}
-            <div class="w-full aspect-video bg-black">
-              <iframe class="w-full h-full" 
-                      src="{{ movie.video_url }}" 
-                      title="Movie Trailer"
-                      frameborder="0" 
-                      allow="autoplay; fullscreen; picture-in-picture" 
-                      allowfullscreen>
-              </iframe>
-            </div>
-          
-          {# Direct video file #}
-          {% else %}
-            {% with video_lower=movie.video_url|lower %}
-              {% if ".mp4" in video_lower or ".webm" in video_lower or ".mov" in video_lower %}
-                <video class="w-full aspect-video bg-black" 
-                       controls 
-                       playsinline 
-                       poster="{{ movie.image_url }}">
-                  <source src="{{ movie.video_url }}" type="video/mp4">
-                  <p class="text-white p-4">Your browser does not support the video tag.</p>
-                </video>
-              {% else %}
-                {# Generic embed (for other platforms) #}
-                <div class="w-full aspect-video bg-black">
-                  <iframe class="w-full h-full" 
-                          src="{{ movie.video_url }}" 
-                          title="Movie Trailer"
-                          frameborder="0" 
-                          allowfullscreen>
-                  </iframe>
-                </div>
-              {% endif %}
-            {% endwith %}
-          {% endif %}
+          </div>
           
         {% else %}
           <div class="p-12 text-center">
@@ -261,6 +222,136 @@
       {% endif %}
     </div>
   </div>
+
+  {# JavaScript to handle video embedding #}
+  <script>
+    (function() {
+      const container = document.getElementById('video-container');
+      if (!container) return;
+      
+      const videoUrl = container.getAttribute('data-video-url');
+      const posterUrl = container.getAttribute('data-poster');
+      
+      if (!videoUrl) return;
+      
+      // Function to extract YouTube video ID
+      function getYouTubeId(url) {
+        const patterns = [
+          /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\?\/]+)/,
+          /youtube\.com\/watch\?.*v=([^&]+)/
+        ];
+        
+        for (const pattern of patterns) {
+          const match = url.match(pattern);
+          if (match && match[1]) {
+            return match[1].split('?')[0].split('&')[0];
+          }
+        }
+        return null;
+      }
+      
+      // Function to extract Vimeo video ID
+      function getVimeoId(url) {
+        const patterns = [
+          /vimeo\.com\/(\d+)/,
+          /player\.vimeo\.com\/video\/(\d+)/
+        ];
+        
+        for (const pattern of patterns) {
+          const match = url.match(pattern);
+          if (match && match[1]) {
+            return match[1];
+          }
+        }
+        return null;
+      }
+      
+      // Function to check if URL is a direct video file
+      function isDirectVideo(url) {
+        const videoExtensions = ['.mp4', '.webm', '.mov', '.avi', '.mkv'];
+        const lowerUrl = url.toLowerCase();
+        return videoExtensions.some(ext => lowerUrl.includes(ext));
+      }
+      
+      // Create iframe element
+      function createIframe(src, title = 'Video Player') {
+        const iframe = document.createElement('iframe');
+        iframe.className = 'w-full h-full';
+        iframe.src = src;
+        iframe.title = title;
+        iframe.frameBorder = '0';
+        iframe.allowFullscreen = true;
+        iframe.setAttribute('referrerpolicy', 'strict-origin-when-cross-origin');
+        return iframe;
+      }
+      
+      // Create video element
+      function createVideoElement(src, poster) {
+        const video = document.createElement('video');
+        video.className = 'w-full aspect-video bg-black';
+        video.controls = true;
+        video.playsInline = true;
+        if (poster) video.poster = poster;
+        
+        const source = document.createElement('source');
+        source.src = src;
+        source.type = 'video/mp4';
+        video.appendChild(source);
+        
+        return video;
+      }
+      
+      // Determine video type and create appropriate element
+      let videoElement;
+      
+      // Check for YouTube
+      const youtubeId = getYouTubeId(videoUrl);
+      if (youtubeId) {
+        const embedUrl = `https://www.youtube-nocookie.com/embed/${youtubeId}`;
+        videoElement = createIframe(embedUrl, 'Movie Trailer');
+        videoElement.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+      }
+      // Check for Vimeo
+      else if (videoUrl.includes('vimeo.com')) {
+        const vimeoId = getVimeoId(videoUrl);
+        if (vimeoId) {
+          const embedUrl = `https://player.vimeo.com/video/${vimeoId}`;
+          videoElement = createIframe(embedUrl, 'Movie Trailer');
+          videoElement.allow = 'autoplay; fullscreen; picture-in-picture';
+        } else {
+          videoElement = createIframe(videoUrl, 'Movie Trailer');
+          videoElement.allow = 'autoplay; fullscreen; picture-in-picture';
+        }
+      }
+      // Check for direct video file
+      else if (isDirectVideo(videoUrl)) {
+        videoElement = createVideoElement(videoUrl, posterUrl);
+      }
+      // Generic embed for other platforms
+      else {
+        videoElement = createIframe(videoUrl, 'Movie Trailer');
+        videoElement.allowFullscreen = true;
+      }
+      
+      // Clear loading state and insert video
+      if (videoElement) {
+        container.innerHTML = '';
+        container.appendChild(videoElement);
+      } else {
+        container.innerHTML = `
+          <div class="flex items-center justify-center h-full">
+            <div class="text-center text-white p-8">
+              <i class="fas fa-exclamation-triangle text-4xl mb-4 text-yellow-400"></i>
+              <p class="mb-2">Unable to load video</p>
+              <a href="${videoUrl}" target="_blank" class="text-blue-400 hover:text-blue-300 underline text-sm">
+                Watch on external site <i class="fas fa-external-link-alt ml-1"></i>
+              </a>
+            </div>
+          </div>
+        `;
+      }
+    })();
+  </script>
   
   {# Streaming Section #}
   <div id="streaming-section" class="container mx-auto px-4 py-12">
