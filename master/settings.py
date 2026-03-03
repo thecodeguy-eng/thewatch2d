@@ -252,9 +252,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 # HOSTING EMAILS:
-    # ibeawuchinzechukwu@gmail.com
-    # enukorafavour7@gmail.com
-    # nzechukwuibeawuchi@gmail.com
+    # udsn.defence@gmail.com
 
 # DATABASES EMAIL
     # nchukwugozirim@gmail.com

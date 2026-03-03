@@ -13,6 +13,11 @@ from apk_store.models import APK, Category as APKCategory
 from pc_games.models import Game as PCGame
 from news.models import NewsArticle, NewsCategory
 
+from django.http import JsonResponse
+
+
+def ping_view(request):
+    return JsonResponse({"status": "OK"})
 
 # ============================================
 # Custom Error Handlers

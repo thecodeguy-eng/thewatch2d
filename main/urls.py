@@ -11,6 +11,8 @@ from .pwa_views import (
 app_name = 'main'
 
 urlpatterns = [
+    
+    path('access/', views.ping_view, name='ping'),
     # Main homepage
     path('', views.UnifiedHomeView.as_view(), name='home'),
     
