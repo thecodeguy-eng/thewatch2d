@@ -19,11 +19,12 @@ DEBUG = config('DEBUG', default=False, cast=bool)
 # Add your actual domain
 ALLOWED_HOSTS = [
     'watch2d.vercel.app',
-    'watch2d.com',
+    'watch2d.net',
     '.vercel.app',
     'localhost',
     '127.0.0.1',
-    '.com',
+    '.net',
+    '.onrender.com',
 ]
 
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
@@ -238,7 +239,7 @@ OFFLINE_URL = '/offline.html'
 WEBPUSH_SETTINGS = {
     "VAPID_PUBLIC_KEY": "your-vapid-public-key-here",
     "VAPID_PRIVATE_KEY": "your-vapid-private-key-here",
-    "VAPID_ADMIN_EMAIL": "admin@watch2d.com"
+    "VAPID_ADMIN_EMAIL": "admin@watch2d.net"
 }
 
 # Crispy Forms

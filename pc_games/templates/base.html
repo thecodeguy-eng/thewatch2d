@@ -21,7 +21,7 @@
   
   {# -- Canonical URL (Dynamic) -- #}
   {% block canonical_block %}
-    <link rel="canonical" href="https://watch2d.com{{ request.path }}" />
+    <link rel="canonical" href="https://watch2d.net{{ request.path }}" />
   {% endblock %}
 
   {# -- Open Graph Tags -- #}
@@ -29,9 +29,9 @@
   <meta property="og:type" content="{% block og_type %}website{% endblock %}" />
   <meta property="og:title" content="{% block og_title %}Watch2D - Stream Movies, Anime, Manga & Download Games{% endblock %}" />
   <meta property="og:description" content="{% block og_description %}Free streaming and downloads. Movies like Netnaija, Nkiri. Anime, Manga, PC Games, and APKs all in one place.{% endblock %}" />
-  <meta property="og:url" content="https://watch2d.com{{ request.path }}" />
+  <meta property="og:url" content="https://watch2d.net{{ request.path }}" />
   <meta property="og:site_name" content="Watch2D" />
-  <meta property="og:image" content="{% block og_image %}https://watch2d.com{% static 'images/watch2d-default-og.jpg' %}{% endblock %}" />
+  <meta property="og:image" content="{% block og_image %}https://watch2d.net{% static 'images/watch2d-default-og.jpg' %}{% endblock %}" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
 
@@ -39,7 +39,7 @@
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="{% block twitter_title %}Watch2D - Free Entertainment Hub{% endblock %}" />
   <meta name="twitter:description" content="{% block twitter_description %}Movies, Anime, Manga, Games & APKs - all free on Watch2D{% endblock %}" />
-  <meta name="twitter:image" content="{% block twitter_image %}https://watch2d.com{% static 'images/watch2d-default-twitter.jpg' %}{% endblock %}" />
+  <meta name="twitter:image" content="{% block twitter_image %}https://watch2d.net{% static 'images/watch2d-default-twitter.jpg' %}{% endblock %}" />
 
   {# -- Favicon -- #}
   <link rel="icon" type="image/png" href="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgGDg63ESTUKkQx6xcxK4dBd8LDkHo5VjiLkh1drq5WGGSG1dLVGQdwY7eXuVQ6Rxtz2mVSkcVvK7f7pFk5_4UVQc8uuX5HI_2J5IUZxR7uhvdmjxb-LEBmqR7zDjqiwjJVSmzv1fKtAt6nHr0EiDAMNPTNMq1yUnkdcMsA_9Z4Dasfc8bxJ0pnFLwafJk/s320/logo%20(3).png" />
@@ -52,7 +52,7 @@
     "@type": "WebSite",
     "name": "Watch2D",
     "alternateName": ["Watch 2D", "Watch2D Entertainment"],
-    "url": "https://watch2d.com/",
+    "url": "https://watch2d.net/",
     "description": "Free entertainment hub for movies, anime, manga, PC games, and mobile apps",
     "publisher": {
       "@type": "Organization",
@@ -68,7 +68,7 @@
       "@type": "SearchAction",
       "target": {
         "@type": "EntryPoint",
-        "urlTemplate": "https://watch2d.com/search/?q={search_term_string}"
+        "urlTemplate": "https://watch2d.net/search/?q={search_term_string}"
       },
       "query-input": "required name=search_term_string"
     }
