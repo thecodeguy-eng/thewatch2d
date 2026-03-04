@@ -19,11 +19,10 @@ DEBUG = config('DEBUG', default=False, cast=bool)
 # Add your actual domain
 ALLOWED_HOSTS = [
     'watch2d.vercel.app',
-    'watch2d.net',
-    '.vercel.app',
+    'watch2d.org',
     'localhost',
     '127.0.0.1',
-    '.net',
+    '.org',
     '.onrender.com',
 ]
 
