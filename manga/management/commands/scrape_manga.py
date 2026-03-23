@@ -10,6 +10,11 @@ import cloudscraper
 import json
 from datetime import datetime
 
+
+
+# Popunder new ads
+#  Push notifications new ads
+
 class Command(BaseCommand):
     help = 'Scrape manga from ManhuaPlus with enhanced cover extraction'
 

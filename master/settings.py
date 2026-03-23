@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'apk_store',
     'pc_games',
     'news',
+    'automation',
     
     # Other apps
     'django_crontab',
@@ -124,6 +125,16 @@ AUTHENTICATION_BACKENDS = [
 ]
 
 WSGI_APPLICATION = 'master.wsgi.application'
+
+
+# ============================================================
+# TELEGRAM
+# ============================================================
+TELEGRAM_BOT_TOKEN      = config('TELEGRAM_BOT_TOKEN', default='')
+TELEGRAM_MOVIES_CHANNEL = config('TELEGRAM_MOVIES_CHANNEL', default='')
+TELEGRAM_ANIME_CHANNEL  = config('TELEGRAM_ANIME_CHANNEL', default='')
+TELEGRAM_MANGA_CHANNEL  = config('TELEGRAM_MANGA_CHANNEL', default='')
+
 
 # PWA Settings
 PWA_SETTINGS = {

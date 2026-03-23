@@ -7,6 +7,130 @@ import re
 import cloudscraper 
 from urllib.parse import urlparse, unquote
 
+# ── Telegram helper ──────────────────────────────────────────
+def _post_movie_to_telegram(movie, is_new: bool):
+    """Post a movie/series to Telegram immediately after scraping."""
+    try:
+        from django.conf import settings
+        from automation.telegram import send_photo, send_message
+
+        channel = getattr(settings, 'TELEGRAM_MOVIES_CHANNEL', '')
+        site_url = getattr(settings, 'SITE_URL', 'https://watch2d.org')
+        if not channel:
+            return
+
+        url = f"{site_url}/movies/movie/{movie.pk}/"
+
+        # ── Smart hashtag detection ──────────────────────────────
+        title_lower = movie.title.lower()
+        try:
+            cat_names = ' '.join(c.name.lower() for c in movie.categories.all())
+        except Exception:
+            cat_names = ''
+        combined = title_lower + ' ' + cat_names
+
+        if any(kw in combined for kw in [
+            'south africa', 'sa series', 'mzansi', 'inimba', 'ithonga',
+            'pimville', 'generations', 'skeem', 'uzalo', 'isibaya',
+            'rhythm city', 'scandal', 'gomora', 'diep city'
+        ]):
+            new_hashtags  = "#Watch2D #SASeries #SouthAfricanSeries #MzansiMagic #AfricanDrama #Mzansi #AfricanEntertainment #FreeDownload #HDDownload #NowStreaming #MustWatch #BingeWatch"
+            upd_hashtags  = "#Watch2D #NewEpisode #SASeries #SouthAfricanSeries #MzansiMagic #AfricanDrama #Mzansi #AfricanEntertainment #FreeDownload #HDDownload #NowStreaming #MustWatch #BingeWatch"
+
+        elif any(kw in combined for kw in ['korean', 'kdrama', 'k-drama', 'korea']):
+            new_hashtags  = "#Watch2D #KDrama #KoreanDrama #KoreanSeries #KDramaLover #KDramaAddict #AsianDrama #KoreanTV #FreeDownload #HDDownload #NowStreaming #MustWatch #BingeWatch"
+            upd_hashtags  = "#Watch2D #NewEpisode #KDrama #KoreanDrama #KoreanSeries #KDramaLover #KDramaAddict #AsianDrama #FreeDownload #HDDownload #NowStreaming #MustWatch #BingeWatch"
+
+        elif any(kw in combined for kw in ['nigerian', 'nollywood', 'naija', 'nigeria']):
+            new_hashtags  = "#Watch2D #Nollywood #NigerianMovies #NaijaMovies #AfricanMovies #NollywoodSeries #FreeDownload #HDDownload #NowStreaming #MustWatch #BingeWatch"
+            upd_hashtags  = "#Watch2D #NewEpisode #Nollywood #NigerianSeries #NaijaMovies #AfricanDrama #NollywoodSeries #FreeDownload #HDDownload #NowStreaming #MustWatch #BingeWatch"
+
+        elif any(kw in combined for kw in ['turkish', 'turkey', 'dizi']):
+            new_hashtags  = "#Watch2D #TurkishSeries #TurkishDrama #Dizi #TurkishTV #FreeDownload #HDDownload #NowStreaming #MustWatch #BingeWatch"
+            upd_hashtags  = "#Watch2D #NewEpisode #TurkishSeries #TurkishDrama #Dizi #TurkishTV #FreeDownload #HDDownload #NowStreaming #MustWatch #BingeWatch"
+
+        elif any(kw in combined for kw in ['indian', 'bollywood', 'hindi', 'telugu', 'tamil']):
+            new_hashtags  = "#Watch2D #Bollywood #IndianSeries #HindiSeries #IndianDrama #FreeDownload #HDDownload #NowStreaming #MustWatch #BingeWatch"
+            upd_hashtags  = "#Watch2D #NewEpisode #Bollywood #IndianSeries #HindiSeries #IndianDrama #FreeDownload #HDDownload #NowStreaming #MustWatch #BingeWatch"
+
+        elif any(kw in combined for kw in ['chinese', 'china', 'cdrama', 'c-drama']):
+            new_hashtags  = "#Watch2D #CDrama #ChineseDrama #ChineseSeries #AsianDrama #FreeDownload #HDDownload #NowStreaming #MustWatch #BingeWatch"
+            upd_hashtags  = "#Watch2D #NewEpisode #CDrama #ChineseDrama #ChineseSeries #AsianDrama #FreeDownload #HDDownload #NowStreaming #MustWatch #BingeWatch"
+
+        elif movie.is_series:
+            new_hashtags  = "#Watch2D #NewSeries #TVSeries #Series #NowStreaming #FreeDownload #HDDownload #MustWatch #BingeWatch #SeriesAlert #Entertainment"
+            upd_hashtags  = "#Watch2D #NewEpisode #TVSeries #Series #NowStreaming #FreeDownload #HDDownload #MustWatch #BingeWatch #SeriesAlert #Entertainment"
+
+        else:
+            new_hashtags  = "#Watch2D #NewMovie #Hollywood #FullMovie #FreeDownload #HDMovie #NowStreaming #MustWatch #MovieLovers #Cinema #Entertainment"
+            upd_hashtags  = "#Watch2D #NewEpisode #TVSeries #NowStreaming #FreeDownload #HDDownload #MustWatch #BingeWatch #Entertainment"
+        # ─────────────────────────────────────────────────────────
+
+        if is_new:
+            # Brand new movie / series
+            emoji = "🎬" if not movie.is_series else "📺"
+            lines = [f"{emoji} <b>{movie.title}</b>", ""]
+
+            if movie.description:
+                lines += [f"{movie.description[:200]}...", ""]
+
+            cats = movie.categories.all()
+            if cats:
+                lines.append(f"🏷 <b>Genre:</b> {', '.join(c.name for c in cats[:4])}")
+
+            if movie.is_series:
+                status = "✅ Completed" if movie.completed else "🔄 Ongoing Series"
+                lines.append(f"📡 <b>Status:</b> {status}")
+
+            lines += [
+                "",
+                f"🔗 <a href='{url}'>Watch on Watch2D</a>",
+                "",
+                new_hashtags,
+            ]
+
+            # Record so hourly task doesn't double-post
+            from automation.models import TelegramPost
+            TelegramPost.objects.get_or_create(
+                content_type='movie',
+                content_id=movie.id,
+                defaults={'content_title': movie.title, 'success': True},
+            )
+
+        else:
+            # Existing series — new episode update
+            episode_label = movie.title_b or "New Episode"
+            lines = [
+                "🆕 <b>New Episode Available!</b>", "",
+                f"📺 <b>{movie.title}</b>",
+                f"🎬 <b>Episode:</b> {episode_label}",
+                "",
+                f"🔗 <a href='{url}'>Watch Now on Watch2D</a>",
+                "",
+                upd_hashtags,
+            ]
+
+            # Record so hourly task doesn't double-post
+            from automation.models import TelegramUpdate
+            TelegramUpdate.objects.get_or_create(
+                content_type='movie',
+                content_id=movie.id,
+                update_key=episode_label.strip(),
+                defaults={'content_title': movie.title, 'success': True},
+            )
+
+        caption = "\n".join(lines)
+        if movie.image_url:
+            send_photo(channel, movie.image_url, caption)
+        else:
+            send_message(channel, caption)
+
+        print(f"📢 Telegram: {'NEW' if is_new else 'UPDATE'} posted — {movie.title}")
+
+    except Exception as e:
+        print(f"⚠️ Telegram post failed (non-critical): {e}")
+# ─────────────────────────────────────────────────────────────
+
 API_URL = 'https://thenkiri.ng/wp-json/wp/v2/posts/'
 
 KNOWN_DOWNLOAD_DOMAINS = [
@@ -384,6 +508,7 @@ class Command(BaseCommand):
                         )
                         created = True
                         print(f"✅ Created new movie: {title}")
+                        _post_movie_to_telegram(movie, is_new=True)
                     else:
                         updated = False
                         print(f"✏️ Updating existing movie: {movie.title}")
@@ -397,6 +522,8 @@ class Command(BaseCommand):
                             movie.title_b = title_b
                             movie.title_b_updated_at = timezone.now()
                             updated = True
+                            # Post episode update to Telegram immediately
+                            _post_movie_to_telegram(movie, is_new=False)
                             
                         if not movie.video_url and video_url:
                             movie.video_url = video_url
