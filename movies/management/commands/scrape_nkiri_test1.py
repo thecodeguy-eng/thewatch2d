@@ -19,11 +19,12 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 PLATFORM_LINKS = {
     'telegram': 'https://t.me/Watch2D',
-    'twitter':  'https://x.com/watch2download',
+    'twitter':  'https://x.com/Watch2D',
     'facebook': 'https://facebook.com/BigBrotherEntertainmentBlog',
     'website':  'https://watch2d.org',
 }
 
+# ── Cross-platform follow footers ─────────────────────────────
 TELEGRAM_FOOTER = (
     "\n\n"
     "━━━━━━━━━━━━━━━━━━━\n"
@@ -52,14 +53,15 @@ FACEBOOK_FOOTER = (
 
 # ══════════════════════════════════════════════════════════════
 # RATE LIMITER
+# Keeps Facebook & Twitter safe from spam detection.
 # ══════════════════════════════════════════════════════════════
 
 class _RateLimiter:
     def __init__(self):
         self._counts    = {'facebook': 0, 'twitter': 0}
         self._last_post = {'facebook': 0.0, 'twitter': 0.0}
-        self._min_gap   = {'facebook': 45, 'twitter': 60}
-        self._run_cap   = {'facebook': 80, 'twitter': 40}
+        self._min_gap   = {'facebook': 45, 'twitter': 60}   # seconds between posts
+        self._run_cap   = {'facebook': 80, 'twitter': 40}   # max posts per scraper run
 
     def can_post(self, platform: str) -> bool:
         if platform not in self._counts:
@@ -92,140 +94,9 @@ _limiter = _RateLimiter()
 
 
 # ══════════════════════════════════════════════════════════════
-# TWITTER OAuth 2.0 TOKEN MANAGER
-# Handles automatic token refresh so you never have to
-# manually update the token after it expires.
-# Access token expires in 2 hours — refresh token lasts 6 months.
-# ══════════════════════════════════════════════════════════════
-
-class _TwitterTokenManager:
-    """
-    Manages OAuth 2.0 access token refresh automatically.
-    - Caches access token in Django cache (valid ~2 hours)
-    - When X rotates the refresh token, automatically writes the
-      new one back to the .env file so it never goes out of sync.
-    """
-
-    CACHE_KEY = 'twitter_oauth2_access_token'
-
-    @staticmethod
-    def _update_env_refresh_token(new_token: str):
-        """
-        Finds the .env file and updates TWITTER_REFRESH_TOKEN in place.
-        Searches common locations: project root, parent of manage.py, BASE_DIR.
-        """
-        import os, re as _re
-        from django.conf import settings as _s
-
-        candidates = []
-
-        # 1. Django BASE_DIR (most reliable)
-        base_dir = getattr(_s, 'BASE_DIR', None)
-        if base_dir:
-            candidates.append(os.path.join(str(base_dir), '.env'))
-
-        # 2. Current working directory
-        candidates.append(os.path.join(os.getcwd(), '.env'))
-
-        # 3. One level up from cwd
-        candidates.append(os.path.join(os.path.dirname(os.getcwd()), '.env'))
-
-        env_path = None
-        for path in candidates:
-            if os.path.isfile(path):
-                env_path = path
-                break
-
-        if not env_path:
-            print("⚠️ Twitter: Could not find .env file — refresh token NOT saved to disk.")
-            print(f"   ⚠️  SAVE THIS MANUALLY → TWITTER_REFRESH_TOKEN={new_token}")
-            return
-
-        try:
-            with open(env_path, 'r') as f:
-                content = f.read()
-
-            # Replace existing TWITTER_REFRESH_TOKEN line
-            pattern     = r'^(TWITTER_REFRESH_TOKEN\s*=\s*)(.+)$'
-            replacement = rf'\g<1>{new_token}'
-            new_content, n = _re.subn(pattern, replacement, content, flags=_re.MULTILINE)
-
-            if n == 0:
-                # Key doesn't exist yet — append it
-                new_content = content.rstrip('\n') + f'\nTWITTER_REFRESH_TOKEN={new_token}\n'
-
-            with open(env_path, 'w') as f:
-                f.write(new_content)
-
-            print(f"✅ Twitter: New refresh token automatically saved to {env_path}")
-
-        except Exception as e:
-            print(f"⚠️ Twitter: Failed to write new refresh token to .env: {e}")
-            print(f"   ⚠️  SAVE THIS MANUALLY → TWITTER_REFRESH_TOKEN={new_token}")
-
-    def get_valid_token(self) -> str | None:
-        from django.conf import settings
-        from django.core.cache import cache
-
-        # Try cache first (avoids hitting API on every single post)
-        cached = cache.get(self.CACHE_KEY)
-        if cached:
-            return cached
-
-        # Refresh using the stored refresh token
-        client_id     = getattr(settings, 'TWITTER_CLIENT_ID', '')
-        client_secret = getattr(settings, 'TWITTER_CLIENT_SECRET', '')
-        refresh_token = getattr(settings, 'TWITTER_REFRESH_TOKEN', '')
-
-        if not all([client_id, client_secret, refresh_token]):
-            print("⚠️ Twitter OAuth 2.0 credentials missing — skipping.")
-            return None
-
-        print("🔄 Twitter: Refreshing access token...")
-        try:
-            resp = requests.post(
-                'https://api.x.com/2/oauth2/token',
-                auth=(client_id, client_secret),
-                data={
-                    'grant_type':    'refresh_token',
-                    'refresh_token': refresh_token,
-                },
-                timeout=15,
-            )
-            resp.raise_for_status()
-            data         = resp.json()
-            access_token = data.get('access_token')
-            expires_in   = data.get('expires_in', 7200)
-
-            if access_token:
-                # Cache with 10-minute safety buffer before expiry
-                cache.set(self.CACHE_KEY, access_token, timeout=expires_in - 600)
-                print(f"✅ Twitter: Token refreshed (expires in {expires_in // 60} min)")
-
-                # X rotates refresh tokens on every use — save the new one automatically
-                new_refresh = data.get('refresh_token')
-                if new_refresh and new_refresh != refresh_token:
-                    print("🔁 Twitter: Refresh token rotated — saving new token to .env...")
-                    # Update in-memory Django settings so the same process uses the new token
-                    settings.TWITTER_REFRESH_TOKEN = new_refresh
-                    # Persist to disk so future runs / restarts use the new token
-                    self._update_env_refresh_token(new_refresh)
-
-                return access_token
-            else:
-                print(f"⚠️ Twitter token refresh failed: {data}")
-                return None
-
-        except Exception as e:
-            print(f"⚠️ Twitter token refresh error: {e}")
-            return None
-
-
-_twitter_token_mgr = _TwitterTokenManager()
-
-
-# ══════════════════════════════════════════════════════════════
-# SHARED HASHTAG LOGIC
+# SHARED HASHTAG LOGIC  (viral-optimised)
+# Returns (telegram_tags, twitter_tags, facebook_tags)
+# Twitter gets max 5 tags — X algo penalises hashtag spam
 # ══════════════════════════════════════════════════════════════
 
 def _detect_hashtags(movie):
@@ -401,31 +272,34 @@ def _post_movie_to_telegram(movie, is_new: bool):
 
 
 # ══════════════════════════════════════════════════════════════
-# TWITTER / X POSTER  (OAuth 2.0 with auto token refresh)
+# TWITTER / X POSTER
+# Algorithm tips applied:
+#  - Short punchy hook as first line (drives clicks)
+#  - Max 5 hashtags (X penalises spam tagging)
+#  - Image always attached (images get 2-3x more impressions)
+#  - Cross-platform footer trimmed if >280 chars
 # ══════════════════════════════════════════════════════════════
 
 def _post_movie_to_twitter(movie, is_new: bool):
-    """
-    Posts using OAuth 2.0 Bearer token with automatic refresh.
-    Token is refreshed automatically when it expires (every 2 hours).
-    Refresh token lasts 6 months — update TWITTER_REFRESH_TOKEN in .env
-    when you see the 'New refresh token received' message in logs.
-    """
     if not _limiter.can_post('twitter'):
         return
 
     try:
         from django.conf import settings
+        import tweepy
+
+        api_key       = getattr(settings, 'TWITTER_API_KEY', '')
+        api_secret    = getattr(settings, 'TWITTER_API_SECRET', '')
+        access_token  = getattr(settings, 'TWITTER_ACCESS_TOKEN', '')
+        access_secret = getattr(settings, 'TWITTER_ACCESS_SECRET', '')
+
+        if not all([api_key, api_secret, access_token, access_secret]):
+            print("⚠️ Twitter credentials missing — skipping.")
+            return
 
         site_url      = getattr(settings, 'SITE_URL', 'https://watch2d.org')
         url           = f"{site_url}/movies/movie/{movie.pk}/"
         _, tw_tags, _ = _detect_hashtags(movie)
-
-        # Get a valid (auto-refreshed) access token
-        access_token = _twitter_token_mgr.get_valid_token()
-        if not access_token:
-            print("⚠️ Twitter: No valid token available — skipping.")
-            return
 
         if is_new:
             emoji = "🎬" if not movie.is_series else "📺"
@@ -448,48 +322,46 @@ def _post_movie_to_twitter(movie, is_new: bool):
                 f"{tw_tags}{TWITTER_FOOTER}"
             )
 
-        # Trim to 280 chars — drop footer first, then hard cut
+        # Trim to 280 — drop footer first, then hard cut
         if len(tweet_text) > 280:
             tweet_text = tweet_text.replace(TWITTER_FOOTER, '').strip()
         tweet_text = tweet_text[:280]
 
-        # Post tweet via X API v2 with OAuth 2.0 Bearer token
-        resp = requests.post(
-            'https://api.x.com/2/tweets',
-            headers={
-                'Authorization': f'Bearer {access_token}',
-                'Content-Type':  'application/json',
-            },
-            json={'text': tweet_text},
-            timeout=15,
+        # Upload image via v1, post via v2
+        media_ids = None
+        if movie.image_url:
+            try:
+                import tempfile, os
+                auth   = tweepy.OAuth1UserHandler(api_key, api_secret, access_token, access_secret)
+                v1_api = tweepy.API(auth)
+
+                img_data = requests.get(movie.image_url, timeout=10).content
+                suffix   = '.jpg' if 'jpg' in movie.image_url.lower() else '.png'
+                with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as tmp:
+                    tmp.write(img_data)
+                    tmp_path = tmp.name
+
+                media     = v1_api.media_upload(tmp_path)
+                media_ids = [media.media_id]
+                os.unlink(tmp_path)
+            except Exception as img_err:
+                print(f"⚠️ Twitter image upload failed (posting without image): {img_err}")
+                media_ids = None
+
+        v2_client = tweepy.Client(
+            consumer_key=api_key,
+            consumer_secret=api_secret,
+            access_token=access_token,
+            access_token_secret=access_secret,
         )
 
-        if resp.status_code == 201:
-            _limiter.record('twitter')
-            print(f"🐦 Twitter: {'NEW' if is_new else 'UPDATE'} posted — {movie.title}")
-        elif resp.status_code == 401:
-            # Token expired mid-run — clear cache and retry once
-            print("🔄 Twitter: Token expired mid-run — clearing cache and retrying...")
-            from django.core.cache import cache
-            cache.delete(_TwitterTokenManager.CACHE_KEY)
-            access_token = _twitter_token_mgr.get_valid_token()
-            if access_token:
-                resp2 = requests.post(
-                    'https://api.x.com/2/tweets',
-                    headers={
-                        'Authorization': f'Bearer {access_token}',
-                        'Content-Type':  'application/json',
-                    },
-                    json={'text': tweet_text},
-                    timeout=15,
-                )
-                if resp2.status_code == 201:
-                    _limiter.record('twitter')
-                    print(f"🐦 Twitter: Posted after token refresh — {movie.title}")
-                else:
-                    print(f"⚠️ Twitter retry failed: {resp2.status_code} {resp2.text}")
+        if media_ids:
+            v2_client.create_tweet(text=tweet_text, media_ids=media_ids)
         else:
-            print(f"⚠️ Twitter post failed: {resp.status_code} {resp.text}")
+            v2_client.create_tweet(text=tweet_text)
+
+        _limiter.record('twitter')
+        print(f"🐦 Twitter: {'NEW' if is_new else 'UPDATE'} posted — {movie.title}")
 
     except Exception as e:
         print(f"⚠️ Twitter post failed (non-critical): {e}")
@@ -779,16 +651,32 @@ class Command(BaseCommand):
     help = 'Scrape thenkiri.ng → save to DB → post to Telegram + Twitter + Facebook'
 
     def add_arguments(self, parser):
-        parser.add_argument('--startpage', type=int, default=1,
-                            help='Page to start from (default: 1)')
-        parser.add_argument('--endpage', type=int, default=None,
-                            help='Page to stop at (optional)')
-        parser.add_argument('--max-pages', type=int, default=None,
-                            help='Max pages this run. Use 2-3 for first bulk run.')
-        parser.add_argument('--no-social', action='store_true', default=False,
-                            help='DB only — skip all social media posting.')
-        parser.add_argument('--telegram-only', action='store_true', default=False,
-                            help='Post to Telegram only — skips Twitter & Facebook.')
+        parser.add_argument(
+            '--startpage', type=int, default=1,
+            help='Page to start from (default: 1)'
+        )
+        parser.add_argument(
+            '--endpage', type=int, default=None,
+            help='Page to stop at (optional)'
+        )
+        parser.add_argument(
+            '--max-pages', type=int, default=None,
+            help=(
+                'Max pages this run. '
+                'USE --max-pages 2 or 3 for your FIRST ever run '
+                'to avoid hitting rate limits on bulk backfill. '
+                'Twitter free = ~1500 tweets/month. '
+                'Facebook safe = ~80 posts/day.'
+            )
+        )
+        parser.add_argument(
+            '--no-social', action='store_true', default=False,
+            help='DB only — skip all social media. Use for bulk backfilling old content.'
+        )
+        parser.add_argument(
+            '--telegram-only', action='store_true', default=False,
+            help='Post to Telegram only — skips Twitter & Facebook rate limits.'
+        )
 
     def clean_title_parts(self, title):
         title       = re.sub(r'\s+', ' ', title).strip()
@@ -830,9 +718,9 @@ class Command(BaseCommand):
         if max_pages:
             print(f"📊 Will scrape maximum {max_pages} pages")
         if no_social:
-            print("🔇 --no-social: DB save only, no social posts")
+            print("🔇 --no-social active: DB save only, no social posts")
         if telegram_only:
-            print("📢 --telegram-only: Telegram posts only")
+            print("📢 --telegram-only active: Telegram posts only")
         if not no_social and not telegram_only and not max_pages:
             print(
                 "⚠️  TIP: First bulk run? Use --max-pages 3 or --no-social\n"

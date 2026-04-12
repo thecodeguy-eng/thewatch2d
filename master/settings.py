@@ -130,21 +130,29 @@ WSGI_APPLICATION = 'master.wsgi.application'
 # ============================================================
 # TELEGRAM
 # ============================================================
+
 TELEGRAM_BOT_TOKEN      = config('TELEGRAM_BOT_TOKEN', default='')
 TELEGRAM_MOVIES_CHANNEL = config('TELEGRAM_MOVIES_CHANNEL', default='')
 TELEGRAM_ANIME_CHANNEL  = config('TELEGRAM_ANIME_CHANNEL', default='')
 TELEGRAM_MANGA_CHANNEL  = config('TELEGRAM_MANGA_CHANNEL', default='')
 
 
-# ── Twitter / X ──────────────────────────────────────────────
-TWITTER_API_KEY      = config('TWITTER_API_KEY',      default='')
-TWITTER_API_SECRET   = config('TWITTER_API_SECRET',   default='')
-TWITTER_ACCESS_TOKEN = config('TWITTER_ACCESS_TOKEN', default='')
-TWITTER_ACCESS_SECRET = config('TWITTER_ACCESS_SECRET', default='')
+
+# ============================================================
+# TWITTER / X (OAuth 2.0)
+# ============================================================
+
+TWITTER_CLIENT_ID     = config('TWITTER_CLIENT_ID',     default='')
+TWITTER_CLIENT_SECRET = config('TWITTER_CLIENT_SECRET', default='')
+TWITTER_REFRESH_TOKEN = config('TWITTER_REFRESH_TOKEN', default='')
+
  
-# ── Facebook Page ─────────────────────────────────────────────
+# ============================================================
+# FACEBOOK
+# ============================================================
 FB_PAGE_ID      = config('FB_PAGE_ID',      default='')
 FB_ACCESS_TOKEN = config('FB_ACCESS_TOKEN', default='')
+ 
 
 
 # PWA Settings

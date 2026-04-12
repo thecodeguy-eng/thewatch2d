@@ -4,8 +4,7 @@ from django.views.generic import TemplateView
 from .views import (
     HomeView,  # ✅ Add this back
     CategoryMoviesView, MovieDetailView,
-    toggle_like, toggle_watchlist, SearchResultsView, ping_view, add_comment, add_reply,
-    delete_comment, resolve_download_link, check_streamable,
+    toggle_like, toggle_watchlist, SearchResultsView, ping_view, add_comment, add_reply, delete_comment
 )
 
 app_name = 'movies'
@@ -32,8 +31,4 @@ urlpatterns = [
     path('movie/<int:pk>/comment/', add_comment, name='add_comment'),
     path('movie/<int:movie_pk>/comment/<int:comment_pk>/reply/', add_reply, name='add_reply'),
     path('comment/<int:pk>/delete/', delete_comment, name='delete_comment'),
-
-    # Live download URL resolver (fetches ?pt= token on-the-fly)
-    path('resolve-download/', resolve_download_link, name='resolve_download'),
-    path('check-streamable/', check_streamable, name='check_streamable'),
 ]

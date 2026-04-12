@@ -353,100 +353,130 @@
     })();
   </script>
   
-  {# ── Streaming Section — hidden until streamability is confirmed ── #}
-  <div id="streaming-section" class="container mx-auto px-4 py-12" style="display:none;">
-    <div class="max-w-5xl mx-auto">
-
+  {# Streaming Section #}
+  <div id="streaming-section" class="container mx-auto px-4 py-12">
+    <div class="max-w-4xl mx-auto">
+      
       {# Section Header #}
-      <div class="flex items-center gap-4 mb-6">
-        <div class="w-1 h-10 bg-gradient-to-b from-green-400 to-emerald-600 rounded-full"></div>
-        <div>
-          <h2 class="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white tracking-tight">
-            {% if movie.completed %}Complete Series{% else %}Stream Now{% endif %}
-          </h2>
-          <p class="text-sm text-gray-500 dark:text-gray-400 mt-0.5">HD · Free · No account needed</p>
+      <div class="text-center mb-8">
+        <div class="inline-flex items-center justify-center mb-4">
+          <div class="w-12 h-12 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center">
+            <i class="fas fa-play text-white text-xl"></i>
+          </div>
+        </div>
+        <h2 class="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-2">
+          {% if movie.completed %}Watch Complete Series{% else %}Stream Movie{% endif %}
+        </h2>
+        <p class="text-gray-600 dark:text-gray-400">
+          High-quality streaming with adaptive playback
+        </p>
+      </div>
+      
+      {# Streaming Notice #}
+      <div class="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-2xl p-6 mb-8">
+        <div class="flex items-start">
+          <div class="flex-shrink-0 w-8 h-8 bg-amber-100 dark:bg-amber-800 rounded-full flex items-center justify-center mr-4">
+            <i class="fas fa-info-circle text-amber-600 dark:text-amber-400"></i>
+          </div>
+          <div>
+            <h3 class="font-semibold text-amber-800 dark:text-amber-200 mb-2">Streaming Notice</h3>
+            <p class="text-amber-700 dark:text-amber-300 text-sm">
+              A stable internet connection is recommended for smooth HD playback. 
+              If streaming doesn't work, try downloading for offline viewing.
+            </p>
+          </div>
         </div>
       </div>
-
-      {# ── Cinema Player Shell ── #}
-      <div id="cinema-shell" class="relative rounded-2xl overflow-hidden shadow-2xl bg-black">
-
+      
+      {# Video Player #}
+      <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl overflow-hidden border border-gray-200 dark:border-gray-700">
         {% if movie.hls_manifest %}
-          <video id="hlsPlayer" class="w-full aspect-video bg-black" controls playsinline poster="{{ movie.image_url }}">
+          {# HLS Streaming #}
+          <video id="hlsPlayer" 
+                 class="w-full aspect-video bg-black"
+                 controls 
+                 playsinline 
+                 poster="{{ movie.image_url }}">
             <source src="{{ movie.hls_manifest.url }}" type="application/vnd.apple.mpegurl" />
+            <p class="text-white p-4">Your browser doesn't support adaptive streaming.</p>
+          </video>
+          
+        {% elif movie.download_links.exists %}
+          {# Episode Selection #}
+          <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+            <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+              <label class="text-sm font-medium text-gray-700 dark:text-gray-300">
+                <i class="fas fa-list mr-2"></i>Select Episode:
+              </label>
+              <select id="episodeSelect"
+                      class="flex-1 p-3 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 dark:text-gray-100">
+                {% for link in movie.download_links.all %}
+                  <option value="{{ link.url }}">{{ link.label|default:"Episode" }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+
+          {# Loading state #}
+          <div id="stream-loading" class="flex items-center justify-center py-16 text-white bg-black">
+            <div class="text-center">
+              <i class="fas fa-spinner fa-spin text-4xl mb-4 text-green-400"></i>
+              <p class="text-gray-300">Resolving stream link...</p>
+            </div>
+          </div>
+
+          {# Error state #}
+          <div id="stream-error" class="hidden p-12 text-center">
+            <i class="fas fa-exclamation-triangle text-amber-500 text-4xl mb-4"></i>
+            <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">Stream Unavailable</h3>
+            <p class="text-gray-600 dark:text-gray-400">Could not load this episode. Try the download option below.</p>
+          </div>
+
+          {# Actual player — hidden until stream URL is resolved #}
+          <video id="episodePlayer"
+                 class="w-full aspect-video bg-black hidden"
+                 controls
+                 playsinline
+                 poster="{{ movie.image_url }}">
+            <p class="text-white p-4">Your browser does not support the video tag.</p>
           </video>
 
-        {% elif movie.download_links.exists %}
-          {# Episode bar #}
-          <div id="episode-bar" class="flex items-center gap-3 px-4 py-3 bg-gray-950/90 border-b border-white/10 backdrop-blur-sm">
-            <span class="text-xs font-semibold text-gray-400 uppercase tracking-widest shrink-0">Episode</span>
-            <select id="episodeSelect"
-                    class="flex-1 bg-gray-800 text-white text-sm px-3 py-2 rounded-lg border border-white/10 focus:outline-none focus:ring-2 focus:ring-green-500 cursor-pointer">
-              {% for link in movie.download_links.all %}
-                <option value="{{ link.url }}">{{ link.label|default:"Episode" }}</option>
-              {% endfor %}
-            </select>
-          </div>
-
-          {# Loading #}
-          <div id="stream-loading" class="flex flex-col items-center justify-center aspect-video bg-black text-white">
-            <div class="cinema-loader mb-4"></div>
-            <p class="text-sm text-gray-400 tracking-wide">Loading stream…</p>
-          </div>
-
-          {# Error #}
-          <div id="stream-error" class="hidden flex-col items-center justify-center aspect-video bg-gray-950 text-center p-8">
-            <div class="w-16 h-16 rounded-full bg-red-500/10 flex items-center justify-center mb-4">
-              <i class="fas fa-exclamation-triangle text-red-400 text-2xl"></i>
-            </div>
-            <h3 class="text-lg font-semibold text-white mb-2">Stream Unavailable</h3>
-            <p class="text-gray-400 text-sm max-w-xs">This episode can't be streamed directly. Use the download option below.</p>
-          </div>
-
-          <video id="episodePlayer" class="w-full aspect-video bg-black hidden" controls playsinline poster="{{ movie.image_url }}"></video>
-
         {% elif movie.download_url %}
-          <div id="stream-loading" class="flex flex-col items-center justify-center aspect-video bg-black text-white">
-            <div class="cinema-loader mb-4"></div>
-            <p class="text-sm text-gray-400 tracking-wide">Loading stream…</p>
-          </div>
-          <div id="stream-error" class="hidden flex-col items-center justify-center aspect-video bg-gray-950 text-center p-8">
-            <div class="w-16 h-16 rounded-full bg-red-500/10 flex items-center justify-center mb-4">
-              <i class="fas fa-exclamation-triangle text-red-400 text-2xl"></i>
+          {# Single Video — resolve on load #}
+          <div id="stream-loading" class="flex items-center justify-center py-16 text-white bg-black">
+            <div class="text-center">
+              <i class="fas fa-spinner fa-spin text-4xl mb-4 text-green-400"></i>
+              <p class="text-gray-300">Resolving stream link...</p>
             </div>
-            <h3 class="text-lg font-semibold text-white mb-2">Stream Unavailable</h3>
-            <p class="text-gray-400 text-sm">Use the download links below instead.</p>
           </div>
-          <video id="episodePlayer" class="w-full aspect-video bg-black hidden" controls playsinline
-                 poster="{{ movie.image_url }}" data-landing="{{ movie.download_url }}"></video>
 
+          <div id="stream-error" class="hidden p-12 text-center">
+            <i class="fas fa-exclamation-triangle text-amber-500 text-4xl mb-4"></i>
+            <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">Streaming Unavailable</h3>
+            <p class="text-gray-600 dark:text-gray-400">This content isn't available for direct streaming. Please use the download links below.</p>
+          </div>
+
+          <video id="episodePlayer"
+                 class="w-full aspect-video bg-black hidden"
+                 controls
+                 playsinline
+                 poster="{{ movie.image_url }}"
+                 data-landing="{{ movie.download_url }}">
+            <p class="text-white p-4">Your browser does not support the video tag.</p>
+          </video>
+          
         {% else %}
-          <div class="flex items-center justify-center aspect-video bg-gray-950">
-            <p class="text-gray-500">No stream available.</p>
+          <div class="p-12 text-center">
+            <i class="fas fa-video-slash text-gray-400 text-4xl mb-4"></i>
+            <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+              No Streaming Available
+            </h3>
+            <p class="text-gray-600 dark:text-gray-400">
+              Streaming links are not available for this content yet.
+            </p>
           </div>
         {% endif %}
-
-        {# Cinematic glow border #}
-        <div class="pointer-events-none absolute inset-0 rounded-2xl ring-1 ring-white/5"></div>
       </div>
-
-      {# Skip-intro / quality pill strip #}
-      <div class="flex flex-wrap items-center gap-3 mt-4 px-1">
-        <span class="inline-flex items-center gap-1.5 text-xs bg-green-500/10 text-green-400 border border-green-500/20 px-3 py-1 rounded-full font-medium">
-          <i class="fas fa-circle text-[6px]"></i> HD Stream
-        </span>
-        <span class="inline-flex items-center gap-1.5 text-xs bg-white/5 text-gray-400 border border-white/10 px-3 py-1 rounded-full">
-          <i class="fas fa-shield-alt text-[10px]"></i> Safe &amp; Ad-controlled
-        </span>
-        <span class="inline-flex items-center gap-1.5 text-xs bg-white/5 text-gray-400 border border-white/10 px-3 py-1 rounded-full">
-          <i class="fas fa-mobile-alt text-[10px]"></i> Mobile Friendly
-        </span>
-        <button onclick="scrollToDownload()"
-                class="ml-auto inline-flex items-center gap-2 text-xs text-gray-400 hover:text-white transition-colors">
-          <i class="fas fa-download"></i> Download instead
-        </button>
-      </div>
-
     </div>
   </div>
   
@@ -664,282 +694,268 @@
   }
 </style>
 
-{# Custom Styles — Cinema Player #}
-<style>
-  /* ── Cinema loader spinner ── */
-  .cinema-loader {
-    width: 48px; height: 48px;
-    border: 3px solid rgba(255,255,255,0.1);
-    border-top-color: #22c55e;
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-  }
-  @keyframes spin { to { transform: rotate(360deg); } }
-
-  /* ── Plyr custom theme ── */
-  :root {
-    --plyr-color-main: #22c55e;
-    --plyr-video-background: #000;
-    --plyr-font-family: 'DM Sans', system-ui, sans-serif;
-    --plyr-control-radius: 6px;
-    --plyr-range-thumb-height: 14px;
-    --plyr-range-fill-background: #22c55e;
-    --plyr-video-controls-background: linear-gradient(transparent, rgba(0,0,0,0.85));
-    --plyr-badge-background: #22c55e;
-  }
-  .plyr--video { border-radius: 0; }
-  .plyr__controls { padding: 16px 20px 12px !important; }
-  .plyr__control--overlaid {
-    background: rgba(34,197,94,0.9) !important;
-    backdrop-filter: blur(8px);
-    transform: scale(1.1);
-  }
-  .plyr__control--overlaid:hover { background: #16a34a !important; transform: scale(1.15); }
-
-  /* ── Episode select ── */
-  #episodeSelect option { background: #1f2937; }
-
-  /* ── Stream section fade-in ── */
-  #streaming-section { animation: fadeUp 0.4s ease both; }
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(16px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
-
-  /* ── Pill strip ── */
-  #cinema-shell video { display: block; }
-</style>
-
 {# JavaScript #}
 <script>
-  // ── Scroll helpers ────────────────────────────────────────────────────────
-  function scrollToTrailer()  { document.getElementById('trailer-section').scrollIntoView({ behavior: 'smooth' }); }
-  function scrollToPlayer()   { document.getElementById('streaming-section').scrollIntoView({ behavior: 'smooth' }); }
-  function scrollToDownload() { document.getElementById('download-section').scrollIntoView({ behavior: 'smooth' }); }
+  // ─── Smooth scroll helpers ───────────────────────────────────────────────
+  function scrollToTrailer() {
+    document.getElementById('trailer-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+  function scrollToPlayer() {
+    document.getElementById('streaming-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+  function scrollToDownload() {
+    document.getElementById('download-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
 
-  // ── URL resolver ──────────────────────────────────────────────────────────
+  // ─── URL resolver ────────────────────────────────────────────────────────
   const _resolveCache = {};
 
+  // Normalise a landing URL before resolving:
+  // Format 2: sabishares.com/file/File.mkv?preview → strip ?preview = direct link
   function normaliseUrl(url) {
     try {
       const u = new URL(url);
-      if (u.hostname.includes('sabishares.com') && u.pathname.includes('/file/') && u.searchParams.has('preview')) {
-        u.search = '';
+      if (u.hostname.includes('sabishares.com') &&
+          u.pathname.includes('/file/') &&
+          u.searchParams.has('preview')) {
+        u.search = '';   // strip ?preview
         return { url: u.toString(), isDirect: true };
       }
     } catch {}
     return { url, isDirect: false };
   }
 
+  // Check if URL is already a usable direct link
   function isDirectUrl(url) {
     const lower = url.toLowerCase();
+    const directExts = ['.mp4', '.mkv', '.webm', '.avi', '.mov', '.zip', '.rar'];
+    // Has token → direct
     if (lower.includes('?pt=')) return true;
-    const directExts = ['.mp4', '.mkv', '.webm', '.avi', '.mov'];
-    const isFile = directExts.some(e => lower.endsWith(e) || lower.includes(e + '?'));
-    const isLanding = lower.includes('downloadwella.com') || lower.includes('sabishares.com/file/');
-    return isFile && !isLanding;
+    // Ends with file ext and NOT a known landing-page host
+    const isFilePath = directExts.some(ext => lower.endsWith(ext) || lower.includes(ext + '?'));
+    const isLandingHost = lower.includes('downloadwella.com') || lower.includes('sabishares.com/file/');
+    return isFilePath && !isLandingHost;
   }
 
-  // Known hosts that stream directly — no page fetch needed
-  const STREAM_HOSTS = ['mylulutv.com', 'kissorgrab.com'];
-  function isKnownStreamHost(url) {
-    try { return STREAM_HOSTS.some(h => new URL(url).hostname.includes(h)); } catch { return false; }
-  }
-
+  // Extract the real download URL from raw HTML
   function extractDownloadUrl(html) {
     if (!html || html.length < 100) return null;
-    let m;
-    // ww1.sabishares — ?pt= inside jQuery .html()
-    m = html.match(/\.html\(["\x27].*?href=[\x27"](https?:\/\/[^\x27">\s]+\?pt=[^\x27">\s]+)[\x27"]/);
+
+    // Pattern 1: href='...?pt=...' (single quotes — YetiShare / ww1.sabishares)
+    let m = html.match(/href='(https?:\/\/[^']{10,}\?pt=[^']{10,})'/);
     if (m) return m[1];
-    // any href with ?pt=
-    m = html.match(/href=[\x27"]?(https?:\/\/[^\x27">\s]+\?pt=[^\x27">\s]+)[\x27"]?/);
+
+    // Pattern 2: href="...?pt=..." (double quotes)
+    m = html.match(/href="(https?:\/\/[^"]{10,}\?pt=[^"]{10,})"/);
     if (m) return m[1];
-    // meetdownload — location.href = 'https://...kissorgrab.com/dl/...'
-    m = html.match(/location\.href\s*=\s*[\x27"]((https?:\/\/)[^\x27"]{20,})[\x27"]/);
-    if (m && /\/dl\/|\.mkv|\.mp4|\.avi|\.zip/i.test(m[1])) return m[1];
-    // window.location with file ext
-    m = html.match(/window\.location(?:\.href)?\s*=\s*[\x27"]((https?:\/\/)[^\x27"]+\.(?:mp4|mkv|webm|avi|zip|rar)[^\x27"]*)[\x27"]/i);
+
+    // Pattern 3: window.location[.href] = '...?pt=...'
+    m = html.match(/window\.location(?:\.href)?\s*=\s*['"]([^'"]+\?pt=[^'"]+)['"]/);
     if (m) return m[1];
-    // direct file URL in JS
-    m = html.match(/[\x27"](https?:\/\/[^\x27"?\s]{10,}\.(?:mp4|mkv|webm|avi|zip|rar))[\x27"]/i);
+
+    // Pattern 4: any JS string with ?pt= (catch-all YetiShare)
+    m = html.match(/['"]((https?:\/\/)[^'"]{5,}\?pt=[^'"]{10,})['"]/);
     if (m) return m[1];
+
+    // Pattern 5: downloadwella / generic — direct file URL in href or JS
+    m = html.match(/href=["'](https?:\/\/[^"'?\s]{10,}\.(?:mp4|mkv|webm|avi|zip|rar))["']/i);
+    if (m) return m[1];
+
+    // Pattern 6: direct file URL anywhere in JS strings
+    m = html.match(/["'](https?:\/\/[^"'?\s]{10,}\.(?:mp4|mkv|webm|avi|zip|rar))["']/i);
+    if (m) return m[1];
+
     return null;
   }
 
+  // Attempt a single CORS proxy, return HTML string or null on failure
   async function tryProxy(proxyUrl, isJson) {
     try {
       const res = await fetch(proxyUrl, { signal: AbortSignal.timeout(10000) });
       if (!res.ok) return null;
-      if (isJson) { const d = await res.json(); return d.contents || d.body || null; }
+      if (isJson) {
+        const data = await res.json();
+        return data.contents || data.body || null;
+      }
       return await res.text();
-    } catch { return null; }
+    } catch {
+      return null;
+    }
   }
 
   async function resolveUrl(landingUrl) {
-    // Skip cache for ?pt= tokens (expire) and fallback cases
-    const cached = _resolveCache[landingUrl];
-    if (cached && !cached.includes('?pt=') && cached !== landingUrl) return cached;
+    if (_resolveCache[landingUrl]) return _resolveCache[landingUrl];
 
+    // Normalise first — handles sabishares.com/file/?preview → direct URL
     const { url: fetchUrl, isDirect } = normaliseUrl(landingUrl);
-    if (isDirect || isDirectUrl(fetchUrl) || isKnownStreamHost(fetchUrl)) {
+
+    if (isDirect || isDirectUrl(fetchUrl)) {
       _resolveCache[landingUrl] = fetchUrl;
       return fetchUrl;
     }
 
     const encoded = encodeURIComponent(landingUrl);
 
-    // 1. Own Django server (primary — works on production)
+    // Primary: Your own Django server — most reliable on production
+    // (production server has full internet access + cloudscraper)
     try {
       const res  = await fetch(`/movies/resolve-download/?url=${encoded}`, { signal: AbortSignal.timeout(15000) });
       const data = await res.json();
       if (data.download_url) {
-        if (!data.download_url.includes('?pt=')) _resolveCache[landingUrl] = data.download_url;
+        _resolveCache[landingUrl] = data.download_url;
         return data.download_url;
       }
-    } catch {}
+    } catch { /* fall through to CORS proxies */ }
 
-    // 2-4. CORS proxies (browser-side fallback)
+    // Fallback CORS proxies (browser-side — useful in dev / if server fails)
     const proxies = [
       { url: `https://api.allorigins.win/get?url=${encoded}`, json: true },
       { url: `https://corsproxy.io/?url=${encoded}`,          json: false },
       { url: `https://api.codetabs.com/v1/proxy?quest=${encoded}`, json: false },
     ];
+
     for (const { url, json } of proxies) {
       const html = await tryProxy(url, json);
       const found = extractDownloadUrl(html);
       if (found) {
-        if (!found.includes('?pt=')) _resolveCache[landingUrl] = found;
+        _resolveCache[landingUrl] = found;
         return found;
       }
     }
 
-    // Fallback — return landing page so user can download manually
+    // All methods failed — fall back to the original landing page URL
+    // so the user can still download manually from the host site
+    _resolveCache[landingUrl] = landingUrl;
     return landingUrl;
   }
 
-  // ── Check if a URL is streamable, then show/hide the player section ────────
-  async function checkAndShowStream(url) {
-    if (!url) return;
-    try {
-      const res  = await fetch(`/movies/check-streamable/?url=${encodeURIComponent(url)}`);
-      const data = await res.json();
-      if (data.streamable) {
-        document.getElementById('streaming-section').style.display = '';
-        loadStreamPlayer(url);
-      }
-      // else: section stays hidden
-    } catch {
-      // On error, optimistically show the section
-      document.getElementById('streaming-section').style.display = '';
-      loadStreamPlayer(url);
-    }
-  }
-
-  // ── Download handler ──────────────────────────────────────────────────────
+  // ─── Download handler ────────────────────────────────────────────────────
   async function handleDownload(el, landingUrl) {
     const statusEl = el.querySelector('.dl-status');
     const iconEl   = el.querySelector('.dl-icon');
     if (!statusEl || !iconEl) return;
-    const orig = statusEl.textContent;
+
+    const originalStatus = statusEl.textContent;
     statusEl.textContent = 'Fetching link…';
     iconEl.className = 'fas fa-spinner fa-spin text-white dl-icon';
+
     try {
       const url = await resolveUrl(landingUrl);
-      statusEl.textContent = url === landingUrl ? 'Opening page…' : 'Starting download…';
+
+      // If we got back the same URL, resolver couldn't extract a direct link
+      // — open the landing page so the user can download from there
+      if (url === landingUrl) {
+        statusEl.textContent = 'Opening download page…';
+      } else {
+        statusEl.textContent = 'Starting download…';
+      }
+
       iconEl.className = 'fas fa-check text-white dl-icon';
       window.open(url, '_blank');
-      setTimeout(() => { statusEl.textContent = orig; iconEl.className = 'fas fa-download text-white dl-icon'; }, 3000);
-    } catch {
+
+      setTimeout(() => {
+        statusEl.textContent = originalStatus;
+        iconEl.className = 'fas fa-download text-white dl-icon';
+      }, 3000);
+
+    } catch (err) {
+      // Should rarely happen now since resolveUrl always returns something
       statusEl.textContent = 'Failed — tap to retry';
       iconEl.className = 'fas fa-exclamation-triangle text-white dl-icon';
-      setTimeout(() => { statusEl.textContent = orig; iconEl.className = 'fas fa-download text-white dl-icon'; }, 3500);
+      setTimeout(() => {
+        statusEl.textContent = originalStatus;
+        iconEl.className = 'fas fa-download text-white dl-icon';
+      }, 3500);
     }
   }
 
-  // ── Cinema player ─────────────────────────────────────────────────────────
+  // ─── Stream player loader ────────────────────────────────────────────────
   let _plyrInstance = null;
 
   async function loadStreamPlayer(landingUrl) {
-    const loadingEl = document.getElementById('stream-loading');
-    const errorEl   = document.getElementById('stream-error');
-    const playerEl  = document.getElementById('episodePlayer');
+    const loadingEl  = document.getElementById('stream-loading');
+    const errorEl    = document.getElementById('stream-error');
+    const playerEl   = document.getElementById('episodePlayer');
     if (!playerEl) return;
 
-    if (loadingEl) { loadingEl.style.display = 'flex'; loadingEl.classList.remove('hidden'); }
-    if (errorEl)   { errorEl.style.display = 'none'; errorEl.classList.add('hidden'); }
+    // Show loading, hide others
+    if (loadingEl)  { loadingEl.classList.remove('hidden');  loadingEl.style.display = ''; }
+    if (errorEl)    errorEl.classList.add('hidden');
     playerEl.classList.add('hidden');
 
     try {
       const streamUrl = await resolveUrl(landingUrl);
 
-      // If we got the landing page back — it can't stream
-      if (streamUrl === landingUrl && !isDirectUrl(streamUrl) && !isKnownStreamHost(streamUrl)) {
-        throw new Error('not_streamable');
-      }
-
       if (_plyrInstance) {
-        _plyrInstance.source = { type: 'video', sources: [{ src: streamUrl, type: 'video/mp4' }], poster: playerEl.getAttribute('poster') || '' };
+        // Update existing Plyr instance source
+        _plyrInstance.source = {
+          type: 'video',
+          sources: [{ src: streamUrl, type: 'video/mp4' }],
+          poster: playerEl.getAttribute('poster') || '',
+        };
       } else {
+        // First load — create Plyr
         playerEl.innerHTML = `<source src="${streamUrl}" type="video/mp4">`;
         _plyrInstance = new Plyr(playerEl, {
-          controls: ['play', 'progress', 'current-time', 'duration', 'mute', 'volume', 'settings', 'pip', 'airplay', 'fullscreen'],
-          settings: ['speed'],
-          speed: { selected: 1, options: [0.5, 0.75, 1, 1.25, 1.5, 2] },
-          keyboard: { focused: true, global: true },
-          tooltips: { controls: true, seek: true },
-          captions: { active: true, language: 'auto' },
-          fullscreen: { enabled: true, fallback: true, iosNative: true },
+          controls: ['play', 'progress', 'current-time', 'mute', 'volume', 'captions', 'fullscreen'],
         });
       }
 
       if (loadingEl) loadingEl.style.display = 'none';
       playerEl.classList.remove('hidden');
 
-    } catch {
+    } catch (err) {
+      console.error('Stream resolve error:', err);
       if (loadingEl) loadingEl.style.display = 'none';
-      if (errorEl)   { errorEl.style.display = 'flex'; errorEl.classList.remove('hidden'); }
-      // Also hide the whole streaming section — this link needs manual download
-      document.getElementById('streaming-section').style.display = 'none';
+      if (errorEl)   errorEl.classList.remove('hidden');
     }
   }
 
-  // ── Init ──────────────────────────────────────────────────────────────────
+  // ─── DOMContentLoaded init ───────────────────────────────────────────────
   document.addEventListener('DOMContentLoaded', function () {
 
-    // HLS player (direct .m3u8 — always streamable)
+    // HLS Player (unchanged — already a direct .m3u8 URL)
     const hlsPlayer = document.getElementById('hlsPlayer');
     if (hlsPlayer) {
-      document.getElementById('streaming-section').style.display = '';
       const src = hlsPlayer.querySelector('source').src;
       if (Hls.isSupported()) {
         const hls = new Hls();
         hls.loadSource(src);
         hls.attachMedia(hlsPlayer);
-        hls.on(Hls.Events.MANIFEST_PARSED, () => {
+        hls.on(Hls.Events.MANIFEST_PARSED, function () {
           new Plyr(hlsPlayer, {
-            controls: ['play', 'progress', 'current-time', 'duration', 'mute', 'volume', 'settings', 'fullscreen'],
+            controls: ['play', 'progress', 'current-time', 'mute', 'volume', 'fullscreen'],
             settings: ['quality', 'speed'],
-            quality: { default: 'auto', options: hls.levels.map((_, i) => i), forced: true, onChange: q => { hls.currentLevel = q; } },
+            quality: {
+              default: 'auto',
+              options: hls.levels.map((_, i) => i),
+              forced: true,
+              onChange: (q) => { hls.currentLevel = q; },
+            },
           });
         });
       } else if (hlsPlayer.canPlayType('application/vnd.apple.mpegurl')) {
         new Plyr(hlsPlayer);
       }
-      return;
+      return; // HLS path — skip episode player setup below
     }
 
-    // Episode player
+    // Episode / single-video player — resolve URL on load
     const episodePlayer = document.getElementById('episodePlayer');
     const episodeSelect = document.getElementById('episodeSelect');
 
     if (episodePlayer) {
-      const firstUrl = episodeSelect ? episodeSelect.value : episodePlayer.dataset.landing || '';
-      if (firstUrl) checkAndShowStream(firstUrl);
+      // Get the first URL to load (from select or data attribute)
+      const firstUrl = episodeSelect
+        ? episodeSelect.value
+        : episodePlayer.dataset.landing || '';
 
+      if (firstUrl) loadStreamPlayer(firstUrl);
+
+      // When user switches episode
       if (episodeSelect) {
         episodeSelect.addEventListener('change', function () {
-          checkAndShowStream(this.value);
+          loadStreamPlayer(this.value);
         });
       }
     }
