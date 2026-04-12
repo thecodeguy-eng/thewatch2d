@@ -136,6 +136,17 @@ TELEGRAM_ANIME_CHANNEL  = config('TELEGRAM_ANIME_CHANNEL', default='')
 TELEGRAM_MANGA_CHANNEL  = config('TELEGRAM_MANGA_CHANNEL', default='')
 
 
+# ── Twitter / X ──────────────────────────────────────────────
+TWITTER_API_KEY      = config('TWITTER_API_KEY',      default='')
+TWITTER_API_SECRET   = config('TWITTER_API_SECRET',   default='')
+TWITTER_ACCESS_TOKEN = config('TWITTER_ACCESS_TOKEN', default='')
+TWITTER_ACCESS_SECRET = config('TWITTER_ACCESS_SECRET', default='')
+ 
+# ── Facebook Page ─────────────────────────────────────────────
+FB_PAGE_ID      = config('FB_PAGE_ID',      default='')
+FB_ACCESS_TOKEN = config('FB_ACCESS_TOKEN', default='')
+
+
 # PWA Settings
 PWA_SETTINGS = {
     'name': 'Watch2D - Movies, Anime, Manga & Apps',
