@@ -20,7 +20,7 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 PLATFORM_LINKS = {
     'telegram': 'https://t.me/Watch2D',
     'twitter':  'https://x.com/watch2download',
-    'facebook': 'https://facebook.com/BigBrotherEntertainmentBlog',
+    'facebook': 'https://facebook.com/WATCH2D/',
     'website':  'https://watch2d.org',
 }
 

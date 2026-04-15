@@ -14,7 +14,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = config('SECRET_KEY', default='your-secret-key-here')
 
 DEBUG = config('DEBUG', default=False, cast=bool)
-# DEBUG = False
+# DEBUG = True
 
 # Add your actual domain
 ALLOWED_HOSTS = [
