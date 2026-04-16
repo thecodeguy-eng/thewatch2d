@@ -1,82 +1,163 @@
 {% load static %}
 
-<section class="container mx-auto px-4 lg:px-8 py-12">
-  {# Section Header - Clean & Minimal #}
+{# ============================================================ #}
+{# MOVIES SECTION — Hero focused, download-first               #}
+{# Only shown below the homepage hero on deeper scroll          #}
+{# ============================================================ #}
+<section class="container mx-auto px-4 lg:px-8 py-10">
+
+  {# Section Header #}
   <div class="flex items-center justify-between mb-6">
     <div>
       <h2 class="text-2xl lg:text-3xl font-black text-gray-900 dark:text-white flex items-center gap-3">
         <span class="w-1.5 h-8 bg-gradient-to-b from-blue-500 to-blue-600 rounded-full"></span>
-        Movies
+        More Movies
       </h2>
       <p class="text-sm text-gray-500 dark:text-gray-400 ml-5 mt-1">Blockbusters and classics in HD</p>
     </div>
-    {# UPDATE THIS LINK #}
-    <a href="{% url 'movies:home' %}" 
+    <a href="{% url 'movies:home' %}"
        class="flex items-center gap-2 text-blue-600 dark:text-blue-400 hover:gap-3 transition-all font-semibold text-sm">
       <span>See all</span>
       <i class="fas fa-arrow-right text-xs"></i>
     </a>
   </div>
 
-  {# Featured Movie - Hero Banner #}
+  {# ============================================================ #}
+  {# Blockbuster Carousel — auto-rotates, manual select          #}
+  {# ============================================================ #}
   {% if featured_movies %}
-  {% with featured_movies|first as hero_movie %}
-  {% if hero_movie %}
-  <a href="{% url 'movies:movie_detail' hero_movie.pk %}" 
-     class="block mb-8 group relative overflow-hidden rounded-3xl bg-gray-900">
-    <div class="relative aspect-[21/9] lg:aspect-[21/6]">
-      <img src="{{ hero_movie.image_url }}" 
-           alt="{{ hero_movie.title }}"
-           class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-           loading="lazy" />
-      <div class="absolute inset-0 bg-gradient-to-r from-black/90 via-black/50 to-transparent">
-        <div class="absolute bottom-0 left-0 p-6 lg:p-10 max-w-2xl">
-          <div class="inline-flex items-center gap-2 px-3 py-1.5 bg-yellow-500 rounded-full mb-4">
-            <i class="fas fa-crown text-sm"></i>
-            <span class="text-xs font-bold text-gray-900">Featured</span>
-          </div>
-          <h3 class="text-3xl lg:text-5xl font-black text-white mb-3 line-clamp-2">
-            {{ hero_movie.title }}
-          </h3>
-          {% if hero_movie.title_b %}
-          <p class="text-yellow-400 font-bold text-base lg:text-lg mb-4">
-            <i class="fas fa-plus-circle mr-2"></i>{{ hero_movie.title_b }}
-          </p>
-          {% endif %}
-          <div class="flex items-center gap-4 text-sm text-white/80 mb-4">
-            <span class="flex items-center gap-2">
-              <i class="fas fa-eye"></i>
-              {{ hero_movie.views|default:"1M+" }}
-            </span>
-            <span class="flex items-center gap-2">
-              <i class="fas fa-clock"></i>
-              HD
-            </span>
-          </div>
-          <div class="inline-flex items-center gap-3 px-6 py-3 bg-white rounded-full text-gray-900 font-bold group-hover:bg-blue-500 group-hover:text-white transition-colors">
-            <i class="fas fa-play"></i>
-            <span>Watch Now</span>
+  <div class="mb-8" x-data="blockbusterCarousel()" x-init="init()" @keydown.arrow-left.window="prev()" @keydown.arrow-right.window="next()">
+
+    {# Main Hero Banner #}
+    <div class="relative overflow-hidden rounded-3xl bg-gray-900 shadow-2xl">
+      <div class="relative aspect-[21/9] lg:aspect-[21/6]">
+
+        {# Slides #}
+        {% for movie in featured_movies|slice:":5" %}
+        <div
+          class="carousel-slide absolute inset-0 transition-opacity duration-700"
+          :class="activeIndex === {{ forloop.counter0 }} ? 'opacity-100 z-10' : 'opacity-0 z-0'"
+          data-index="{{ forloop.counter0 }}"
+        >
+          <img src="{{ movie.image_url }}"
+               alt="{{ movie.title }}"
+               class="w-full h-full object-cover"
+               :class="activeIndex === {{ forloop.counter0 }} ? 'scale-100' : 'scale-105'"
+               style="transition: transform 0.7s ease;"
+               loading="{% if forloop.first %}eager{% else %}lazy{% endif %}" />
+
+          <div class="absolute inset-0 bg-gradient-to-r from-black/90 via-black/50 to-transparent">
+            <div class="absolute bottom-0 left-0 p-6 lg:p-10 max-w-2xl">
+
+              <div class="inline-flex items-center gap-2 px-3 py-1.5 bg-yellow-500 rounded-full mb-4">
+                <i class="fas fa-crown text-sm"></i>
+                <span class="text-xs font-bold text-gray-900">Blockbuster</span>
+              </div>
+
+              <h3 class="text-2xl lg:text-4xl font-black text-white mb-3 line-clamp-2">
+                {{ movie.title }}
+              </h3>
+
+              {% if movie.title_b %}
+              <p class="text-yellow-400 font-bold text-sm lg:text-base mb-3">
+                <i class="fas fa-plus-circle mr-1"></i>{{ movie.title_b }}
+              </p>
+              {% endif %}
+
+              <div class="flex items-center gap-4 text-sm text-white/80 mb-5">
+                <span class="flex items-center gap-2"><i class="fas fa-eye"></i>{{ movie.views|default:"0" }}</span>
+                <span class="px-2 py-0.5 bg-blue-600 rounded-full text-xs font-bold">HD</span>
+              </div>
+
+              {# CTA Buttons #}
+              <div class="flex items-center gap-3 flex-wrap">
+                <a href="{% url 'movies:movie_detail' movie.pk %}"
+                   class="inline-flex items-center gap-3 px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-full text-white font-bold transition-colors shadow-xl">
+                  <i class="fas fa-download"></i>
+                  <span>Download</span>
+                </a>
+                <a href="{% url 'movies:movie_detail' movie.pk %}"
+                   class="inline-flex items-center gap-3 px-5 py-3 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-full text-white font-semibold transition-colors border border-white/30">
+                  <i class="fas fa-info-circle"></i>
+                  <span>More Info</span>
+                </a>
+              </div>
+
+            </div>
           </div>
         </div>
-      </div>
+        {% endfor %}
+
+        {# Prev / Next Arrows #}
+        <button @click="prev()"
+                class="absolute left-3 lg:left-5 top-1/2 -translate-y-1/2 z-20 w-10 h-10 lg:w-12 lg:h-12 bg-black/50 hover:bg-black/70 backdrop-blur-sm rounded-full flex items-center justify-center text-white transition-all hover:scale-110 border border-white/20">
+          <i class="fas fa-chevron-left text-sm"></i>
+        </button>
+        <button @click="next()"
+                class="absolute right-3 lg:right-5 top-1/2 -translate-y-1/2 z-20 w-10 h-10 lg:w-12 lg:h-12 bg-black/50 hover:bg-black/70 backdrop-blur-sm rounded-full flex items-center justify-center text-white transition-all hover:scale-110 border border-white/20">
+          <i class="fas fa-chevron-right text-sm"></i>
+        </button>
+
+        {# Dot Indicators #}
+        <div class="absolute bottom-4 right-4 lg:bottom-6 lg:right-8 z-20 flex items-center gap-2">
+          {% for movie in featured_movies|slice:":5" %}
+          <button @click="goTo({{ forloop.counter0 }})"
+                  class="transition-all duration-300 rounded-full"
+                  :class="activeIndex === {{ forloop.counter0 }} ? 'w-6 h-2 bg-blue-500' : 'w-2 h-2 bg-white/50 hover:bg-white/80'">
+          </button>
+          {% endfor %}
+        </div>
+
+        {# Auto-play progress bar #}
+        <div class="absolute bottom-0 left-0 right-0 z-20 h-0.5 bg-white/10">
+          <div class="h-full bg-blue-500 transition-none"
+               :style="'width: ' + progressWidth + '%'"
+               style="transition: width 0.1s linear;"></div>
+        </div>
+
+      </div>{# end aspect ratio #}
+    </div>{# end hero banner #}
+
+    {# Thumbnail Strip — click to jump to slide #}
+    <div class="flex gap-3 mt-4 overflow-x-auto pb-1 scrollbar-hide">
+      {% for movie in featured_movies|slice:":5" %}
+      <button @click="goTo({{ forloop.counter0 }})"
+              class="group flex-shrink-0 relative w-28 lg:w-32 aspect-[2/3] rounded-xl overflow-hidden shadow-md transition-all duration-300"
+              :class="activeIndex === {{ forloop.counter0 }} ? 'ring-2 ring-blue-500 scale-105' : 'opacity-60 hover:opacity-100 hover:scale-102'">
+        <img src="{{ movie.image_url }}"
+             alt="{{ movie.title }}"
+             class="w-full h-full object-cover"
+             loading="lazy" />
+        <div class="absolute inset-0 bg-black/30 group-hover:bg-black/10 transition-colors"></div>
+        <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent p-2">
+          <p class="text-white text-[9px] font-semibold line-clamp-2 leading-tight">{{ movie.title }}</p>
+        </div>
+        {# Active indicator overlay #}
+        <div x-show="activeIndex === {{ forloop.counter0 }}"
+             class="absolute top-2 left-2 w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center shadow-lg">
+          <i class="fas fa-play text-white text-[7px]"></i>
+        </div>
+      </button>
+      {% endfor %}
     </div>
-  </a>
-  {% endif %}
-  {% endwith %}
-  
-  {# More Featured - Compact Cards #}
+
+  </div>{# end x-data carousel #}
+
+  {# More Featured - Compact Cards (slots 5 onwards, not in carousel) #}
+  {% with featured_movies|slice:"5:8" as extra_featured %}
+  {% if extra_featured %}
   <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-8">
-    {% for movie in featured_movies|slice:"1:4" %}
-    <a href="{% url 'movies:movie_detail' movie.pk %}" 
-       class="group flex items-center gap-4 p-4 bg-white dark:bg-gray-800 rounded-2xl hover:shadow-xl transition-all">
-      <div class="relative w-24 lg:w-28 aspect-[2/3] rounded-xl overflow-hidden bg-gray-200 dark:bg-gray-700 flex-shrink-0">
-        <img src="{{ movie.image_url }}" 
+    {% for movie in extra_featured %}
+    <a href="{% url 'movies:movie_detail' movie.pk %}"
+       class="group flex items-center gap-4 p-4 bg-white dark:bg-gray-800 rounded-2xl hover:shadow-xl transition-all border border-gray-100 dark:border-gray-700">
+      <div class="relative w-20 lg:w-24 aspect-[2/3] rounded-xl overflow-hidden bg-gray-200 dark:bg-gray-700 flex-shrink-0 shadow-md">
+        <img src="{{ movie.image_url }}"
              alt="{{ movie.title }}"
              class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
              loading="lazy" />
       </div>
       <div class="flex-1 min-w-0">
-        <h4 class="font-bold text-base text-gray-900 dark:text-white mb-2 line-clamp-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+        <h4 class="font-bold text-sm text-gray-900 dark:text-white mb-1.5 line-clamp-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
           {{ movie.title }}
         </h4>
         {% if movie.title_b %}
@@ -84,82 +165,52 @@
           <i class="fas fa-plus-circle mr-1"></i>{{ movie.title_b }}
         </p>
         {% endif %}
-        <div class="flex items-center gap-3 text-xs text-gray-500 dark:text-gray-400">
-          <span class="flex items-center gap-1">
-            <i class="fas fa-eye"></i>
-            {{ movie.views|default:"0" }}
-          </span>
-          <span class="px-2 py-0.5 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-full font-semibold">
-            HD
+        <div class="flex items-center gap-2 flex-wrap">
+          <span class="px-2 py-0.5 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-full text-[10px] font-bold">HD</span>
+          <span class="text-[10px] text-gray-400 flex items-center gap-1">
+            <i class="fas fa-download"></i> {{ movie.views|default:"0" }}
           </span>
         </div>
       </div>
-      <i class="fas fa-chevron-right text-gray-400 group-hover:text-blue-600 group-hover:translate-x-1 transition-all"></i>
+      <i class="fas fa-chevron-right text-gray-300 group-hover:text-blue-500 group-hover:translate-x-1 transition-all flex-shrink-0"></i>
     </a>
     {% endfor %}
   </div>
   {% endif %}
+  {% endwith %}
+  {% endif %}{# end featured_movies #}
 
-  {# Trending Movies - Horizontal Scroll #}
+  {# Trending Movies - Horizontal Scroll with download counts #}
   {% if trending_movies %}
   <div class="mb-8">
-    <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+    <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
       <i class="fas fa-fire text-red-500"></i>
       Trending Now
     </h3>
-    <div class="relative">
-      <div class="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide">
-        {% for movie in trending_movies %}
-        <a href="{% url 'movies:movie_detail' movie.pk %}" 
-           class="group flex-shrink-0 w-36 lg:w-40 snap-start">
-          <div class="relative aspect-[2/3] rounded-2xl overflow-hidden bg-gray-200 dark:bg-gray-700 mb-3 shadow-lg group-hover:shadow-2xl transition-shadow">
-            <img src="{{ movie.image_url }}" 
-                 alt="{{ movie.title }}"
-                 class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                 loading="lazy" />
-            {% if movie.title_b %}
-            <div class="absolute top-3 left-3 right-3">
-              <div class="px-2 py-1 bg-yellow-500 text-gray-900 text-xs font-bold rounded-lg shadow-lg line-clamp-1">
-                <i class="fas fa-star mr-1"></i>New
-              </div>
-            </div>
-            {% endif %}
-            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
-              <div class="absolute bottom-0 left-0 right-0 p-3">
-                <div class="w-10 h-10 mx-auto bg-white rounded-full flex items-center justify-center">
-                  <i class="fas fa-play text-blue-600"></i>
-                </div>
-              </div>
-            </div>
-          </div>
-          <h4 class="font-semibold text-sm text-gray-900 dark:text-white line-clamp-2 px-1 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-            {{ movie.title }}
-          </h4>
-        </a>
-        {% endfor %}
-      </div>
-    </div>
-  </div>
-  {% endif %}
-
-  {# Latest Releases - Compact Grid #}
-  {% if latest_movies %}
-  <div>
-    <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-      <i class="fas fa-clock text-blue-500"></i>
-      Latest Releases
-    </h3>
-    <div class="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 lg:gap-4">
-      {% for movie in latest_movies %}
-      <a href="{% url 'movies:movie_detail' movie.pk %}" class="group">
-        <div class="relative aspect-[2/3] rounded-xl lg:rounded-2xl overflow-hidden bg-gray-200 dark:bg-gray-700 mb-2 shadow-md group-hover:shadow-xl transition-shadow">
-          <img src="{{ movie.image_url }}" 
+    <div class="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide">
+      {% for movie in trending_movies %}
+      <a href="{% url 'movies:movie_detail' movie.pk %}"
+         class="group flex-shrink-0 w-36 lg:w-40 snap-start">
+        <div class="relative aspect-[2/3] rounded-2xl overflow-hidden bg-gray-200 dark:bg-gray-700 mb-2 shadow-lg group-hover:shadow-2xl transition-shadow">
+          <img src="{{ movie.image_url }}"
                alt="{{ movie.title }}"
                class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                loading="lazy" />
-          <div class="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors"></div>
+          {% if forloop.counter <= 3 %}
+          <div class="absolute top-2 left-2">
+            <span class="w-6 h-6 bg-orange-500 rounded-full flex items-center justify-center text-white font-black text-xs shadow-lg block text-center leading-6">
+              #{{ forloop.counter }}
+            </span>
+          </div>
+          {% endif %}
+          <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-2">
+            <span class="text-white text-[10px] font-medium flex items-center gap-1">
+              <i class="fas fa-download text-blue-400 text-[9px]"></i>
+              {{ movie.views|default:"0" }}
+            </span>
+          </div>
         </div>
-        <h4 class="font-medium text-xs lg:text-sm text-gray-900 dark:text-white line-clamp-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+        <h4 class="font-semibold text-xs text-gray-900 dark:text-white line-clamp-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
           {{ movie.title }}
         </h4>
       </a>
@@ -167,14 +218,111 @@
     </div>
   </div>
   {% endif %}
+
+  {# Latest Releases Grid #}
+  {% if latest_movies %}
+  <div>
+    <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+      <i class="fas fa-clock text-blue-500"></i>
+      Latest Releases
+    </h3>
+    <div class="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 lg:gap-4">
+      {% for movie in latest_movies %}
+      <a href="{% url 'movies:movie_detail' movie.pk %}" class="group">
+        <div class="relative aspect-[2/3] rounded-xl lg:rounded-2xl overflow-hidden bg-gray-200 dark:bg-gray-700 mb-1.5 shadow-md group-hover:shadow-xl transition-shadow">
+          <img src="{{ movie.image_url }}"
+               alt="{{ movie.title }}"
+               class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+               loading="lazy" />
+          <div class="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors"></div>
+        </div>
+        <h4 class="font-medium text-xs text-gray-900 dark:text-white line-clamp-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+          {{ movie.title }}
+        </h4>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  {# ============================================================ #}
+  {# Explore More CTA Button                                      #}
+  {# ============================================================ #}
+  <div class="mt-12 flex flex-col items-center gap-3">
+    <a href="{% url 'movies:home' %}"
+       class="group relative inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 rounded-2xl text-white font-bold text-base shadow-xl hover:shadow-blue-500/30 hover:shadow-2xl transition-all duration-300 hover:-translate-y-0.5">
+      <i class="fas fa-film text-blue-200 group-hover:rotate-12 transition-transform duration-300"></i>
+      <span>Explore More Movies</span>
+      <i class="fas fa-arrow-right text-blue-200 group-hover:translate-x-1 transition-transform duration-300"></i>
+      {# Subtle shimmer effect #}
+      <span class="absolute inset-0 rounded-2xl overflow-hidden">
+        <span class="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/10 to-transparent"></span>
+      </span>
+    </a>
+    <p class="text-xs text-gray-400 dark:text-gray-500">Thousands of HD movies waiting for you</p>
+  </div>
+
 </section>
 
 <style>
-.scrollbar-hide::-webkit-scrollbar {
-  display: none;
-}
-.scrollbar-hide {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
+.scrollbar-hide::-webkit-scrollbar { display: none; }
+.scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+.hover\:scale-102:hover { transform: scale(1.02); }
 </style>
+
+{# Alpine.js carousel component — requires Alpine.js to be loaded in base.html #}
+<script>
+function blockbusterCarousel() {
+  return {
+    activeIndex: 0,
+    total: document.querySelectorAll('.carousel-slide').length || 5,
+    autoplayInterval: null,
+    progressInterval: null,
+    progressWidth: 0,
+    slideDuration: 5000,   // ms per slide
+    progressStep: 100 / (5000 / 100), // % per 100ms tick
+
+    init() {
+      this.total = this.$el.querySelectorAll('.carousel-slide').length;
+      this.startAutoplay();
+    },
+
+    goTo(index) {
+      this.activeIndex = index;
+      this.resetProgress();
+    },
+
+    next() {
+      this.activeIndex = (this.activeIndex + 1) % this.total;
+      this.resetProgress();
+    },
+
+    prev() {
+      this.activeIndex = (this.activeIndex - 1 + this.total) % this.total;
+      this.resetProgress();
+    },
+
+    startAutoplay() {
+      this.progressWidth = 0;
+      this.progressInterval = setInterval(() => {
+        this.progressWidth += this.progressStep;
+        if (this.progressWidth >= 100) {
+          this.progressWidth = 0;
+          this.activeIndex = (this.activeIndex + 1) % this.total;
+        }
+      }, 100);
+    },
+
+    resetProgress() {
+      this.progressWidth = 0;
+      // restart the tick so the new slide gets a full duration
+      clearInterval(this.progressInterval);
+      this.startAutoplay();
+    },
+
+    destroy() {
+      clearInterval(this.progressInterval);
+    }
+  };
+}
+</script>

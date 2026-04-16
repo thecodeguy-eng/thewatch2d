@@ -89,17 +89,17 @@ class UnifiedHomeView(TemplateView):
         # ========== MOVIES SECTION ==========
         context['featured_movies'] = Movie.objects.filter(
             is_blockbuster=True
-        ).select_related().prefetch_related('categories').order_by('-created_at')[:8]
+        ).select_related().prefetch_related('categories').order_by('-created_at')[:12]
         
         context['trending_movies'] = Movie.objects.filter(
             views__gt=0
-        ).order_by('-views', '-created_at')[:12]
+        ).order_by('-views', '-created_at')[:24]
         
         context['latest_movies'] = Movie.objects.filter(
             Q(title_b__isnull=True) | Q(title_b='')
         ).order_by('-created_at')[:12]
         
-        context['movie_categories'] = MovieCategory.objects.all()[:6]
+        context['movie_categories'] = MovieCategory.objects.all()
         
         
         # ========== NEWS SECTION (NEW!) ==========

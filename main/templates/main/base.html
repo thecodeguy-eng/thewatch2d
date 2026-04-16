@@ -776,8 +776,8 @@
         </a>
       </div>
 
-      {# Desktop Navigation + Theme Toggle #}
-      <div class="hidden lg:flex items-center space-x-4">
+      {# Desktop Navigation + Search + Theme Toggle #}
+      <div class="hidden lg:flex items-center space-x-2">
       
         <a href="{% url 'movies:home' %}" class="flex items-center space-x-2 px-4 py-2 rounded-xl hover:bg-white/50 dark:hover:bg-gray-700/50 transition-all">
           <i class="fas fa-film text-blue-500"></i>
@@ -803,18 +803,44 @@
           <i class="fas fa-mobile-alt text-green-500"></i>
           <span class="font-semibold">Mobile</span>
         </a>
+
+        {# Desktop Search Bar #}
+        <div class="relative ml-2" id="desktopSearchWrapper">
+          <form action="{% url 'movies:home' %}" method="get" class="flex items-center">
+            <div class="relative">
+              <i class="fas fa-search absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-sm pointer-events-none"></i>
+              <input type="text"
+                     name="q"
+                     id="desktopSearchInput"
+                     placeholder="Search movies, anime..."
+                     autocomplete="off"
+                     class="w-48 focus:w-64 pl-9 pr-4 py-2.5 rounded-xl bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white text-sm border border-gray-200 dark:border-gray-700 focus:border-blue-500 dark:focus:border-blue-400 focus:outline-none transition-all duration-300 placeholder-gray-400" />
+            </div>
+          </form>
+          {# Live suggestions dropdown #}
+          <div id="desktopSearchSuggestions"
+               class="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-gray-900 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden z-50 hidden">
+          </div>
+        </div>
         
         {# Theme Toggle Button - Desktop #}
-        <button id="theme-toggle" class="p-3 rounded-xl glass-effect hover:scale-110 transition-all ml-2">
+        <button id="theme-toggle" class="p-3 rounded-xl glass-effect hover:scale-110 transition-all ml-1">
           <i class="fas fa-moon text-gray-600 dark:text-yellow-400"></i>
         </button>
         
       </div>
 
-      {# Mobile Theme Toggle #}
-      <button id="theme-toggle-mobile" class="lg:hidden p-3 rounded-xl glass-effect hover:scale-110 transition-all">
-        <i class="fas fa-moon text-gray-600 dark:text-yellow-400"></i>
-      </button>
+      {# Mobile: Search Icon + Theme Toggle #}
+      <div class="lg:hidden flex items-center gap-2">
+        <button id="mobileSearchToggle"
+                class="p-2.5 rounded-xl glass-effect hover:scale-110 transition-all"
+                aria-label="Search">
+          <i class="fas fa-search text-gray-600 dark:text-gray-300"></i>
+        </button>
+        <button id="theme-toggle-mobile" class="p-2.5 rounded-xl glass-effect hover:scale-110 transition-all">
+          <i class="fas fa-moon text-gray-600 dark:text-yellow-400"></i>
+        </button>
+      </div>
 
     </nav>
   </div>
@@ -875,7 +901,7 @@
       </div>
       
       <div class="border-t border-gray-700 mt-8 pt-8 text-center text-sm text-gray-400">
-        <p>&copy; 2024 Watch2D. All rights reserved. Made with ❤️ for entertainment lovers.</p>
+        <p>&copy; 2026 Watch2D. All rights reserved. Made with ❤️ for entertainment lovers.</p>
       </div>
     </div>
   </footer>
@@ -932,5 +958,94 @@
 
   <!-- Optional: Load your advanced pwa.js (if you want extra features) -->
   <script src="{% static 'js/pwa.js' %}" defer></script>
+
+  {# ============================================================ #}
+  {# MOBILE SEARCH OVERLAY                                        #}
+  {# ============================================================ #}
+  <div id="mobileSearchOverlay"
+       class="fixed inset-0 z-[999] bg-black/60 backdrop-blur-sm hidden items-start pt-20 px-4"
+       onclick="closeMobileSearch(event)">
+    <div class="w-full bg-white dark:bg-gray-900 rounded-2xl shadow-2xl overflow-hidden" onclick="event.stopPropagation()">
+      <form action="{% url 'movies:home' %}" method="get" class="flex items-center gap-3 p-4">
+        <i class="fas fa-search text-gray-400 text-base flex-shrink-0"></i>
+        <input type="text"
+               name="q"
+               id="mobileSearchInput"
+               placeholder="Search movies, anime, manga..."
+               autocomplete="off"
+               autofocus
+               class="flex-1 bg-transparent text-gray-900 dark:text-white text-base focus:outline-none placeholder-gray-400" />
+        <button type="button" onclick="closeMobileSearch()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 p-1">
+          <i class="fas fa-times text-lg"></i>
+        </button>
+      </form>
+      {# Quick links inside mobile search #}
+      <div class="px-4 pb-4 border-t border-gray-100 dark:border-gray-800 pt-3">
+        <p class="text-xs text-gray-500 font-semibold mb-2 uppercase tracking-wide">Quick Access</p>
+        <div class="flex flex-wrap gap-2">
+          <a href="{% url 'movies:home' %}" class="px-3 py-1.5 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-full text-xs font-semibold">
+            <i class="fas fa-film mr-1"></i>Movies
+          </a>
+          <a href="{% url 'anime:list' %}" class="px-3 py-1.5 bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 rounded-full text-xs font-semibold">
+            <i class="fas fa-play-circle mr-1"></i>Anime
+          </a>
+          <a href="{% url 'manga:list' %}" class="px-3 py-1.5 bg-pink-50 dark:bg-pink-900/30 text-pink-700 dark:text-pink-300 rounded-full text-xs font-semibold">
+            <i class="fas fa-book mr-1"></i>Manga
+          </a>
+          <a href="{% url 'apk_store:home' %}" class="px-3 py-1.5 bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded-full text-xs font-semibold">
+            <i class="fas fa-mobile-alt mr-1"></i>APKs
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Mobile search toggle
+    const mobileSearchToggle = document.getElementById('mobileSearchToggle');
+    const mobileSearchOverlay = document.getElementById('mobileSearchOverlay');
+    const mobileSearchInput = document.getElementById('mobileSearchInput');
+
+    mobileSearchToggle?.addEventListener('click', () => {
+      mobileSearchOverlay.classList.remove('hidden');
+      mobileSearchOverlay.classList.add('flex');
+      setTimeout(() => mobileSearchInput?.focus(), 100);
+    });
+
+    function closeMobileSearch(e) {
+      if (!e || e.target === mobileSearchOverlay) {
+        mobileSearchOverlay.classList.add('hidden');
+        mobileSearchOverlay.classList.remove('flex');
+      }
+    }
+
+    // Close with Escape key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeMobileSearch();
+    });
+
+    // Mobile theme toggle (keep existing)
+    const themeToggleMobile = document.getElementById('theme-toggle-mobile');
+    themeToggleMobile?.addEventListener('click', () => {
+      html.classList.toggle('dark');
+      localStorage.setItem('theme', html.classList.contains('dark') ? 'dark' : 'light');
+      const icon = themeToggleMobile.querySelector('i');
+      if (icon) {
+        icon.className = html.classList.contains('dark') ? 'fas fa-sun text-yellow-400' : 'fas fa-moon text-gray-600';
+      }
+    });
+
+    // Sync moon/sun icons on load
+    window.addEventListener('DOMContentLoaded', () => {
+      const isDark = html.classList.contains('dark');
+      ['theme-toggle', 'theme-toggle-mobile'].forEach(id => {
+        const btn = document.getElementById(id);
+        const icon = btn?.querySelector('i');
+        if (icon) {
+          icon.className = isDark ? 'fas fa-sun text-yellow-400' : 'fas fa-moon text-gray-600 dark:text-yellow-400';
+        }
+      });
+    });
+  </script>
 </body>
 </html>

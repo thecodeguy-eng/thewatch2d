@@ -3,126 +3,610 @@
 
 {% block content %}
 
-{# Hero Section - Modern & Minimalist #}
-<section class="relative overflow-hidden bg-gradient-to-br from-white via-blue-50/30 to-purple-50/30 dark:from-gray-900 dark:via-blue-900/10 dark:to-purple-900/10">
-  <div class="container mx-auto px-4 lg:px-8 py-16 lg:py-24">
-    <div class="max-w-4xl mx-auto text-center">
-      <h1 class="text-4xl lg:text-6xl font-black text-gray-900 dark:text-white mb-4 tracking-tight">
-        Your Entertainment
-        <span class="block text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600">
-          All in One Place
-        </span>
-      </h1>
-      <p class="text-lg lg:text-xl text-gray-600 dark:text-gray-300 mb-12 font-medium">
-        Movies, Anime, Manga, News, APKs & PC Games
-      </p>
+{# ========================================================= #}
+{# MOVIE HERO SECTION - Blockbuster Carousel                 #}
+{# ========================================================= #}
+{% if featured_movies %}
+<section class="hero-carousel relative w-full overflow-hidden bg-gray-950" id="heroCarousel"
+         style="height: 520px; min-height: 520px;">
+  <style>
+    @media (min-width: 640px)  { #heroCarousel { height: 560px; min-height: 560px; } }
+    @media (min-width: 1024px) { #heroCarousel { height: 600px; min-height: 600px; } }
+    @media (min-width: 1280px) { #heroCarousel { height: 680px; min-height: 680px; } }
+    .scrollbar-hide::-webkit-scrollbar { display: none; }
+    .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+  </style>
+
+  {% for movie in featured_movies %}
+  <div class="hero-slide absolute inset-0 transition-opacity duration-700
+              {% if forloop.first %}opacity-100 z-10{% else %}opacity-0 z-0{% endif %}"
+       data-index="{{ forloop.counter0 }}">
+
+    {# Background blurred image #}
+    <div class="absolute inset-0">
+      <img src="{{ movie.image_url }}"
+           alt=""
+           class="w-full h-full object-cover opacity-35 scale-105"
+           style="filter: blur(3px);"
+           loading="{% if forloop.first %}eager{% else %}lazy{% endif %}" />
+      <div class="absolute inset-0 bg-gradient-to-r from-gray-950 via-gray-950/75 to-gray-950/20"></div>
+      <div class="absolute inset-0 bg-gradient-to-t from-gray-950 via-transparent to-transparent"></div>
+      <div class="absolute inset-0 bg-gradient-to-b from-gray-950/40 via-transparent to-transparent"></div>
+    </div>
+
+    <div class="relative h-full flex items-stretch">
+
+      {# ── Main content area ── #}
+      {# FIX 1: pb-28 on mobile gives enough room for the thumb strip (h ~56px) + progress bar #}
+      <div class="flex-1 flex items-center
+                  px-4 sm:px-8 lg:px-14 xl:px-20
+                  pt-6 sm:pt-8 lg:pt-0
+                  pb-36 sm:pb-32 lg:pb-0">
+
+        {# FIX 2: stack vertically on mobile, row on sm+ #}
+        <div class="flex flex-col sm:flex-row items-center sm:items-center
+                    gap-4 sm:gap-8 lg:gap-14 w-full max-w-4xl">
+
+          {# ── Poster ── #}
+          {# FIX 3: smaller & centred on mobile #}
+          <div class="flex-shrink-0 w-28 sm:w-40 lg:w-60 xl:w-72 self-center sm:self-auto">
+            <div class="relative aspect-[2/3] rounded-2xl overflow-hidden
+                        shadow-[0_20px_60px_rgba(0,0,0,0.6)]
+                        ring-1 ring-white/15 lg:ring-2">
+              <img src="{{ movie.image_url }}"
+                   alt="{{ movie.title }}"
+                   class="w-full h-full object-cover"
+                   loading="{% if forloop.first %}eager{% else %}lazy{% endif %}" />
+              <div class="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent"></div>
+              <div class="absolute top-2 left-2">
+                <span class="px-1.5 py-0.5 bg-yellow-400 text-gray-900 text-[9px] sm:text-[11px] lg:text-xs
+                             font-black rounded-full shadow-lg flex items-center gap-1">
+                  <i class="fas fa-crown"></i>
+                  <span class="hidden sm:inline">BLOCKBUSTER</span>
+                  <span class="sm:hidden">TOP</span>
+                </span>
+              </div>
+              <div class="hidden lg:block absolute bottom-2.5 left-2.5">
+                <span class="px-2 py-0.5 bg-black/60 backdrop-blur-sm text-white text-[10px] font-bold rounded-full border border-white/20">
+                  HD
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {# ── Text info ── #}
+          <div class="flex-1 min-w-0 text-center sm:text-left">
+
+            {# Genre badges #}
+            <div class="flex flex-wrap items-center justify-center sm:justify-start gap-1.5 mb-2 sm:mb-3 lg:mb-4">
+              {% for cat in movie.categories.all|slice:":3" %}
+              <span class="px-2.5 py-0.5
+                           bg-blue-600/80 backdrop-blur-sm text-white
+                           text-[10px] sm:text-xs font-semibold rounded-full">
+                {{ cat.name }}
+              </span>
+              {% endfor %}
+              <span class="lg:hidden px-2 py-0.5 bg-white/20 backdrop-blur-sm text-white text-[10px] font-semibold rounded-full">HD</span>
+              <span class="px-2.5 py-0.5 bg-white/15 backdrop-blur-sm text-white
+                           text-[10px] sm:text-xs font-semibold rounded-full flex items-center gap-1">
+                <i class="fas fa-eye" style="font-size: 9px;"></i>
+                <span>{{ movie.views|default:"1K+" }}</span>
+              </span>
+            </div>
+
+            {# Title #}
+            {# FIX 4: smaller base size on mobile so long titles don't overflow #}
+            <h1 class="text-lg sm:text-3xl lg:text-4xl xl:text-5xl font-black text-white
+                       leading-tight line-clamp-2 mb-1 sm:mb-2 lg:mb-3 tracking-tight">
+              {{ movie.title }}
+            </h1>
+
+            {% if movie.title_b %}
+            <p class="text-yellow-400 font-bold text-xs sm:text-sm lg:text-base xl:text-lg mb-2 sm:mb-3 lg:mb-4">
+              <i class="fas fa-plus-circle mr-1.5"></i>{{ movie.title_b }}
+            </p>
+            {% endif %}
+
+            {# Description — hidden on mobile to save space #}
+            {% if movie.description %}
+            <p class="hidden sm:block text-gray-300 text-sm lg:text-[15px] xl:text-base
+                      leading-relaxed mb-4 sm:mb-5 lg:mb-6
+                      line-clamp-2 lg:line-clamp-3
+                      max-w-sm sm:max-w-md lg:max-w-lg">
+              {{ movie.description|truncatewords:35 }}
+            </p>
+            {% else %}
+            <p class="hidden sm:block text-gray-400 text-sm lg:text-[15px] mb-4 sm:mb-5 lg:mb-6">
+              A must-watch blockbuster available in HD quality.
+            </p>
+            {% endif %}
+
+            {# Meta row — desktop only #}
+            <div class="hidden lg:flex items-center gap-5 mb-7 text-gray-400 text-sm">
+              {% if movie.release_year %}
+              <span class="flex items-center gap-1.5">
+                <i class="fas fa-calendar-alt text-xs text-gray-500"></i>
+                {{ movie.release_year }}
+              </span>
+              {% endif %}
+              {% if movie.rating %}
+              <span class="flex items-center gap-1.5">
+                <i class="fas fa-star text-xs text-yellow-400"></i>
+                <span class="text-white font-semibold">{{ movie.rating }}</span>/10
+              </span>
+              {% endif %}
+              {% if movie.duration %}
+              <span class="flex items-center gap-1.5">
+                <i class="fas fa-clock text-xs text-gray-500"></i>
+                {{ movie.duration }}
+              </span>
+              {% endif %}
+            </div>
+
+            {# CTA Buttons #}
+            {# FIX 5: centre buttons on mobile #}
+            <div class="flex items-center justify-center sm:justify-start gap-2.5 sm:gap-3 lg:gap-4">
+              <a href="{% url 'movies:movie_detail' movie.pk %}"
+                 class="flex items-center gap-2
+                        px-4 sm:px-8 lg:px-10
+                        py-2 sm:py-3 lg:py-4
+                        bg-blue-600 hover:bg-blue-500
+                        text-white font-bold rounded-full
+                        shadow-xl shadow-blue-600/40
+                        transition-all duration-200 hover:scale-105 active:scale-95
+                        text-xs sm:text-sm lg:text-base
+                        whitespace-nowrap">
+                <i class="fas fa-download text-xs sm:text-sm lg:text-base"></i>
+                <span>Download</span>
+              </a>
+              <a href="{% url 'movies:movie_detail' movie.pk %}"
+                 class="flex items-center gap-2
+                        px-4 sm:px-8 lg:px-10
+                        py-2 sm:py-3 lg:py-4
+                        bg-white/10 hover:bg-white/20 backdrop-blur-sm
+                        text-white font-bold rounded-full
+                        border border-white/20 hover:border-white/40
+                        transition-all duration-200 hover:scale-105 active:scale-95
+                        text-xs sm:text-sm lg:text-base
+                        whitespace-nowrap">
+                <i class="fas fa-info-circle text-xs sm:text-sm lg:text-base"></i>
+                <span>More Info</span>
+              </a>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      {# ── Vertical thumbnail strip — lg+ only ── #}
+      {% if featured_movies|length > 1 %}
+      <div class="hidden lg:flex flex-col justify-center gap-3
+                  w-28 xl:w-32 flex-shrink-0
+                  pr-6 xl:pr-10
+                  py-10 z-20">
+        {% for m in featured_movies %}
+        <button onclick="heroGoTo({{ forloop.counter0 }})"
+                class="hero-thumb group relative w-full aspect-[2/3] rounded-xl overflow-hidden
+                       transition-all duration-300 border-2
+                       {% if forloop.first %}border-blue-500 opacity-100{% else %}border-white/10 opacity-45 hover:opacity-90 hover:border-white/30 hover:scale-105{% endif %}"
+                data-thumb-index="{{ forloop.counter0 }}">
+          <img src="{{ m.image_url }}" alt="{{ m.title }}" class="w-full h-full object-cover" loading="lazy" />
+          <div class="absolute inset-0 bg-black/25 group-hover:bg-transparent transition-colors"></div>
+          {% if forloop.first %}
+          <div class="absolute left-0 top-0 bottom-0 w-0.5 bg-blue-500 rounded-r-sm"></div>
+          {% endif %}
+        </button>
+        {% endfor %}
+      </div>
+      {% endif %}
+
     </div>
   </div>
+  {% endfor %}
+
+  {# ── Nav arrows ── #}
+  {% if featured_movies|length > 1 %}
+  {# FIX 6: show arrows on mobile too, but smaller and positioned clear of content #}
+  <button id="heroPrev"
+          class="flex absolute left-2 sm:left-4 lg:left-8
+                 top-1/2 -translate-y-1/2 z-30
+                 w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12
+                 bg-black/50 hover:bg-black/80 backdrop-blur-sm
+                 rounded-full items-center justify-center text-white
+                 transition-all duration-200 hover:scale-110
+                 border border-white/20 hover:border-white/40
+                 -translate-y-8 sm:-translate-y-1/2">
+    {# FIX 7: shift arrows up on mobile so they're above the thumb strip #}
+    <i class="fas fa-chevron-left text-xs sm:text-sm lg:text-base"></i>
+  </button>
+  <button id="heroNext"
+          class="flex absolute
+                 right-2 sm:right-4 lg:right-32 xl:right-36
+                 top-1/2 z-30
+                 w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12
+                 bg-black/50 hover:bg-black/80 backdrop-blur-sm
+                 rounded-full items-center justify-center text-white
+                 transition-all duration-200 hover:scale-110
+                 border border-white/20 hover:border-white/40
+                 -translate-y-8 sm:-translate-y-1/2">
+    <i class="fas fa-chevron-right text-xs sm:text-sm lg:text-base"></i>
+  </button>
+
+  {# ── Progress bar — sits directly above the thumb strip on mobile ── #}
+  {# FIX 8: h-14 thumb strip + py-3 = ~56px. bottom-14 clears it cleanly #}
+  <div class="absolute bottom-20 sm:bottom-24 lg:bottom-0 left-0 right-0 z-30 h-0.5 bg-white/10">
+    <div id="heroProgress" class="h-full bg-blue-500 w-0 transition-none"></div>
+  </div>
+
+  {# ── Horizontal thumbnail strip — mobile & tablet only ── #}
+  {# FIX 9: fixed height strip so progress bar and content padding can target it precisely #}
+  <div class="lg:hidden absolute bottom-0 left-0 right-0 z-30 h-20 sm:h-24
+              flex items-center
+              px-4 sm:px-6
+              bg-gradient-to-t from-gray-950 via-gray-950/80 to-transparent">
+    <div class="flex gap-2 overflow-x-auto pb-0 scrollbar-hide w-full justify-center">
+      {% for movie in featured_movies %}
+      <button onclick="heroGoTo({{ forloop.counter0 }})"
+              class="hero-thumb group flex-shrink-0 relative w-12 sm:w-16 aspect-[2/3]
+                     rounded-lg sm:rounded-xl overflow-hidden shadow-md
+                     transition-all duration-300 border-2
+                     {% if forloop.first %}border-blue-500 scale-105{% else %}border-transparent opacity-60 hover:opacity-100{% endif %}"
+              data-thumb-index="{{ forloop.counter0 }}">
+        <img src="{{ movie.image_url }}" alt="{{ movie.title }}" class="w-full h-full object-cover" loading="lazy" />
+        <div class="absolute inset-0 bg-black/30 group-hover:bg-black/10 transition-colors"></div>
+      </button>
+      {% endfor %}
+    </div>
+  </div>
+
+  {% endif %}
 </section>
-
-{# Quick Navigation Cards - Play Store Style #}
-<section class="container mx-auto px-4 lg:px-8 py-1">
-  <div class="grid grid-cols-2 lg:grid-cols-6 gap-3 lg:gap-4">
+{% endif %}
 
 
-    {# Movies Card #}
-    <a href="{% url 'movies:home' %}" 
-       class="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 p-6 lg:p-8 hover:shadow-2xl hover:scale-105 transition-all duration-300">
-      <div class="relative z-10">
-        <div class="w-12 h-12 lg:w-14 lg:h-14 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-          <i class="fas fa-film text-2xl lg:text-3xl text-white"></i>
-        </div>
-        <h3 class="text-white font-bold text-base lg:text-lg mb-1">Movies</h3>
-        <p class="text-white/80 text-xs lg:text-sm">Stream HD movies</p>
-      </div>
-      <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16"></div>
+{# ========================================================= #}
+{# LATEST RELEASES with FILTER TABS                          #}
+{# ========================================================= #}
+<section class="container mx-auto px-4 sm:px-6 lg:px-8 pt-8 sm:pt-10 pb-4">
+  <div class="flex items-center justify-between mb-4 sm:mb-5">
+    <h2 class="text-lg sm:text-xl lg:text-2xl font-black text-gray-900 dark:text-white flex items-center gap-2">
+      <i class="fas fa-clock text-blue-500"></i>
+      Latest Releases
+    </h2>
+    <a href="{% url 'movies:home' %}"
+       class="text-blue-600 dark:text-blue-400 text-xs sm:text-sm font-semibold flex items-center gap-1 hover:gap-2 transition-all">
+      See all <i class="fas fa-arrow-right text-xs"></i>
     </a>
+  </div>
 
-    {# Anime Card #}
-    <a href="{% url 'anime:list' %}" 
-       class="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-purple-500 to-purple-600 p-6 lg:p-8 hover:shadow-2xl hover:scale-105 transition-all duration-300">
-      <div class="relative z-10">
-        <div class="w-12 h-12 lg:w-14 lg:h-14 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-          <i class="fas fa-play-circle text-2xl lg:text-3xl text-white"></i>
-        </div>
-        <h3 class="text-white font-bold text-base lg:text-lg mb-1">Anime</h3>
-        <p class="text-white/80 text-xs lg:text-sm">Watch latest episodes</p>
-      </div>
-      <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16"></div>
-    </a>
+  {# Filter Tabs #}
+  <div class="flex gap-2 overflow-x-auto pb-2 mb-4 sm:mb-5 scrollbar-hide" id="filterTabs">
+    <button onclick="filterMovies('all')"
+            class="filter-tab active flex-shrink-0 px-4 sm:px-5 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-bold transition-all bg-blue-600 text-white shadow-lg" data-filter="all">
+      All
+    </button>
+    <button onclick="filterMovies('hollywood')"
+            class="filter-tab flex-shrink-0 px-4 sm:px-5 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-bold transition-all bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-blue-100 dark:hover:bg-blue-900/40" data-filter="hollywood">
+      Hollywood
+    </button>
+    <button onclick="filterMovies('nollywood')"
+            class="filter-tab flex-shrink-0 px-4 sm:px-5 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-bold transition-all bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-blue-100 dark:hover:bg-blue-900/40" data-filter="nollywood">
+      Nollywood
+    </button>
+    <button onclick="filterMovies('kdrama')"
+            class="filter-tab flex-shrink-0 px-4 sm:px-5 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-bold transition-all bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-blue-100 dark:hover:bg-blue-900/40" data-filter="kdrama">
+      K-Drama
+    </button>
+    <button onclick="filterMovies('series')"
+            class="filter-tab flex-shrink-0 px-4 sm:px-5 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-bold transition-all bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-blue-100 dark:hover:bg-blue-900/40" data-filter="series">
+      Series
+    </button>
+  </div>
 
-    {# Manga Card #}
-    <a href="{% url 'manga:list' %}" 
-       class="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-pink-500 to-pink-600 p-6 lg:p-8 hover:shadow-2xl hover:scale-105 transition-all duration-300">
-      <div class="relative z-10">
-        <div class="w-12 h-12 lg:w-14 lg:h-14 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-          <i class="fas fa-book text-2xl lg:text-3xl text-white"></i>
+  {# Movie Grid — filterable #}
+  <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-2.5 sm:gap-3 lg:gap-4" id="latestMoviesGrid">
+    {% for movie in latest_movies %}
+    <a href="{% url 'movies:movie_detail' movie.pk %}"
+       class="group movie-card"
+       data-category="{% for cat in movie.categories.all %}{{ cat.name|lower }} {% endfor %}">
+      <div class="relative aspect-[2/3] rounded-lg sm:rounded-xl overflow-hidden bg-gray-200 dark:bg-gray-700 mb-1 sm:mb-1.5 shadow-md group-hover:shadow-xl transition-shadow">
+        <img src="{{ movie.image_url }}"
+             alt="{{ movie.title }}"
+             class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+             loading="lazy" />
+        <div class="absolute top-1.5 left-1.5">
+          <span class="px-1.5 py-0.5 bg-blue-600 text-white text-[8px] sm:text-[9px] font-bold rounded shadow">NEW</span>
         </div>
-        <h3 class="text-white font-bold text-base lg:text-lg mb-1">Manga</h3>
-        <p class="text-white/80 text-xs lg:text-sm">Read online</p>
+        <div class="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors"></div>
       </div>
-      <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16"></div>
+      <h4 class="font-semibold text-[10px] sm:text-xs text-gray-900 dark:text-white line-clamp-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+        {{ movie.title }}
+      </h4>
     </a>
-
-    {# News Card - NEW with badge #}
-    <a href="{% url 'news:home' %}" 
-       class="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-red-500 to-orange-600 p-6 lg:p-8 hover:shadow-2xl hover:scale-105 transition-all duration-300">
-      <div class="relative z-10">
-        <div class="w-12 h-12 lg:w-14 lg:h-14 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform relative">
-          <i class="fas fa-newspaper text-2xl lg:text-3xl text-white"></i>
-          <span class="absolute -top-1 -right-1 w-3 h-3 bg-yellow-400 rounded-full animate-pulse shadow-lg"></span>
-        </div>
-        <h3 class="text-white font-bold text-base lg:text-lg mb-1">News</h3>
-        <p class="text-white/80 text-xs lg:text-sm">Latest updates</p>
-      </div>
-      <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16"></div>
-    </a>
-
-    {# PC games Card #}
-    <a href="{% url 'pc_games:game_list' %}" 
-       class="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-indigo-600 to-indigo-700 p-6 lg:p-8 hover:shadow-2xl hover:scale-105 transition-all duration-300">
-      <div class="relative z-10">
-        <div class="w-12 h-12 lg:w-14 lg:h-14 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-          <i class="fas fa-gamepad text-2xl lg:text-3xl text-white"></i>
-        </div>
-        <h3 class="text-white font-bold text-base lg:text-lg mb-1">PC Games</h3>
-        <p class="text-white/80 text-xs lg:text-sm">Game repacks</p>
-      </div>
-      <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16"></div>
-    </a>
-
-    {# apk_store Card #}
-    <a href="{% url 'apk_store:home' %}" 
-       class="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-green-500 to-green-600 p-6 lg:p-8 hover:shadow-2xl hover:scale-105 transition-all duration-300">
-      <div class="relative z-10">
-        <div class="w-12 h-12 lg:w-14 lg:h-14 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-          <i class="fas fa-mobile-alt text-2xl lg:text-3xl text-white"></i>
-        </div>
-        <h3 class="text-white font-bold text-base lg:text-lg mb-1">Apps & Games</h3>
-        <p class="text-white/80 text-xs lg:text-sm">Premium APKs</p>
-      </div>
-      <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16"></div>
-    </a>
+    {% endfor %}
   </div>
 </section>
 
-{# Movies Section #}
-{% include 'main/components/movies_section.html' %}
 
-{# News Section - NEW! #}
-{% include 'main/components/news_section.html' %}
+{# ========================================================= #}
+{# TRENDING MOVIES                                            #}
+{# ========================================================= #}
+{% if trending_movies %}
+<section class="container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+  <div class="flex items-center justify-between mb-4 sm:mb-5">
+    <h2 class="text-lg sm:text-xl lg:text-2xl font-black text-gray-900 dark:text-white flex items-center gap-2">
+      <i class="fas fa-fire text-orange-500"></i>
+      Trending Now
+    </h2>
+    <a href="{% url 'movies:home' %}"
+       class="text-blue-600 dark:text-blue-400 text-xs sm:text-sm font-semibold flex items-center gap-1 hover:gap-2 transition-all">
+      See all <i class="fas fa-arrow-right text-xs"></i>
+    </a>
+  </div>
+  <div class="flex gap-3 sm:gap-4 overflow-x-auto pb-3 scrollbar-hide snap-x snap-mandatory">
+    {% for movie in trending_movies %}
+    <a href="{% url 'movies:movie_detail' movie.pk %}"
+       class="group flex-shrink-0 w-28 sm:w-36 lg:w-44 snap-start">
+      <div class="relative aspect-[2/3] rounded-xl sm:rounded-2xl overflow-hidden bg-gray-200 dark:bg-gray-700 shadow-lg group-hover:shadow-2xl transition-shadow">
+        <img src="{{ movie.image_url }}"
+             alt="{{ movie.title }}"
+             class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+             loading="lazy" />
+        {% if forloop.counter <= 3 %}
+        <div class="absolute top-2 left-2 w-6 h-6 sm:w-7 sm:h-7 bg-orange-500 rounded-full flex items-center justify-center shadow-lg">
+          <span class="text-white font-black text-[10px] sm:text-xs">#{{ forloop.counter }}</span>
+        </div>
+        {% endif %}
+        <div class="absolute bottom-0 left-0 right-0 p-1.5 sm:p-2 bg-gradient-to-t from-black/80 to-transparent">
+          <p class="text-white text-[9px] sm:text-[10px] font-medium flex items-center gap-1">
+            <i class="fas fa-download text-blue-400 text-[8px] sm:text-[9px]"></i>
+            {{ movie.views|default:"0" }}
+          </p>
+        </div>
+      </div>
+      <h4 class="font-semibold text-[10px] sm:text-xs lg:text-sm text-gray-900 dark:text-white line-clamp-2 mt-1 sm:mt-1.5 px-0.5 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+        {{ movie.title }}
+      </h4>
+    </a>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
 
-{# Anime Section #}
-{% include 'main/components/anime_section.html' %}
 
-{# Manga Section #}
-{% include 'main/components/manga_section.html' %}
+{# ========================================================= #}
+{# MORE ON WATCH2D — Secondary categories strip              #}
+{# ========================================================= #}
+<section class="container mx-auto px-4 sm:px-6 lg:px-8 py-5 sm:py-6">
+  <h2 class="text-base sm:text-lg font-bold text-gray-700 dark:text-gray-300 mb-3 sm:mb-4">More on Watch2D</h2>
+  <div class="grid grid-cols-4 gap-2 sm:gap-3">
 
-{# PC Games Section #}
-{% include 'main/components/pc_games_section.html' %}
+    <a href="{% url 'anime:list' %}"
+       class="group flex flex-col items-center gap-1.5 sm:gap-2 p-3 sm:p-4 bg-white dark:bg-gray-800 rounded-xl sm:rounded-2xl shadow-sm hover:shadow-lg border border-gray-100 dark:border-gray-700 transition-all hover:scale-105 active:scale-95">
+      <div class="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl sm:rounded-2xl flex items-center justify-center shadow-md group-hover:shadow-purple-500/40 transition-shadow">
+        <i class="fas fa-play-circle text-white text-base sm:text-xl"></i>
+      </div>
+      <span class="text-[10px] sm:text-xs font-bold text-gray-700 dark:text-gray-300 text-center">Anime</span>
+      {% if total_anime %}
+      <span class="hidden sm:block text-[10px] text-gray-400">{{ total_anime }}+ titles</span>
+      {% endif %}
+    </a>
 
-{# APK Section #}
-{% include 'main/components/apk_section.html' %}
+    <a href="{% url 'manga:list' %}"
+       class="group flex flex-col items-center gap-1.5 sm:gap-2 p-3 sm:p-4 bg-white dark:bg-gray-800 rounded-xl sm:rounded-2xl shadow-sm hover:shadow-lg border border-gray-100 dark:border-gray-700 transition-all hover:scale-105 active:scale-95">
+      <div class="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-pink-500 to-pink-600 rounded-xl sm:rounded-2xl flex items-center justify-center shadow-md group-hover:shadow-pink-500/40 transition-shadow">
+        <i class="fas fa-book text-white text-base sm:text-xl"></i>
+      </div>
+      <span class="text-[10px] sm:text-xs font-bold text-gray-700 dark:text-gray-300 text-center">Manga</span>
+      {% if total_manga %}
+      <span class="hidden sm:block text-[10px] text-gray-400">{{ total_manga }}+ titles</span>
+      {% endif %}
+    </a>
 
+    <a href="{% url 'pc_games:game_list' %}"
+       class="group flex flex-col items-center gap-1.5 sm:gap-2 p-3 sm:p-4 bg-white dark:bg-gray-800 rounded-xl sm:rounded-2xl shadow-sm hover:shadow-lg border border-gray-100 dark:border-gray-700 transition-all hover:scale-105 active:scale-95">
+      <div class="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-indigo-600 to-indigo-700 rounded-xl sm:rounded-2xl flex items-center justify-center shadow-md group-hover:shadow-indigo-500/40 transition-shadow">
+        <i class="fas fa-gamepad text-white text-base sm:text-xl"></i>
+      </div>
+      <span class="text-[10px] sm:text-xs font-bold text-gray-700 dark:text-gray-300 text-center leading-tight">PC Games</span>
+      {% if total_pc_games %}
+      <span class="hidden sm:block text-[10px] text-gray-400">{{ total_pc_games }}+ games</span>
+      {% endif %}
+    </a>
+
+    <a href="{% url 'apk_store:home' %}"
+       class="group flex flex-col items-center gap-1.5 sm:gap-2 p-3 sm:p-4 bg-white dark:bg-gray-800 rounded-xl sm:rounded-2xl shadow-sm hover:shadow-lg border border-gray-100 dark:border-gray-700 transition-all hover:scale-105 active:scale-95">
+      <div class="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-xl sm:rounded-2xl flex items-center justify-center shadow-md group-hover:shadow-green-500/40 transition-shadow">
+        <i class="fas fa-mobile-alt text-white text-base sm:text-xl"></i>
+      </div>
+      <span class="text-[10px] sm:text-xs font-bold text-gray-700 dark:text-gray-300 text-center">APK Store</span>
+      {% if total_apks %}
+      <span class="hidden sm:block text-[10px] text-gray-400">{{ total_apks }}+ apps</span>
+      {% endif %}
+    </a>
+
+  </div>
+</section>
+
+
+{# Divider #}
+<div class="container mx-auto px-4 sm:px-6 lg:px-8 py-2">
+  <div class="border-t border-gray-200 dark:border-gray-700"></div>
+</div>
+
+
+{# ========================================================= #}
+{# EXPLORE MORE CTA                                          #}
+{# ========================================================= #}
+<section class="container mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 flex flex-col items-center gap-2 sm:gap-3">
+  <a href="{% url 'movies:home' %}"
+     class="explore-btn group relative inline-flex items-center gap-2 sm:gap-3 px-6 sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-blue-600 to-blue-700 rounded-xl sm:rounded-2xl text-white font-bold text-sm sm:text-base shadow-xl transition-all duration-300 hover:-translate-y-0.5 hover:shadow-blue-500/40 hover:shadow-2xl overflow-hidden">
+    <i class="fas fa-film text-blue-200 group-hover:rotate-12 transition-transform duration-300"></i>
+    <span>Explore More Movies</span>
+    <i class="fas fa-arrow-right text-blue-200 group-hover:translate-x-1 transition-transform duration-300"></i>
+    <span class="shimmer absolute inset-0"></span>
+  </a>
+  <p class="text-xs text-gray-400 dark:text-gray-500">Thousands of HD movies waiting for you</p>
+</section>
+
+
+{# ========================================================= #}
+{# SCRIPTS                                                    #}
+{# ========================================================= #}
+<script>
+(function () {
+  const slides = document.querySelectorAll('.hero-slide');
+  const thumbs = document.querySelectorAll('.hero-thumb');
+  const progressBar = document.getElementById('heroProgress');
+  const prevBtn = document.getElementById('heroPrev');
+  const nextBtn = document.getElementById('heroNext');
+  const carousel = document.getElementById('heroCarousel');
+
+  if (!slides.length) return;
+
+  let current = 0;
+  const total = slides.length;
+  const DURATION = 5500;
+  let progressStart = null;
+  let rafId = null;
+  let isPaused = false;
+  let touchStartX = 0;
+  let touchStartY = 0;
+
+  function showSlide(index) {
+    slides.forEach((s, i) => {
+      const active = i === index;
+      s.classList.toggle('opacity-100', active);
+      s.classList.toggle('z-10', active);
+      s.classList.toggle('opacity-0', !active);
+      s.classList.toggle('z-0', !active);
+    });
+    thumbs.forEach((t, i) => {
+      const active = i === index;
+      t.classList.toggle('border-blue-500', active);
+      t.classList.toggle('scale-105', active);
+      t.classList.toggle('border-transparent', !active);
+      t.classList.toggle('opacity-60', !active);
+    });
+    current = index;
+  }
+
+  function startProgress() {
+    cancelAnimationFrame(rafId);
+    progressStart = performance.now();
+
+    function tick(now) {
+      if (isPaused) { progressStart += now - progressStart; rafId = requestAnimationFrame(tick); return; }
+      const elapsed = now - progressStart;
+      const pct = Math.min((elapsed / DURATION) * 100, 100);
+      if (progressBar) progressBar.style.width = pct + '%';
+      if (elapsed < DURATION) {
+        rafId = requestAnimationFrame(tick);
+      } else {
+        heroGoTo((current + 1) % total);
+      }
+    }
+    rafId = requestAnimationFrame(tick);
+  }
+
+  window.heroGoTo = function (index) {
+    showSlide(index);
+    if (progressBar) progressBar.style.width = '0%';
+    if (total > 1) startProgress();
+  };
+
+  prevBtn && prevBtn.addEventListener('click', () => heroGoTo((current - 1 + total) % total));
+  nextBtn && nextBtn.addEventListener('click', () => heroGoTo((current + 1) % total));
+
+  /* Touch / swipe support */
+  carousel && carousel.addEventListener('touchstart', e => {
+    touchStartX = e.touches[0].clientX;
+    touchStartY = e.touches[0].clientY;
+  }, { passive: true });
+
+  carousel && carousel.addEventListener('touchend', e => {
+    const dx = e.changedTouches[0].clientX - touchStartX;
+    const dy = e.changedTouches[0].clientY - touchStartY;
+    if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 40) {
+      dx < 0 ? heroGoTo((current + 1) % total) : heroGoTo((current - 1 + total) % total);
+    }
+  }, { passive: true });
+
+  /* Keyboard nav */
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowLeft') heroGoTo((current - 1 + total) % total);
+    if (e.key === 'ArrowRight') heroGoTo((current + 1) % total);
+  });
+
+  /* Pause on hover/focus */
+  carousel && carousel.addEventListener('mouseenter', () => { isPaused = true; });
+  carousel && carousel.addEventListener('mouseleave', () => { isPaused = false; });
+
+  if (total > 1) startProgress();
+})();
+
+/* ── Filter Tabs ── */
+function filterMovies(filter) {
+  document.querySelectorAll('.filter-tab').forEach(btn => {
+    const active = btn.dataset.filter === filter;
+    btn.classList.toggle('bg-blue-600', active);
+    btn.classList.toggle('text-white', active);
+    btn.classList.toggle('shadow-lg', active);
+    btn.classList.toggle('bg-gray-100', !active);
+    btn.classList.toggle('text-gray-700', !active);
+    btn.classList.remove('dark:bg-gray-800', 'dark:text-gray-300');
+  });
+  document.querySelectorAll('.movie-card').forEach(card => {
+    if (filter === 'all') {
+      card.style.display = '';
+    } else {
+      const cats = card.dataset.category || '';
+      card.style.display = cats.includes(filter) ? '' : 'none';
+    }
+  });
+}
+</script>
+
+<style>
+  /* ── Scrollbar hide ── */
+  .scrollbar-hide::-webkit-scrollbar { display: none; }
+  .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+
+  /* ── Hero carousel height ── */
+  #heroCarousel { position: relative; min-height: 300px; }
+
+  /* Mobile: compact hero */
+  @media (max-width: 639px) {
+    #heroCarousel { min-height: 260px; }
+  }
+
+  /* Tablet */
+  @media (min-width: 640px) and (max-width: 1023px) {
+    #heroCarousel { min-height: 340px; }
+  }
+
+  /* Desktop */
+  @media (min-width: 1024px) {
+    #heroCarousel { min-height: 480px; }
+  }
+
+  /* ── Slide transition ── */
+  .hero-slide { transition: opacity 0.65s ease; }
+
+  /* ── Explore button shimmer ── */
+  .shimmer {
+    background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.15) 50%, transparent 100%);
+    transform: translateX(-100%);
+    transition: transform 0.7s ease;
+    pointer-events: none;
+  }
+  .explore-btn:hover .shimmer { transform: translateX(100%); }
+
+  /* ── Progress bar transition (smooth but instant reset) ── */
+  #heroProgress { will-change: width; }
+
+  /* ── Touch-action on carousel for better swipe ── */
+  #heroCarousel { touch-action: pan-y; }
+</style>
 
 {% endblock %}
