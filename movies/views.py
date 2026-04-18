@@ -554,7 +554,7 @@ class MovieDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        movie = self.get_object()
+        movie = context['object']  # already fetched — don't call get_object() again (causes double view-count)
         request = self.request
         user = request.user
 
@@ -565,7 +565,7 @@ class MovieDetailView(DetailView):
         context['is_liked'] = user.is_authenticated and user in liked_users
         context['is_watchlisted'] = user.is_authenticated and user in watchlisted_users
         
-        # Updated comments query - only top-level comments with replies prefetched
+        # Top-level comments with replies prefetched
         context['comments'] = movie.comments.filter(
             parent__isnull=True
         ).select_related('user').prefetch_related(
@@ -574,13 +574,20 @@ class MovieDetailView(DetailView):
         
         context['comment_form'] = CommentForm()
 
-        # Related movies
-        related_movies = Movie.objects.select_related().only(
-            'id', 'title', 'image_url', 'created_at'
-        ).filter(
-            categories__in=movie.categories.all()
-        ).exclude(id=movie.id).distinct().order_by('?')[:12]
-        
+        # Related movies — by shared category; fall back to recent movies if none match
+        movie_categories = movie.categories.all()
+        if movie_categories.exists():
+            related_movies = Movie.objects.only(
+                'id', 'title', 'image_url', 'created_at'
+            ).filter(
+                categories__in=movie_categories
+            ).exclude(id=movie.id).distinct().order_by('?')[:12]
+        else:
+            # Movie has no categories — show 12 most recent as fallback
+            related_movies = Movie.objects.only(
+                'id', 'title', 'image_url', 'created_at'
+            ).exclude(id=movie.id).order_by('-created_at')[:12]
+
         context['related_movies'] = related_movies
 
         # Cached sidebar
