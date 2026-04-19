@@ -3,999 +3,566 @@
 {% trending_movies 6 as trending %}
 {% load static %}
 
-{# -- SEO Meta Tags -- #}
 {% block title %}Watch2D - Free Movie Downloads & Streaming in HD{% endblock %}
-
-{% block meta_description %}
-  Watch2D: Download & stream free movies, anime, K-Dramas, Nollywood & Hollywood series in HD. Check recently updated episodes and latest uploads.
-{% endblock %}
-
-{% block meta_keywords %}
-  free movies, download movies, stream movies, anime, K-Drama, Nollywood, Hollywood, latest uploads
-{% endblock %}
-
-{% block canonical_block %}
-  <link rel="canonical" href="{{ request.build_absolute_uri }}" />
-{% endblock %}
-
+{% block meta_description %}Watch2D: Download & stream free movies, anime, K-Dramas, Nollywood & Hollywood series in HD.{% endblock %}
+{% block meta_keywords %}free movies, download movies, stream movies, anime, K-Drama, Nollywood, Hollywood{% endblock %}
+{% block canonical_block %}<link rel="canonical" href="{{ request.build_absolute_uri }}" />{% endblock %}
 {% block og_type %}website{% endblock %}
-{% block og_title %}Watch2D â€“ Free Movie Downloads & Streaming{% endblock %}
-{% block og_description %}Download & stream movies, anime, K-Dramas, Nollywood & Hollywood series free in HD. Updated daily on Watch2D.{% endblock %}
+{% block og_title %}Watch2D – Free Movie Downloads & Streaming{% endblock %}
+{% block og_description %}Download & stream movies, anime, K-Dramas, Nollywood & Hollywood series free in HD.{% endblock %}
 {% block og_url %}{{ request.build_absolute_uri }}{% endblock %}
 {% block og_image %}{% static 'images/home-preview.jpg' %}{% endblock %}
 
 {% block extra_ld_json %}
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "WebSite",
-    "name": "Watch2D",
-    "url": "{{ request.build_absolute_uri }}",
-    "potentialAction": {
-      "@type": "SearchAction",
-      "target": "{{ request.build_absolute_uri }}search/?q={search_term_string}",
-      "query-input": "required name=search_term_string"
-    }
-  }
-  </script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebSite","name":"Watch2D","url":"{{ request.build_absolute_uri }}","potentialAction":{"@type":"SearchAction","target":"{{ request.build_absolute_uri }}search/?q={search_term_string}","query-input":"required name=search_term_string"}}
+</script>
 {% endblock %}
 
 {% block content %}
-<div class="min-h-screen bg-gray-50 dark:bg-gray-900">
-
-{# Main Content #}
-<div class="container mx-auto px-4 py-12">
-
-
-    {# â€” Blockbuster Movies â€” #}
-    <section id="blockbusters" class="mb-16">
-      <div class="flex items-center justify-between mb-8">
-        <div class="flex items-center">
-          <div class="w-1 h-8 bg-gradient-to-b from-blue-500 to-purple-500 rounded-full mr-4"></div>
-          <div>
-            <h2 class="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">
-              Blockbuster Movies
-            </h2>
-            <p class="text-gray-600 dark:text-gray-400 text-sm">Blockbusters For You</p>
-          </div>
-        </div>
-      </div>
-
-      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-        {% for movie in blockbusters %}
-          <div class="group">
-            <a href="{% url 'movies:movie_detail' movie.pk %}" class="block">
-              <div class="relative bg-gray-200 dark:bg-gray-800 rounded-lg overflow-hidden aspect-[3/4] group-hover:shadow-xl transition-all duration-300 transform group-hover:scale-105">
-                {% if movie.image_url %}
-                  <img src="{{ movie.image_url }}"
-                      alt="{{ movie.title }}"
-                      class="w-full h-full object-cover opacity-0 transition-opacity duration-300"
-                      onload="this.style.opacity='1';"
-                      onerror="this.style.display='none'; this.parentElement.querySelector('.fallback-icon').style.display='flex';">
-                {% endif %}
-                <div class="fallback-icon w-full h-full flex items-center justify-center {% if movie.image_url %}hidden{% endif %}">
-                  <i class="fas fa-film text-gray-400 text-3xl"></i>
-                </div>
-                <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                  <div class="bg-white/90 rounded-full p-3 transform scale-75 group-hover:scale-100 transition-transform duration-300">
-                    <i class="fas fa-play text-primary-600 text-xl"></i>
-                  </div>
-                </div>
-                <div class="absolute top-2 right-2 bg-black/50 text-white text-xs px-2 py-1 rounded">
-                  HD
-                </div>
-                  <div class="absolute top-3 left-3 bg-gradient-to-r from-red-500 to-red-500 text-white text-xs px-2 py-1 rounded-full">
-                    <i class="fas fa-fire mr-1"></i>
-                    Hot
-                  </div>
-              </div>
-              <div class="pt-3">
-                <h3 class="font-semibold text-gray-900 dark:text-white text-sm line-clamp-2 group-hover:text-primary-600 transition-colors">
-                  {{ movie.title }}
-                </h3>
-                {% if movie.year %}
-                  <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                    {{ movie.year }}
-                  </p>
-                {% endif %}
-              </div>
-            </a>
-          </div>
-        {% empty %}
-          <div class="col-span-full text-center py-20">
-            <i class="fas fa-film text-gray-400 text-5xl mb-4"></i>
-            <h3 class="text-xl font-semibold text-gray-700 dark:text-gray-300 mb-2">No blockbusters right now</h3>
-            <p class="text-gray-500 dark:text-gray-400">Check back soon!</p>
-          </div>
-        {% endfor %}
-      </div>
-    </section>
-
-    {# â€” Trending Now on Watch2D â€” #}
-    <section id="trending" class="mb-16">
-      <div class="flex items-center justify-between mb-8">
-        <div class="flex items-center">
-          <div class="w-1 h-8 bg-gradient-to-b from-blue-500 to-purple-500 rounded-full mr-4"></div>
-          <div>
-            <h2 class="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">
-              Trending Now on Watch2D
-            </h2>
-            <p class="text-gray-600 dark:text-gray-400 text-sm">
-              See what everyone is watching
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-        {% for movie in trending %}
-          <div class="group">
-            <a href="{% url 'movies:movie_detail' movie.pk %}" class="block">
-              <div class="relative bg-gray-200 dark:bg-gray-800 rounded-lg overflow-hidden aspect-[3/4] group-hover:shadow-xl transition-all duration-300 transform group-hover:scale-105">
-                {% if movie.image_url %}
-                  <img
-                    src="{{ movie.image_url }}"
-                    alt="{{ movie.title }}"
-                    class="w-full h-full object-cover opacity-0 transition-opacity duration-300"
-                    onload="this.style.opacity='1';"
-                    onerror="this.style.display='none'; this.parentElement.querySelector('.fallback-icon').style.display='flex';"
-                  >
-                {% endif %}
-                <div class="fallback-icon w-full h-full flex items-center justify-center {% if movie.image_url %}hidden{% endif %}">
-                  <i class="fas fa-film text-gray-400 text-3xl"></i>
-                </div>
-
-                {# Play overlay #}
-                <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                  <div class="bg-white/90 rounded-full p-3 transform scale-75 group-hover:scale-100 transition-transform duration-300">
-                    <i class="fas fa-play text-primary-600 text-xl"></i>
-                  </div>
-                </div>
-
-                {# HD badge #}
-                <div class="absolute top-2 right-2 bg-black/50 text-white text-xs px-2 py-1 rounded">
-                  HD
-                </div>
-
-                {# Hot badge #}
-                <div class="absolute top-3 left-3 bg-gradient-to-r from-red-500 to-red-500 text-white text-xs px-2 py-1 rounded-full">
-                  <i class="fas fa-fire mr-1"></i>
-                  Trending
-                </div>
-              </div>
-
-              <div class="pt-3">
-                <h3 class="font-semibold text-gray-900 dark:text-white text-sm line-clamp-2 group-hover:text-primary-600 transition-colors">
-                  {{ movie.title }}
-                </h3>
-                {% if movie.year %}
-                  <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                    {{ movie.year }}
-                  </p>
-                {% endif %}
-              </div>
-            </a>
-          </div>
-        {% empty %}
-          <div class="col-span-full text-center py-20">
-            <i class="fas fa-film text-gray-400 text-5xl mb-4"></i>
-            <h3 class="text-xl font-semibold text-gray-700 dark:text-gray-300 mb-2">
-              No trending movies right now
-            </h3>
-            <p class="text-gray-500 dark:text-gray-400">
-              Check back soon for fresh hits!
-            </p>
-          </div>
-        {% endfor %}
-      </div>
-    </section>
-
-    {# Latest Episodes #}
-    {% if new_episodes %}
-      <section id="latest-episodes" class="mb-16" data-section="latest-episodes">
-        <div class="flex items-center justify-between mb-8">
-          <div class="flex items-center">
-            <div class="w-1 h-8 bg-gradient-to-b from-red-500 to-pink-500 rounded-full mr-4"></div>
-            <div>
-              <h2 class="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">
-                Latest Episodes
-              </h2>
-              <p class="text-gray-600 dark:text-gray-400 text-sm">New episodes from trending series</p>
-            </div>
-          </div>
-        </div>
-
-        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-          {% for episode in new_episodes %}
-            {% if episode.title_b and not "complete" in episode.title_b|lower %}
-              <div class="group">
-                <a href="{% url 'movies:movie_detail' episode.pk %}" class="block">
-                  <div class="relative bg-gray-200 dark:bg-gray-800 rounded-lg overflow-hidden aspect-[3/4] group-hover:shadow-xl transition-all duration-300 transform group-hover:scale-105">
-                    {% if episode.image_url %}
-                      <img src="{{ episode.image_url }}" 
-                           alt="{{ episode.title }}" 
-                           class="w-full h-full object-cover opacity-0 transition-opacity duration-300"
-                           onerror="this.style.display='none'; this.parentElement.querySelector('.fallback-icon').style.display='flex';"
-                           onload="this.style.opacity='1';">
-                    {% endif %}
-                    
-                    {# Fallback icon #}
-                    <div class="fallback-icon w-full h-full flex items-center justify-center {% if episode.image_url %}hidden{% endif %}">
-                      <i class="fas fa-film text-gray-400 text-3xl"></i>
-                    </div>
-                    
-                    {# Overlay #}
-                    <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                      <div class="bg-white/90 rounded-full p-3 transform scale-75 group-hover:scale-100 transition-transform duration-300">
-                        <i class="fas fa-play text-red-600 text-xl"></i>
-                      </div>
-                    </div>
-                                    
-                      {# Quality Badge #}
-                      <div class="absolute top-2 right-2 bg-green-500 text-white text-xs px-2 py-1 rounded opacity-100 group-hover:opacity-100 transition-opacity duration-300">
-                        HD
-                      </div>
-
-                                    
-                    {# New Badge (if recently added) #}
-                    {% if movie.created_at|is_recent %}
-                      <div class="absolute top-3 left-3 bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs px-2 py-1 rounded-full opacity-90 group-hover:opacity-100 transition-opacity duration-300">
-                        <i class="fas fa-star mr-1"></i>
-                        NEW
-                      </div>
-                    {% endif %}
-                    </div>
-                  
-                  <div class="pt-3">
-                    <h3 class="font-semibold text-gray-900 dark:text-white text-sm line-clamp-2 group-hover:text-red-600 dark:group-hover:text-red-400 transition-colors">
-                      {{ episode.title }}
-                    </h3>
-                    <h4 class="font-semibold text-gray-900 dark:text-white text-sm line-clamp-2 group-hover:text-red-600 dark:group-hover:text-red-400 transition-colors">
-                      {{ episode.title_b|default:"New" }}
-                    </h4>
-                  </div>
-                </a>
-              </div>
-            {% endif %}
-          {% endfor %}
-        </div>
-
-        {# Load More Episodes Button #}
-        {% if new_episodes.has_next %}
-          <div class="text-center mt-8">
-            <button onclick="loadMoreEpisodes('{{ new_episodes.next_page_number }}')" 
-                    class="bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white px-8 py-3 rounded-full font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg">
-              <i class="fas fa-plus mr-2"></i>
-              Load More Episodes
-            </button>
-          </div>
-        {% endif %}
-      </section>
-    {% endif %}
-<!-- Add this section to home.html after the Blockbusters section or wherever you prefer -->
-
-    {# Horizontal Scrollable Categories Sections #}
-    {% if categories %}
-      {% for category in categories %}
-        {% if category.latest_movies %}
-          <section class="mb-16" data-section="category-{{ category.id }}">
-            <div class="flex items-center justify-between mb-6">
-              <div class="flex items-center">
-                <div class="w-1 h-8 bg-gradient-to-b from-purple-500 to-pink-500 rounded-full mr-4"></div>
-                <div>
-                  <h2 class="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">
-                    {{ category.name }}
-                  </h2>
-                  <p class="text-gray-600 dark:text-gray-400 text-sm">Latest {{ category.name }}</p>
-                </div>
-              </div>
-              <a href="{% url 'movies:category_movies' category.id %}" 
-                class="text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 text-sm font-semibold flex items-center transition-colors">
-                View All
-                <i class="fas fa-arrow-right ml-2"></i>
-              </a>
-            </div>
-
-            {# Horizontal Scrollable Container #}
-            <div class="relative group">
-              {# Left Scroll Button #}
-              <button onclick="scrollCategory('{{ category.id }}', 'left')" 
-                      class="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm p-3 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 hover:bg-white dark:hover:bg-gray-800 hidden md:block"
-                      aria-label="Scroll left">
-                <i class="fas fa-chevron-left text-gray-700 dark:text-gray-300"></i>
-              </button>
-
-              {# Scrollable Movies Container #}
-              <div id="category-scroll-{{ category.id }}" 
-                  class="flex gap-4 overflow-x-auto scrollbar-hide scroll-smooth pb-4 snap-x snap-mandatory">
-                {% for movie in category.latest_movies %}
-                  <div class="flex-shrink-0 w-40 sm:w-44 md:w-48 snap-start group/item">
-                    <a href="{% url 'movies:movie_detail' movie.pk %}" class="block">
-                      <div class="relative bg-gray-200 dark:bg-gray-800 rounded-lg overflow-hidden aspect-[3/4] group-hover/item:shadow-xl transition-all duration-300 transform group-hover/item:scale-105">
-                        {% if movie.image_url %}
-                          <img src="{{ movie.image_url }}" 
-                              alt="{{ movie.title }}" 
-                              class="w-full h-full object-cover opacity-0 transition-opacity duration-300"
-                              onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
-                              onload="this.style.opacity='1';">
-                        {% endif %}
-                        
-                        {# Fallback icon #}
-                        <div class="w-full h-full flex items-center justify-center {% if movie.image_url %}hidden{% endif %}">
-                          <i class="fas fa-film text-gray-400 text-3xl"></i>
-                        </div>
-                        
-                        {# Overlay #}
-                        <div class="absolute inset-0 bg-black/50 opacity-0 group-hover/item:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                          <div class="bg-white/90 rounded-full p-3 transform scale-75 group-hover/item:scale-100 transition-transform duration-300">
-                            <i class="fas fa-play text-primary-600 text-xl"></i>
-                          </div>
-                        </div>
-                        
-                        {# Quality Badge #}
-                        <div class="absolute top-2 right-2 bg-green-500 text-white text-xs px-2 py-1 rounded">
-                          HD
-                        </div>
-                        
-                        {# Episode/New Badge #}
-                        {% if movie.title_b and not movie.completed %}
-                          <div class="absolute top-3 left-3 bg-gradient-to-r from-orange-500 to-red-500 text-white text-xs px-2 py-1 rounded-full">
-                            <i class="fas fa-bolt mr-1"></i>
-                            EP
-                          </div>
-                        {% elif movie.created_at|is_recent %}
-                          <div class="absolute top-3 left-3 bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs px-2 py-1 rounded-full">
-                            <i class="fas fa-star mr-1"></i>
-                            NEW
-                          </div>
-                        {% endif %}
-                      </div>
-                      
-                      <div class="pt-3">
-                        <h3 class="font-semibold text-gray-900 dark:text-white text-sm line-clamp-2 group-hover/item:text-primary-600 dark:group-hover/item:text-primary-400 transition-colors">
-                          {{ movie.title }}
-                        </h3>
-                        
-                        {# Show Episode Title if available #}
-                        {% if movie.title_b %}
-                          <p class="text-xs text-orange-600 dark:text-orange-400 mt-1 font-medium line-clamp-1">
-                            <i class="fas fa-circle-play mr-1"></i>
-                            {{ movie.title_b }}
-                          </p>
-                        {% elif movie.created_at %}
-                          <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                            {{ movie.created_at|date:"M d, Y" }}
-                          </p>
-                        {% endif %}
-                      </div>
-                    </a>
-                  </div>
-                {% endfor %}
-              </div>
-
-              {# Right Scroll Button #}
-              <button onclick="scrollCategory('{{ category.id }}', 'right')" 
-                      class="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm p-3 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 hover:bg-white dark:hover:bg-gray-800 hidden md:block"
-                      aria-label="Scroll right">
-                <i class="fas fa-chevron-right text-gray-700 dark:text-gray-300"></i>
-              </button>
-            </div>
-
-            {# Mobile Scroll Indicator #}
-            <div class="flex justify-center mt-4 md:hidden">
-              <div class="flex items-center text-xs text-gray-500 dark:text-gray-400">
-                <i class="fas fa-hand-pointer mr-2"></i>
-                Swipe to see more
-              </div>
-            </div>
-          </section>
-        {% endif %}
-      {% endfor %}
-    {% endif %}
-
-    {# Custom Styles for Horizontal Scroll #}
-    <style>
-      /* Hide scrollbar but keep functionality */
-      .scrollbar-hide {
-        -ms-overflow-style: none;
-        scrollbar-width: none;
-      }
-      
-      .scrollbar-hide::-webkit-scrollbar {
-        display: none;
-      }
-      
-      /* Smooth scroll behavior */
-      .scroll-smooth {
-        scroll-behavior: smooth;
-      }
-      
-      /* Snap scrolling for better UX */
-      .snap-x {
-        scroll-snap-type: x mandatory;
-      }
-      
-      .snap-start {
-        scroll-snap-align: start;
-      }
-      
-      /* Line clamp for text overflow */
-      .line-clamp-2 {
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-      }
-      
-      /* Hover effect for scroll buttons */
-      .group:hover button {
-        transform: translateY(-50%);
-      }
-      
-      /* Shadow for scroll containers */
-      .group:hover > div:first-of-type {
-        box-shadow: inset -20px 0 20px -20px rgba(0,0,0,0.2), 
-                    inset 20px 0 20px -20px rgba(0,0,0,0.2);
-      }
-      
-      /* Fade edges effect */
-      .category-scroll-container::before,
-      .category-scroll-container::after {
-        content: '';
-        position: absolute;
-        top: 0;
-        bottom: 0;
-        width: 40px;
-        pointer-events: none;
-        z-index: 5;
-      }
-      
-      .category-scroll-container::before {
-        left: 0;
-        background: linear-gradient(to right, rgba(255,255,255,1), rgba(255,255,255,0));
-      }
-      
-      .category-scroll-container::after {
-        right: 0;
-        background: linear-gradient(to left, rgba(255,255,255,1), rgba(255,255,255,0));
-      }
-      
-      .dark .category-scroll-container::before {
-        background: linear-gradient(to right, rgba(17,24,39,1), rgba(17,24,39,0));
-      }
-      
-      .dark .category-scroll-container::after {
-        background: linear-gradient(to left, rgba(17,24,39,1), rgba(17,24,39,0));
-      }
-    </style>
-
-    {# JavaScript for Horizontal Scrolling #}
-    <script>
-      // Scroll category horizontally
-      function scrollCategory(categoryId, direction) {
-        const container = document.getElementById(`category-scroll-${categoryId}`);
-        if (!container) return;
-        
-        const scrollAmount = 400; // Pixels to scroll
-        const currentScroll = container.scrollLeft;
-        
-        if (direction === 'left') {
-          container.scrollTo({
-            left: currentScroll - scrollAmount,
-            behavior: 'smooth'
-          });
-        } else {
-          container.scrollTo({
-            left: currentScroll + scrollAmount,
-            behavior: 'smooth'
-          });
-        }
-      }
-      
-      // Initialize horizontal scroll features
-      document.addEventListener('DOMContentLoaded', function() {
-        // Enable touch/mouse drag scrolling
-        const scrollContainers = document.querySelectorAll('[id^="category-scroll-"]');
-        
-        scrollContainers.forEach(container => {
-          let isDown = false;
-          let startX;
-          let scrollLeft;
-          
-          container.addEventListener('mousedown', (e) => {
-            isDown = true;
-            container.style.cursor = 'grabbing';
-            startX = e.pageX - container.offsetLeft;
-            scrollLeft = container.scrollLeft;
-          });
-          
-          container.addEventListener('mouseleave', () => {
-            isDown = false;
-            container.style.cursor = 'grab';
-          });
-          
-          container.addEventListener('mouseup', () => {
-            isDown = false;
-            container.style.cursor = 'grab';
-          });
-          
-          container.addEventListener('mousemove', (e) => {
-            if (!isDown) return;
-            e.preventDefault();
-            const x = e.pageX - container.offsetLeft;
-            const walk = (x - startX) * 2;
-            container.scrollLeft = scrollLeft - walk;
-          });
-          
-          // Add keyboard navigation
-          container.setAttribute('tabindex', '0');
-          container.addEventListener('keydown', (e) => {
-            if (e.key === 'ArrowLeft') {
-              e.preventDefault();
-              container.scrollBy({ left: -200, behavior: 'smooth' });
-            } else if (e.key === 'ArrowRight') {
-              e.preventDefault();
-              container.scrollBy({ left: 200, behavior: 'smooth' });
-            }
-          });
-        });
-        
-        // Show/hide scroll buttons based on scroll position
-        scrollContainers.forEach(container => {
-          const categoryId = container.id.replace('category-scroll-', '');
-          const section = container.closest('section');
-          const leftBtn = section.querySelector(`button[onclick*="'${categoryId}', 'left'"]`);
-          const rightBtn = section.querySelector(`button[onclick*="'${categoryId}', 'right'"]`);
-          
-          function updateButtons() {
-            if (!leftBtn || !rightBtn) return;
-            
-            // Hide left button if at start
-            if (container.scrollLeft <= 0) {
-              leftBtn.style.opacity = '0';
-              leftBtn.style.pointerEvents = 'none';
-            } else {
-              leftBtn.style.opacity = '';
-              leftBtn.style.pointerEvents = '';
-            }
-            
-            // Hide right button if at end
-            if (container.scrollLeft >= container.scrollWidth - container.clientWidth - 10) {
-              rightBtn.style.opacity = '0';
-              rightBtn.style.pointerEvents = 'none';
-            } else {
-              rightBtn.style.opacity = '';
-              rightBtn.style.pointerEvents = '';
-            }
-          }
-          
-          container.addEventListener('scroll', updateButtons);
-          updateButtons(); // Initial check
-        });
-      });
-    </script>
-
-    {# Recently Uploaded Movies #}
-    <section id="recent-movies" class="mb-16">
-      <div class="flex items-center justify-between mb-8">
-        <div class="flex items-center">
-          <div class="w-1 h-8 bg-gradient-to-b from-blue-500 to-purple-500 rounded-full mr-4"></div>
-          <div>
-            <h2 class="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">
-              Recently Uploaded
-            </h2>
-            <p class="text-gray-600 dark:text-gray-400 text-sm">Fresh content added daily</p>
-          </div>
-        </div>
-        <div class="text-xs text-gray-500 dark:text-gray-400">
-          <i class="fas fa-clock mr-1"></i>
-          Last updated: {{ "now"|date:"M d, Y" }}
-        </div>
-      </div>
-
-      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-        {% for movie in movies %}
-          <div class="group">
-            <a href="{% url 'movies:movie_detail' movie.pk %}" class="block">
-              <div class="relative bg-gray-200 dark:bg-gray-800 rounded-lg overflow-hidden aspect-[3/4] group-hover:shadow-xl transition-all duration-300 transform group-hover:scale-105">
-                {% if movie.image_url %}
-                  <img src="{{ movie.image_url }}" 
-                       alt="{{ movie.title }}" 
-                       class="w-full h-full object-cover opacity-0 transition-opacity duration-300"
-                       onerror="this.style.display='none'; this.parentElement.querySelector('.fallback-icon').style.display='flex';"
-                       onload="this.style.opacity='1';">
-                {% endif %}
-                
-                {# Fallback icon #}
-                <div class="fallback-icon w-full h-full flex items-center justify-center {% if movie.image_url %}hidden{% endif %}">
-                  <i class="fas fa-film text-gray-400 text-3xl"></i>
-                </div>
-                
-                {# Overlay #}
-                <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                  <div class="bg-white/90 rounded-full p-3 transform scale-75 group-hover:scale-100 transition-transform duration-300">
-                    <i class="fas fa-play text-primary-600 text-xl"></i>
-                  </div>
-                </div>
-                
-                {# Quality Badge #}
-                <div class="absolute top-2 right-2 bg-green-500 text-white text-xs px-2 py-1 rounded opacity-100 group-hover:opacity-100 transition-opacity duration-300">
-                  HD
-                </div>
-
-                              
-              {# New Badge (if recently added) #}
-              {% if movie.created_at|is_recent %}
-                <div class="absolute top-3 left-3 bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs px-2 py-1 rounded-full opacity-90 group-hover:opacity-100 transition-opacity duration-300">
-                  <i class="fas fa-star mr-1"></i>
-                  NEW
-                </div>
-              {% endif %}
-              </div>
-              
-              <div class="pt-3">
-                <h3 class="font-semibold text-gray-900 dark:text-white text-sm line-clamp-2 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
-                  {{ movie.title }}
-                </h3>
-                {% if movie.year %}
-                  <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                    {{ movie.year }}
-                  </p>
-                {% endif %}
-              </div>
-            </a>
-          </div>
-        {% empty %}
-          <div class="col-span-full text-center py-20">
-            <i class="fas fa-film text-gray-400 text-5xl mb-4"></i>
-            <h3 class="text-xl font-semibold text-gray-700 dark:text-gray-300 mb-2">No movies available</h3>
-            <p class="text-gray-500 dark:text-gray-400">Check back soon for fresh content!</p>
-          </div>
-        {% endfor %}
-      </div>
-
-      {# Load More Button #}
-      {% if is_paginated and page_obj.has_next %}
-        <div class="text-center mt-12">
-          <button onclick="loadMore('{{ page_obj.next_page_number }}')" 
-                  class="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white px-8 py-3 rounded-full font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg">
-            <i class="fas fa-plus mr-2"></i>
-            Load More Movies
-          </button>
-        </div>
-      {% endif %}
-    </section>
-
-    {# Completed Series #}
-    {% if completed_series %}
-      <section id="completed-series" class="mb-16" data-section="completed-series">
-        <div class="flex items-center justify-between mb-8">
-          <div class="flex items-center">
-            <div class="w-1 h-8 bg-gradient-to-b from-green-500 to-teal-500 rounded-full mr-4"></div>
-            <div>
-              <h2 class="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">
-                Completed Series
-              </h2>
-              <p class="text-gray-600 dark:text-gray-400 text-sm">Binge-watch complete collections</p>
-            </div>
-          </div>
-        </div>
-
-        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-          {% for series in completed_series %}
-            <div class="group">
-              <a href="{% url 'movies:movie_detail' series.pk %}" class="block">
-                <div class="relative bg-gray-200 dark:bg-gray-800 rounded-lg overflow-hidden aspect-[3/4] group-hover:shadow-xl transition-all duration-300 transform group-hover:scale-105">
-                  {# Completed Badge #}
-                  <div class="absolute top-2 left-2 bg-red-500 text-white text-xs px-2 py-1 rounded z-10">
-                    <i class="fas fa-check mr-1"></i>
-                    Complete
-                  </div>
-                  
-                  {% if series.image_url %}
-                    <img src="{{ series.image_url }}" 
-                         alt="{{ series.title }}" 
-                         class="w-full h-full object-cover opacity-0 transition-opacity duration-300"
-                         onerror="this.style.display='none'; this.parentElement.querySelector('.fallback-icon').style.display='flex';"
-                         onload="this.style.opacity='1';">
-                  {% endif %}
-                  
-                  {# Fallback icon #}
-                  <div class="fallback-icon w-full h-full flex items-center justify-center {% if series.image_url %}hidden{% endif %}">
-                    <i class="fas fa-film text-gray-400 text-3xl"></i>
-                  </div>
-                  
-                  {# Overlay #}
-                  <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                    <div class="bg-white/90 rounded-full p-3 transform scale-75 group-hover:scale-100 transition-transform duration-300">
-                      <i class="fas fa-play text-green-600 text-xl"></i>
-                    </div>
-                  </div>
-                                  
-                {# Quality Badge #}
-                <div class="absolute top-2 right-2 bg-green-500 text-white text-xs px-2 py-1 rounded opacity-100 group-hover:opacity-100 transition-opacity duration-300">
-                  HD
-                </div>
-                </div>
-                
-                <div class="pt-3">
-                  <h3 class="font-semibold text-gray-900 dark:text-white text-sm line-clamp-2 group-hover:text-green-600 dark:group-hover:text-green-400 transition-colors">
-                    {{ series.title }}
-                  </h3>
-                </div>
-              </a>
-            </div>
-          {% endfor %}
-        </div>
-
-        {# Load More Series Button #}
-        {% if completed_series.has_next %}
-          <div class="text-center mt-8">
-            <button onclick="loadMoreSeries('{{ completed_series.next_page_number }}')" 
-                    class="bg-gradient-to-r from-green-500 to-teal-500 hover:from-green-600 hover:to-teal-600 text-white px-8 py-3 rounded-full font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg">
-              <i class="fas fa-plus mr-2"></i>
-              Load More Series
-            </button>
-          </div>
-        {% endif %}
-      </section>
-    {% endif %}
-  </div>
-</div>
-
-{# Custom Styles #}
 <style>
-  .line-clamp-2 {
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  /* ── BASE ── */
+  .w2d {
+    background: #f8fafc;
+    color: #111827;
+    min-height: 100vh;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    overflow-x: hidden;
   }
-  
-  /* Smooth animations */
-  * {
-    scroll-behavior: smooth;
+  .dark .w2d {
+    background: #141414;
+    color: #e5e5e5;
   }
-  
-  /* Loading states */
-  .loading {
-    opacity: 0.6;
-    pointer-events: none;
+
+  /* ── HERO ── */
+  .hero { position: relative; width: 100%; height: 56vw; min-height: 300px; max-height: 700px; overflow: hidden; }
+  .hero-bg img { width: 100%; height: 100%; object-fit: cover; object-position: center top; position: absolute; inset: 0; }
+
+  .hero-vignette-b {
+    position: absolute; bottom: 0; left: 0; right: 0; height: 60%;
+    background: linear-gradient(to top, #f8fafc 0%, transparent 100%);
   }
-  
-  /* Hover effects */
-  .group:hover .group-hover\:scale-105 {
-    transform: scale(1.05);
+  .dark .hero-vignette-b {
+    background: linear-gradient(to top, #141414 0%, transparent 100%);
   }
-  
-  /* Backdrop blur */
-  .backdrop-blur-sm {
-    backdrop-filter: blur(4px);
+
+  .hero-vignette-l {
+    position: absolute; inset: 0;
+    background: linear-gradient(to right, rgba(248,250,252,0.88) 0%, rgba(248,250,252,0.4) 45%, transparent 100%);
   }
-  
-  /* Custom scrollbar */
-  ::-webkit-scrollbar {
-    width: 8px;
+  .dark .hero-vignette-l {
+    background: linear-gradient(to right, rgba(20,20,20,0.9) 0%, rgba(20,20,20,0.45) 45%, transparent 100%);
   }
-  
-  ::-webkit-scrollbar-track {
-    background: #f1f1f1;
+
+  .hero-vignette-t {
+    position: absolute; top: 0; left: 0; right: 0; height: 20%;
+    background: linear-gradient(to bottom, rgba(248,250,252,0.45) 0%, transparent 100%);
   }
-  
-  ::-webkit-scrollbar-thumb {
-    background: #888;
-    border-radius: 4px;
+  .dark .hero-vignette-t {
+    background: linear-gradient(to bottom, rgba(20,20,20,0.5) 0%, transparent 100%);
   }
-  
-  ::-webkit-scrollbar-thumb:hover {
-    background: #555;
+
+  .hero-content { position: absolute; bottom: 22%; left: 4%; right: 50%; display: flex; flex-direction: column; gap: 14px; }
+  .hero-title { font-size: clamp(1.3rem, 3.5vw, 3rem); font-weight: 900; line-height: 1.1; color: #111827; text-shadow: 1px 1px 6px rgba(255,255,255,0.6); }
+  .dark .hero-title { color: #fff; text-shadow: 2px 2px 10px rgba(0,0,0,0.8); }
+  .hero-desc { font-size: clamp(0.68rem, 1.1vw, 0.95rem); color: #374151; line-height: 1.55; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; text-shadow: 1px 1px 3px rgba(255,255,255,0.7); max-width: 480px; }
+  .dark .hero-desc { color: #ddd; text-shadow: 1px 1px 4px rgba(0,0,0,0.9); }
+  .hero-pills { display: flex; gap: 7px; flex-wrap: wrap; }
+  .pill { font-size: 0.6rem; font-weight: 800; padding: 3px 8px; border-radius: 3px; text-transform: uppercase; letter-spacing: 0.04em; }
+  .pill-red   { background: #e50914; color: #fff; }
+  .pill-glass { background: rgba(0,0,0,0.12); color: #111827; border: 1px solid rgba(0,0,0,0.2); }
+  .dark .pill-glass { background: rgba(255,255,255,0.14); color: #fff; border: 1px solid rgba(255,255,255,0.28); }
+  .hero-btns { display: flex; gap: 10px; flex-wrap: wrap; }
+  .hbtn { display: inline-flex; align-items: center; gap: 7px; padding: 9px 22px; border-radius: 4px; font-size: clamp(0.7rem, 1vw, 0.88rem); font-weight: 700; cursor: pointer; text-decoration: none; transition: opacity .18s; white-space: nowrap; }
+  .hbtn:hover { opacity: .82; }
+  .hbtn-white { background: #fff; color: #000; }
+  .hbtn-dark  { background: rgba(50,50,60,.72); color: #fff; }
+  .dark .hbtn-dark { background: rgba(109,109,110,.72); color: #fff; }
+
+  /* ── TICKER ── */
+  .ticker {
+    background: rgba(229,9,20,.04);
+    border-top: 1px solid rgba(229,9,20,.12);
+    border-bottom: 1px solid rgba(229,9,20,.12);
+    padding: 7px 0; overflow: hidden;
   }
-  
-  /* Image loading placeholder */
-  .image-placeholder {
-    background: linear-gradient(90deg, #f0f0f0 25%, transparent 37%, transparent 63%, #f0f0f0 75%);
-    background-size: 400% 100%;
-    animation: shimmer 1.5s ease infinite;
+  .dark .ticker {
+    background: rgba(229,9,20,.07);
+    border-top-color: rgba(229,9,20,.18);
+    border-bottom-color: rgba(229,9,20,.18);
   }
-  
-  @keyframes shimmer {
-    0% {
-      background-position: 100% 0;
-    }
-    100% {
-      background-position: -100% 0;
-    }
+  .ticker-inner { display: flex; align-items: center; }
+  .ticker-label { color: #e50914; font-size: 0.62rem; font-weight: 800; text-transform: uppercase; letter-spacing: .1em; padding: 0 12px 0 16px; white-space: nowrap; flex-shrink: 0; }
+  .ticker-sep { width: 1px; height: 13px; background: rgba(0,0,0,.15); flex-shrink: 0; }
+  .dark .ticker-sep { background: rgba(255,255,255,.18); }
+  .ticker-overflow { overflow: hidden; flex: 1; }
+  @keyframes tick { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
+  .ticker-track { display: flex; gap: 28px; white-space: nowrap; animation: tick 32s linear infinite; width: max-content; }
+  .ticker-track:hover { animation-play-state: paused; }
+  .ticker-item { display: inline-flex; align-items: center; gap: 7px; font-size: 0.68rem; color: #6b7280; }
+  .dark .ticker-item { color: #999; }
+  .ticker-item b { color: #111827; font-weight: 600; }
+  .dark .ticker-item b { color: #e5e5e5; }
+  .ticker-dot { width: 4px; height: 4px; border-radius: 50%; background: #e50914; flex-shrink: 0; }
+
+  /* ── ROW SECTIONS ── */
+  .row-s { padding: 0 0 2rem; }
+  .row-s:first-of-type { margin-top: -5vw; position: relative; z-index: 2; padding-top: .5rem; }
+  .row-hd { display: flex; align-items: baseline; gap: 10px; padding: 0 4% .55rem; }
+  .row-ttl { font-size: clamp(.82rem, 1.35vw, 1.2rem); font-weight: 700; color: #111827; }
+  .dark .row-ttl { color: #e5e5e5; }
+  .row-see { font-size: .68rem; color: #54b3d6; font-weight: 600; text-decoration: none; opacity: 0; transform: translateX(-5px); transition: opacity .2s, transform .2s; }
+  .row-hd:hover .row-see { opacity: 1; transform: translateX(0); }
+  .badge-label { font-size: .58rem; font-weight: 800; text-transform: uppercase; letter-spacing: .07em; padding: 2px 7px; border-radius: 2px; }
+  .bl-red   { background: #e50914; color: #fff; }
+  .bl-gold  { background: #f5a623; color: #000; }
+  .bl-green { background: #2dbd6e; color: #fff; }
+  .bl-blue  { background: #0070f3; color: #fff; }
+
+  /* ── SCROLL ROWS ── */
+  .srow-wrap { position: relative; }
+  .srow { display: flex; gap: clamp(4px,.5vw,8px); overflow-x: auto; padding: 4px 4% 10px; scroll-behavior: smooth; -ms-overflow-style: none; scrollbar-width: none; }
+  .srow::-webkit-scrollbar { display: none; }
+  .sarr {
+    position: absolute; top: 0; bottom: 10px; width: 4%; min-width: 34px; max-width: 56px;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(248,250,252,.85); color: #374151;
+    z-index: 5; cursor: pointer; border: none; font-size: 1.1rem;
+    opacity: 0; transition: opacity .18s;
   }
+  .dark .sarr { background: rgba(20,20,20,.65); color: #fff; }
+  .srow-wrap:hover .sarr { opacity: 1; }
+  .sarr:hover { background: rgba(240,244,248,.98); }
+  .dark .sarr:hover { background: rgba(20,20,20,.92); }
+  .sarr-l { left: 0; } .sarr-r { right: 0; }
+
+  /* ── CARD ── */
+  .card { flex-shrink: 0; width: clamp(105px,13.5vw,195px); cursor: pointer; text-decoration: none; display: block; position: relative; transition: transform .22s ease; z-index: 1; }
+  .card:hover { transform: scale(1.09); z-index: 10; }
+  .card-img { position: relative; aspect-ratio: 2/3; border-radius: 4px; overflow: hidden; background: #e5e7eb; }
+  .dark .card-img { background: #242424; }
+  .card-img img { width: 100%; height: 100%; object-fit: cover; display: block; opacity: 0; transition: opacity .3s; }
+  .card-img img.ld { opacity: 1; }
+  .c-ov { position: absolute; inset: 0; background: linear-gradient(to top,rgba(0,0,0,.8) 0%,transparent 50%); opacity: 0; transition: opacity .22s; }
+  .card:hover .c-ov { opacity: 1; }
+  .c-play { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity .22s; }
+  .card:hover .c-play { opacity: 1; }
+  .c-play-btn { width: 34px; height: 34px; border-radius: 50%; background: rgba(255,255,255,.9); display: flex; align-items: center; justify-content: center; color: #000; font-size: .7rem; padding-left: 2px; }
+  .cbadge { position: absolute; font-size: .52rem; font-weight: 800; padding: 2px 5px; border-radius: 2px; text-transform: uppercase; letter-spacing: .02em; }
+  .cbtl { top: 5px; left: 5px; }
+  .cbtr { top: 5px; right: 5px; }
+  .b-new  { background: #e50914; color: #fff; }
+  .b-hot  { background: #f5a623; color: #000; }
+  .b-ep   { background: #7c3aed; color: #fff; }
+  .b-done { background: #2dbd6e; color: #fff; }
+  .b-hd   { background: rgba(0,0,0,.55); color: #ccc; border: 1px solid rgba(255,255,255,.18); }
+  .card-ttl { font-size: clamp(.58rem,.82vw,.74rem); font-weight: 600; color: #4b5563; margin-top: 5px; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; padding: 0 1px; transition: color .18s; }
+  .dark .card-ttl { color: #bbb; }
+  .card:hover .card-ttl { color: #111827; }
+  .dark .card:hover .card-ttl { color: #fff; }
+  .card-sub { font-size: .58rem; color: #7c3aed; margin-top: 2px; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; padding: 0 1px; }
+
+  /* ── GRID SECTIONS ── */
+  .grid-s { padding: 0 4% 2.5rem; }
+  .grid-wrap { display: grid; grid-template-columns: repeat(3,1fr); gap: clamp(6px,1.2vw,13px); }
+  @media (min-width:480px)  { .grid-wrap { grid-template-columns: repeat(4,1fr); } }
+  @media (min-width:640px)  { .grid-wrap { grid-template-columns: repeat(5,1fr); } }
+  @media (min-width:900px)  { .grid-wrap { grid-template-columns: repeat(6,1fr); } }
+  @media (min-width:1200px) { .grid-wrap { grid-template-columns: repeat(7,1fr); } }
+  .gc { cursor: pointer; text-decoration: none; display: block; }
+  .gc-img { position: relative; aspect-ratio: 2/3; border-radius: 4px; overflow: hidden; background: #e5e7eb; transition: transform .22s ease; }
+  .dark .gc-img { background: #242424; }
+  .gc:hover .gc-img { transform: scale(1.05); }
+  .gc-img img { width: 100%; height: 100%; object-fit: cover; display: block; opacity: 0; transition: opacity .3s; }
+  .gc-img img.ld { opacity: 1; }
+  .gc-ov { position: absolute; inset: 0; background: linear-gradient(to top,rgba(0,0,0,.78) 0%,transparent 55%); opacity: 0; transition: opacity .22s; }
+  .gc:hover .gc-ov { opacity: 1; }
+  .gc-play { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity .22s; }
+  .gc:hover .gc-play { opacity: 1; }
+  .gc-play-btn { width: 30px; height: 30px; border-radius: 50%; background: rgba(255,255,255,.9); display: flex; align-items: center; justify-content: center; color: #000; font-size: .65rem; padding-left: 2px; }
+  .gc-ttl { font-size: clamp(.58rem,.82vw,.73rem); color: #4b5563; margin-top: 5px; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; transition: color .18s; }
+  .dark .gc-ttl { color: #aaa; }
+  .gc:hover .gc-ttl { color: #111827; }
+  .dark .gc:hover .gc-ttl { color: #fff; }
+  .gc-yr { font-size: .56rem; color: #9ca3af; margin-top: 2px; }
+  .dark .gc-yr { color: #555; }
+
+  /* ── SHIMMER ── */
+  @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+  .shim { background: linear-gradient(90deg,#e5e7eb 25%,#f3f4f6 50%,#e5e7eb 75%); background-size: 200% 100%; animation: shimmer 1.5s ease infinite; }
+  .dark .shim { background: linear-gradient(90deg,#242424 25%,#2e2e2e 50%,#242424 75%); background-size: 200% 100%; animation: shimmer 1.5s ease infinite; }
+
+  /* ── LOAD MORE ── */
+  .lm-wrap { display: flex; justify-content: center; padding-top: 1.2rem; }
+  .lm-btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 10px 28px;
+    background: rgba(0,0,0,.04); border: 1px solid rgba(0,0,0,.12);
+    border-radius: 4px; color: #374151;
+    font-size: .8rem; font-weight: 600; cursor: pointer; transition: background .18s;
+  }
+  .dark .lm-btn { background: rgba(255,255,255,.08); border-color: rgba(255,255,255,.14); color: #e5e5e5; }
+  .lm-btn:hover { background: rgba(0,0,0,.08); }
+  .dark .lm-btn:hover { background: rgba(255,255,255,.14); }
+
+  /* ── FOOTER CTA ── */
+  .footer-cta { text-align: center; padding: 3rem 4% 4rem; border-top: 1px solid #e5e7eb; }
+  .dark .footer-cta { border-top-color: #222; }
+  .footer-cta p { color: #9ca3af; font-size: .76rem; margin-bottom: 1rem; }
+  .dark .footer-cta p { color: #555; }
+  .footer-btn { display: inline-flex; align-items: center; gap: 8px; padding: 11px 28px; background: #e50914; border-radius: 4px; color: #fff; font-weight: 700; font-size: .83rem; text-decoration: none; transition: background .18s; }
+  .footer-btn:hover { background: #b20710; }
+
+  /* ── EMPTY STATE ── */
+  .empty-state { color: #9ca3af; }
+  .dark .empty-state { color: #444; }
+
+  /* ── MOBILE OVERRIDES ── */
+  @media (max-width:640px) {
+    .hero { height: 72vw; min-height: 220px; }
+    .hero-content { right: 8%; bottom: 14%; gap: 9px; }
+    .hero-desc { display: none; }
+    .pill-glass { display: none; }
+    .hbtn { padding: 7px 14px; }
+  }
+  @media (max-width:400px) {
+    .hero-content { right: 4%; left: 4%; }
+    .hero-title { font-size: 1rem; }
+  }
+
+  @keyframes pulse-dot { 0%,100%{opacity:1} 50%{opacity:.3} }
 </style>
 
-{# JavaScript for Load More functionality #}
+<div class="w2d">
+
+  {# ═══ HERO ═══ #}
+  {% with hero=blockbusters.0 %}
+  {% if hero %}
+  <section class="hero">
+    <div class="hero-bg" style="position:absolute;inset:0;">
+      <img src="{{ hero.image_url }}" alt="{{ hero.title }}" loading="eager" style="width:100%;height:100%;object-fit:cover;object-position:center top;">
+    </div>
+    <div class="hero-vignette-t"></div>
+    <div class="hero-vignette-l"></div>
+    <div class="hero-vignette-b"></div>
+    <div class="hero-content">
+      <div class="hero-pills">
+        <span class="pill pill-red">HD</span>
+        {% for cat in hero.categories.all|slice:":2" %}
+        <span class="pill pill-glass">{{ cat.name }}</span>
+        {% endfor %}
+      </div>
+      <h1 class="hero-title">{{ hero.title }}</h1>
+      {% if hero.description %}
+      <p class="hero-desc">{{ hero.description|truncatewords:28 }}</p>
+      {% endif %}
+      <div class="hero-btns">
+        <a href="{% url 'movies:movie_detail' hero.pk %}" class="hbtn hbtn-white">
+          <i class="fas fa-play"></i> Download
+        </a>
+        <a href="{% url 'movies:movie_detail' hero.pk %}" class="hbtn hbtn-dark">
+          <i class="fas fa-info-circle"></i> More Info
+        </a>
+      </div>
+    </div>
+  </section>
+  {% else %}
+  <section class="hero" style="display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#e0f2fe 0%,#f0fdf4 100%);">
+    <div class="dark" style="display:none;"></div>
+    <style>.dark .hero-fallback{background:linear-gradient(135deg,#0a0a14 0%,#1a0808 100%)!important;}</style>
+    <div class="hero-fallback" style="text-align:center;padding:0 20px;max-width:600px;">
+      <h1 class="hero-title" style="font-size:clamp(1.6rem,4vw,3rem);margin-bottom:12px;">Watch &amp; Download<br>Free HD Movies</h1>
+      <p style="color:#6b7280;font-size:.9rem;margin-bottom:20px;">Hollywood · Nollywood · K-Drama · Anime · Series</p>
+      <a href="{% url 'movies:home' %}" class="hbtn hbtn-white" style="display:inline-flex;">
+        <i class="fas fa-film"></i> Browse All
+      </a>
+    </div>
+  </section>
+  {% endif %}
+  {% endwith %}
+
+  {# ═══ TICKER ═══ #}
+  {% if blockbusters %}
+  <div class="ticker">
+    <div class="ticker-inner">
+      <span class="ticker-label"><i class="fas fa-fire" style="margin-right:5px;"></i>Hot Now</span>
+      <div class="ticker-sep" style="margin:0 12px;"></div>
+      <div class="ticker-overflow">
+        <div class="ticker-track">
+          {% for m in blockbusters %}<span class="ticker-item"><span class="ticker-dot"></span><b>{{ m.title }}</b></span>{% endfor %}
+          {% for m in blockbusters %}<span class="ticker-item"><span class="ticker-dot"></span><b>{{ m.title }}</b></span>{% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  {# ═══ BLOCKBUSTERS ROW ═══ #}
+  {% if blockbusters %}
+  <div class="row-s" style="padding-top:1.2rem;">
+    <div class="row-hd">
+      <span class="row-ttl">🏆 Blockbusters</span>
+      <span class="badge-label bl-gold">Must Watch</span>
+    </div>
+    <div class="srow-wrap">
+      <button class="sarr sarr-l" onclick="doScroll(this,-1)"><i class="fas fa-chevron-left"></i></button>
+      <div class="srow">
+        {% for movie in blockbusters %}
+        <a href="{% url 'movies:movie_detail' movie.pk %}" class="card">
+          <div class="card-img shim">
+            {% if movie.image_url %}<img src="{{ movie.image_url }}" alt="{{ movie.title }}" loading="lazy" onload="this.classList.add('ld');this.parentElement.classList.remove('shim')">{% endif %}
+            <div class="c-ov"></div>
+            <div class="c-play"><div class="c-play-btn"><i class="fas fa-play"></i></div></div>
+            <span class="cbadge cbtl b-hot"><i class="fas fa-crown" style="font-size:.45rem;"></i> HOT</span>
+            <span class="cbadge cbtr b-hd">HD</span>
+          </div>
+          <div class="card-ttl">{{ movie.title }}</div>
+        </a>
+        {% endfor %}
+      </div>
+      <button class="sarr sarr-r" onclick="doScroll(this,1)"><i class="fas fa-chevron-right"></i></button>
+    </div>
+  </div>
+  {% endif %}
+
+  {# ═══ TRENDING ROW ═══ #}
+  {% if trending %}
+  <div class="row-s">
+    <div class="row-hd">
+      <span class="row-ttl">🔥 Trending Now</span>
+      <span class="badge-label bl-red">Popular</span>
+    </div>
+    <div class="srow-wrap">
+      <button class="sarr sarr-l" onclick="doScroll(this,-1)"><i class="fas fa-chevron-left"></i></button>
+      <div class="srow">
+        {% for movie in trending %}
+        <a href="{% url 'movies:movie_detail' movie.pk %}" class="card">
+          <div class="card-img shim">
+            {% if movie.image_url %}<img src="{{ movie.image_url }}" alt="{{ movie.title }}" loading="lazy" onload="this.classList.add('ld');this.parentElement.classList.remove('shim')">{% endif %}
+            <div class="c-ov"></div>
+            <div class="c-play"><div class="c-play-btn"><i class="fas fa-play"></i></div></div>
+            {% if forloop.counter <= 3 %}
+            <span class="cbadge cbtl b-hot">#{{ forloop.counter }}</span>
+            {% else %}
+            <span class="cbadge cbtl" style="background:rgba(229,9,20,.8);color:#fff;"><i class="fas fa-fire" style="font-size:.45rem;"></i></span>
+            {% endif %}
+            <span class="cbadge cbtr b-hd">HD</span>
+          </div>
+          <div class="card-ttl">{{ movie.title }}</div>
+        </a>
+        {% endfor %}
+      </div>
+      <button class="sarr sarr-r" onclick="doScroll(this,1)"><i class="fas fa-chevron-right"></i></button>
+    </div>
+  </div>
+  {% endif %}
+
+  {# ═══ LATEST EPISODES ROW ═══ #}
+  {% if new_episodes %}
+  <div class="row-s">
+    <div class="row-hd">
+      <span class="row-ttl">📺 Latest Episodes</span>
+      <span class="badge-label bl-blue">New</span>
+    </div>
+    <div class="srow-wrap">
+      <button class="sarr sarr-l" onclick="doScroll(this,-1)"><i class="fas fa-chevron-left"></i></button>
+      <div class="srow">
+        {% for ep in new_episodes %}{% if ep.title_b and not "complete" in ep.title_b|lower %}
+        <a href="{% url 'movies:movie_detail' ep.pk %}" class="card">
+          <div class="card-img shim">
+            {% if ep.image_url %}<img src="{{ ep.image_url }}" alt="{{ ep.title }}" loading="lazy" onload="this.classList.add('ld');this.parentElement.classList.remove('shim')">{% endif %}
+            <div class="c-ov"></div>
+            <div class="c-play"><div class="c-play-btn"><i class="fas fa-play"></i></div></div>
+            <span class="cbadge cbtl b-ep">EP</span>
+            <span class="cbadge cbtr b-hd">HD</span>
+          </div>
+          <div class="card-ttl">{{ ep.title }}</div>
+          <div class="card-sub">{{ ep.title_b }}</div>
+        </a>
+        {% endif %}{% endfor %}
+      </div>
+      <button class="sarr sarr-r" onclick="doScroll(this,1)"><i class="fas fa-chevron-right"></i></button>
+    </div>
+  </div>
+  {% endif %}
+
+  {# ═══ CATEGORY ROWS ═══ #}
+  {% if categories %}{% for category in categories %}{% if category.latest_movies %}
+  <div class="row-s">
+    <div class="row-hd">
+      <span class="row-ttl">{{ category.name }}</span>
+      <a href="{% url 'movies:category_movies' category.id %}" class="row-see">Explore All &rsaquo;</a>
+    </div>
+    <div class="srow-wrap">
+      <button class="sarr sarr-l" onclick="doScroll(this,-1)"><i class="fas fa-chevron-left"></i></button>
+      <div class="srow">
+        {% for movie in category.latest_movies %}
+        <a href="{% url 'movies:movie_detail' movie.pk %}" class="card">
+          <div class="card-img shim">
+            {% if movie.image_url %}<img src="{{ movie.image_url }}" alt="{{ movie.title }}" loading="lazy" onload="this.classList.add('ld');this.parentElement.classList.remove('shim')">{% endif %}
+            <div class="c-ov"></div>
+            <div class="c-play"><div class="c-play-btn"><i class="fas fa-play"></i></div></div>
+            {% if movie.title_b and not movie.completed %}<span class="cbadge cbtl b-ep">EP</span>
+            {% elif movie.created_at|is_recent %}<span class="cbadge cbtl b-new">NEW</span>{% endif %}
+            <span class="cbadge cbtr b-hd">HD</span>
+          </div>
+          <div class="card-ttl">{{ movie.title }}</div>
+          {% if movie.title_b %}<div class="card-sub">{{ movie.title_b }}</div>{% endif %}
+        </a>
+        {% endfor %}
+      </div>
+      <button class="sarr sarr-r" onclick="doScroll(this,1)"><i class="fas fa-chevron-right"></i></button>
+    </div>
+  </div>
+  {% endif %}{% endfor %}{% endif %}
+
+  {# ═══ RECENTLY UPLOADED GRID ═══ #}
+  <div class="grid-s" id="recent-section">
+    <div class="row-hd" style="padding-left:0;padding-right:0;margin-bottom:.5rem;">
+      <span class="row-ttl">🕐 Recently Uploaded</span>
+      <span class="badge-label bl-blue">Fresh</span>
+      <span style="margin-left:auto;font-size:.62rem;display:flex;align-items:center;gap:5px;color:#9ca3af;">
+        <span style="width:6px;height:6px;border-radius:50%;background:#2dbd6e;display:inline-block;animation:pulse-dot 2s infinite;"></span> Live
+      </span>
+    </div>
+    <div class="grid-wrap" id="recent-grid">
+      {% for movie in movies %}
+      <a href="{% url 'movies:movie_detail' movie.pk %}" class="gc">
+        <div class="gc-img shim">
+          {% if movie.image_url %}<img src="{{ movie.image_url }}" alt="{{ movie.title }}" loading="lazy" onload="this.classList.add('ld');this.parentElement.classList.remove('shim')">{% endif %}
+          <div class="gc-ov"></div>
+          <div class="gc-play"><div class="gc-play-btn"><i class="fas fa-play"></i></div></div>
+          {% if movie.created_at|is_recent %}<span class="cbadge cbtl b-new" style="font-size:.48rem;">NEW</span>{% endif %}
+          <span class="cbadge cbtr b-hd" style="font-size:.48rem;">HD</span>
+        </div>
+        <div class="gc-ttl">{{ movie.title }}</div>
+        {% if movie.year %}<div class="gc-yr">{{ movie.year }}</div>{% endif %}
+      </a>
+      {% empty %}
+      <div class="empty-state" style="grid-column:1/-1;text-align:center;padding:3rem;">
+        <i class="fas fa-film" style="font-size:2rem;display:block;margin-bottom:.5rem;"></i>
+        <p style="font-size:.83rem;">No movies yet — check back soon!</p>
+      </div>
+      {% endfor %}
+    </div>
+    {% if is_paginated and page_obj.has_next %}
+    <div class="lm-wrap">
+      <button class="lm-btn" data-page="{{ page_obj.next_page_number }}" data-type="movies">
+        <i class="fas fa-plus"></i> Load More Movies
+      </button>
+    </div>
+    {% endif %}
+  </div>
+
+  {# ═══ COMPLETED SERIES GRID ═══ #}
+  {% if completed_series %}
+  <div class="grid-s" id="series-section">
+    <div class="row-hd" style="padding-left:0;padding-right:0;margin-bottom:.5rem;">
+      <span class="row-ttl">✅ Completed Series</span>
+      <span class="badge-label bl-green">Full</span>
+    </div>
+    <div class="grid-wrap" id="series-grid">
+      {% for series in completed_series %}
+      <a href="{% url 'movies:movie_detail' series.pk %}" class="gc">
+        <div class="gc-img shim">
+          {% if series.image_url %}<img src="{{ series.image_url }}" alt="{{ series.title }}" loading="lazy" onload="this.classList.add('ld');this.parentElement.classList.remove('shim')">{% endif %}
+          <div class="gc-ov"></div>
+          <div class="gc-play"><div class="gc-play-btn" style="color:#2dbd6e;"><i class="fas fa-play"></i></div></div>
+          <span class="cbadge cbtl b-done" style="font-size:.48rem;"><i class="fas fa-check" style="font-size:.43rem;"></i> DONE</span>
+          <span class="cbadge cbtr b-hd" style="font-size:.48rem;">HD</span>
+        </div>
+        <div class="gc-ttl">{{ series.title }}</div>
+      </a>
+      {% endfor %}
+    </div>
+    {% if completed_series.has_next %}
+    <div class="lm-wrap">
+      <button class="lm-btn" data-page="{{ completed_series.next_page_number }}" data-type="series">
+        <i class="fas fa-plus"></i> Load More Series
+      </button>
+    </div>
+    {% endif %}
+  </div>
+  {% endif %}
+
+  {# ═══ FOOTER CTA ═══ #}
+  <div class="footer-cta">
+    <p>Thousands of HD movies, updated daily. 100% free.</p>
+    <a href="{% url 'movies:home' %}" class="footer-btn">
+      <i class="fas fa-film"></i> Browse All Movies
+    </a>
+  </div>
+
+</div>
+
 <script>
-  // Load More Movies
-  function loadMore(page) {
-    const button = event.target;
-    const originalText = button.innerHTML;
-    
-    // Show loading state
-    button.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Loading...';
-    button.disabled = true;
-    
-    fetch(`?page=${page}`)
-      .then(response => {
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        return response.text();
-      })
-      .then(html => {
-        // Parse the response HTML
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(html, 'text/html');
-        
-        // Get the new movies grid
-        const newMoviesGrid = doc.querySelector('#recent-movies .grid');
-        if (newMoviesGrid) {
-          const newMovies = newMoviesGrid.innerHTML;
-          
-          // Append new movies to existing grid
-          const existingGrid = document.querySelector('#recent-movies .grid');
-          if (existingGrid) {
-            existingGrid.innerHTML += newMovies;
-            
-            // Re-initialize image loading for new items
-            setupImageLoading();
-          }
-        }
-        
-        // Update or remove load more button
-        const nextPageButton = doc.querySelector('#recent-movies button[onclick*="loadMore"]');
-        if (nextPageButton) {
-          button.onclick = () => loadMore(parseInt(page) + 1);
-          button.innerHTML = originalText;
-          button.disabled = false;
-        } else {
-          button.remove();
-        }
-      })
-      .catch(error => {
-        console.error('Error loading more movies:', error);
-        button.innerHTML = originalText;
-        button.disabled = false;
-        // Show user-friendly error message
-        alert('Failed to load more movies. Please try again.');
-      });
+  /* ── Arrow scroll ── */
+  function doScroll(btn, dir) {
+    const row = btn.closest('.srow-wrap').querySelector('.srow');
+    row.scrollBy({ left: dir * Math.round(row.clientWidth * 0.75), behavior: 'smooth' });
   }
-  
-  // Load More Episodes
-  function loadMoreEpisodes(page) {
-    const button = event.target;
-    const originalText = button.innerHTML;
-    
-    button.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Loading...';
-    button.disabled = true;
-    
-    fetch(`?new_page=${page}`)
-      .then(response => {
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        return response.text();
-      })
+
+  /* ── Drag-to-scroll ── */
+  document.querySelectorAll('.srow').forEach(el => {
+    let dn = false, sx, sl;
+    el.style.cursor = 'grab';
+    el.addEventListener('mousedown',  e => { dn=true; sx=e.pageX-el.offsetLeft; sl=el.scrollLeft; el.style.cursor='grabbing'; });
+    el.addEventListener('mouseleave', () => { dn=false; el.style.cursor='grab'; });
+    el.addEventListener('mouseup',    () => { dn=false; el.style.cursor='grab'; });
+    el.addEventListener('mousemove',  e => { if (!dn) return; e.preventDefault(); el.scrollLeft = sl-(e.pageX-el.offsetLeft-sx)*1.4; });
+  });
+
+  /* ── Load More ── */
+  document.addEventListener('click', function(e) {
+    const btn = e.target.closest('.lm-btn');
+    if (!btn) return;
+    const page = btn.dataset.page;
+    const type = btn.dataset.type;
+    const orig = btn.innerHTML;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading...';
+    btn.disabled = true;
+
+    const qs = type === 'series' ? '?completed_page=' : '?page=';
+    fetch(qs + page)
+      .then(r => r.text())
       .then(html => {
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(html, 'text/html');
-        
-        const newEpisodesGrid = doc.querySelector('#latest-episodes .grid');
-        if (newEpisodesGrid) {
-          const newEpisodes = newEpisodesGrid.innerHTML;
-          const existingGrid = document.querySelector('#latest-episodes .grid');
-          if (existingGrid) {
-            existingGrid.innerHTML += newEpisodes;
-            
-            // Re-initialize image loading for new items
-            setupImageLoading();
-          }
+        const doc = new DOMParser().parseFromString(html, 'text/html');
+        const gridId = type === 'series' ? '#series-grid' : '#recent-grid';
+        const newGrid = doc.querySelector(gridId);
+        const curGrid = document.querySelector(gridId);
+        if (newGrid && curGrid) {
+          curGrid.innerHTML += newGrid.innerHTML;
+          curGrid.querySelectorAll('img:not(.ld)').forEach(img => {
+            img.onload = () => { img.classList.add('ld'); img.parentElement.classList.remove('shim'); };
+          });
         }
-        
-        const nextPageButton = doc.querySelector('#latest-episodes button[onclick*="loadMoreEpisodes"]');
-        if (nextPageButton) {
-          button.onclick = () => loadMoreEpisodes(parseInt(page) + 1);
-          button.innerHTML = originalText;
-          button.disabled = false;
+        const nxtBtn = doc.querySelector('.lm-btn[data-type="'+type+'"]');
+        if (nxtBtn) {
+          btn.dataset.page = nxtBtn.dataset.page;
+          btn.innerHTML = orig;
+          btn.disabled = false;
         } else {
-          button.remove();
+          btn.parentElement.remove();
         }
       })
-      .catch(error => {
-        console.error('Error loading more episodes:', error);
-        button.innerHTML = originalText;
-        button.disabled = false;
-        alert('Failed to load more episodes. Please try again.');
-      });
-  }
-  
-  // Load More Series
-  function loadMoreSeries(page) {
-    const button = event.target;
-    const originalText = button.innerHTML;
-    
-    button.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Loading...';
-    button.disabled = true;
-    
-    fetch(`?completed_page=${page}`)
-      .then(response => {
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        return response.text();
-      })
-      .then(html => {
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(html, 'text/html');
-        
-        const newSeriesGrid = doc.querySelector('#completed-series .grid');
-        if (newSeriesGrid) {
-          const newSeries = newSeriesGrid.innerHTML;
-          const existingGrid = document.querySelector('#completed-series .grid');
-          if (existingGrid) {
-            existingGrid.innerHTML += newSeries;
-            
-            // Re-initialize image loading for new items
-            setupImageLoading();
-          }
-        }
-        
-        const nextPageButton = doc.querySelector('#completed-series button[onclick*="loadMoreSeries"]');
-        if (nextPageButton) {
-          button.onclick = () => loadMoreSeries(parseInt(page) + 1);
-          button.innerHTML = originalText;
-          button.disabled = false;
-        } else {
-          button.remove();
-        }
-      })
-      .catch(error => {
-        console.error('Error loading more series:', error);
-        button.innerHTML = originalText;
-        button.disabled = false;
-        alert('Failed to load more series. Please try again.');
-      });
-  }
-  
-  // Enhanced image loading with better error handling
-  function setupImageLoading() {
-    const images = document.querySelectorAll('img[onload]');
-    
-    images.forEach(img => {
-      // Add loading placeholder
-      img.parentElement.classList.add('image-placeholder');
-      
-      // If image loads successfully
-      img.addEventListener('load', function() {
-        this.parentElement.classList.remove('image-placeholder');
-      });
-      
-      // If image fails to load
-      img.addEventListener('error', function() {
-        this.parentElement.classList.remove('image-placeholder');
-      });
+      .catch(() => { btn.innerHTML = orig; btn.disabled = false; });
+  });
+
+  /* ── Re-apply shimmer class in correct theme after load more ── */
+  function refreshShimmers() {
+    const isDark = document.documentElement.classList.contains('dark');
+    document.querySelectorAll('.shim').forEach(el => {
+      el.style.backgroundImage = isDark
+        ? 'linear-gradient(90deg,#242424 25%,#2e2e2e 50%,#242424 75%)'
+        : 'linear-gradient(90deg,#e5e7eb 25%,#f3f4f6 50%,#e5e7eb 75%)';
     });
   }
-  
-  // Initialize everything when DOM is ready
-  document.addEventListener('DOMContentLoaded', function() {
-    setupImageLoading();
-    
-    // Smooth scroll for CTA button if it exists
-    const ctaButton = document.querySelector('a[href="#recent-movies"]');
-    if (ctaButton) {
-      ctaButton.addEventListener('click', function(e) {
-        e.preventDefault();
-        document.querySelector('#recent-movies').scrollIntoView({
-          behavior: 'smooth',
-          block: 'start'
-        });
-      });
-    }
-  });
+
+  /* ── Watch for theme changes and refresh shimmer ── */
+  const themeObserver = new MutationObserver(refreshShimmers);
+  themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
 </script>
+
 {% endblock %}
