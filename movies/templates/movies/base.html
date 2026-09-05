@@ -225,6 +225,19 @@
   {# -- Extra head elements per-page -- #}
   {% block head_extra %}{% endblock %}
 
+  {# -- Popunder ad zones — same al5sm/5gvci scripts the download/stream gate
+       pages already use, now applied site-wide instead of the old Monetag
+       Direct Link click-handler. Gate pages set disable_global_popunder=True
+       and embed their own copy directly in head_extra, so this is skipped
+       there to avoid firing the popunder twice. Movie detail pages override
+       this block with their own dedicated zone (11721757) instead. -- #}
+  {% block popunder_scripts %}
+    {% if not disable_global_popunder %}
+      <script>(function(s){s.dataset.zone='11272472',s.src='https://al5sm.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
+      <script src="https://5gvci.com/act/files/tag.min.js?z=11272474" data-cfasync="false" async></script>
+    {% endif %}
+  {% endblock %}
+
 
 
 
@@ -560,6 +573,32 @@
     </div>
   </header>
 
+  {# Popunder ad notice — same idea as thenkiri.com's banner: tells visitors
+     a new tab may open on click and that's expected, not malware. Dismissal
+     is remembered in localStorage so it only shows once per browser, not on
+     every single page load (a popunder can fire on nearly every click). #}
+  <div id="popunder-notice" class="hidden bg-blue-50 dark:bg-blue-900/30 border-b border-blue-200 dark:border-blue-800 text-blue-800 dark:text-blue-200 text-xs sm:text-sm">
+    <div class="container mx-auto px-4 py-2 flex items-center justify-between gap-3">
+      <span>
+        <i class="fas fa-circle-info mr-1.5"></i>
+        Watch2D is ad-supported — clicking a link may open a new tab with an ad. Just close it and continue browsing. Stay safe! ❤️
+      </span>
+      <button onclick="document.getElementById('popunder-notice').style.display='none'; try { localStorage.setItem('w2d_popunder_notice_dismissed', '1'); } catch (e) {}"
+              class="flex-shrink-0 text-blue-500 hover:text-blue-700 dark:hover:text-blue-100" aria-label="Dismiss">
+        <i class="fas fa-xmark"></i>
+      </button>
+    </div>
+  </div>
+  <script>
+    try {
+      if (!localStorage.getItem('w2d_popunder_notice_dismissed')) {
+        document.getElementById('popunder-notice').classList.remove('hidden');
+      }
+    } catch (e) {
+      // localStorage unavailable (private mode etc.) — just show it.
+      document.getElementById('popunder-notice').classList.remove('hidden');
+    }
+  </script>
 
   {# Mobile Menu Overlay #}
   <div id="mobile-menu-overlay" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 hidden lg:hidden" onclick="toggleMobileMenu()"></div>
@@ -1201,172 +1240,9 @@
   <script src="{% static 'js/pwa.js' %}" defer></script>
 
 
-  <!-- {# ═══════════════════════════════════════════════════════════════════════════
-   UPDATED POPUNDER SCRIPT for movies/base.html
-   ─────────────────────────────────────────────────────────────────────────
-   Replace the existing  {# Direct link ads … #} <script>…</script>  block
-   (original lines ~881-1016) with this.
-
-   The ONE change from the original:
-     • A guard at the top checks `{{ disable_global_popunder }}`.
-       When DownloadGateView sets that context flag, the entire script is
-       skipped so the gate page handles its own single popunder and users
-       are never hit twice.
-   Everything else is identical to what you already have.
-═══════════════════════════════════════════════════════════════════════════ #}
-
-  {# Direct link ads: fires on every meaningful click across all pages.
-     Disabled on the download gate page (which fires its own popunder). #} -->
-  {% if not disable_global_popunder %}
-  <script>
-    (function () {
-      // Skip the website popunder entirely inside the Telegram Mini App — it uses
-      // window.open(), which hijacks navigation in Telegram's WebView and lands
-      // users on a broken/404 page. The Mini App runs its own Monetag SDK ad.
-      if (document.documentElement.classList.contains('tg-miniapp')) return;
-
-      var AD_URL = 'https://omg10.com/4/9160518';
-
-      function openAd() {
-        var adWin = window.open(AD_URL, '_blank');
-        if (adWin) { adWin.blur(); window.focus(); }
-      }
-
-      // ── Helpers ───────────────────────────────────────────────────
-      var ACTION_SUFFIXES = ['/like/', '/watchlist/', '/comment/', '/reply/', '/delete/'];
-      var MOVIE_DETAIL_RE = /\/movie\/\d+\/[a-z0-9][a-z0-9-]+\//;
-
-      function isMovieDetailHref(href) {
-        try {
-          var path = new URL(href, location.origin).pathname;
-          for (var i = 0; i < ACTION_SUFFIXES.length; i++) {
-            if (path.endsWith(ACTION_SUFFIXES[i])) return false;
-          }
-          return MOVIE_DETAIL_RE.test(path);
-        } catch (e) { return false; }
-      }
-
-      function tag(el) { el.dataset.pw = '1'; }
-      function tagged(el) { return el.dataset.pw === '1'; }
-
-      // ── 1. Movie card & related movie links ───────────────────────
-      function attachMovieLinks() {
-        document.querySelectorAll('a[href]').forEach(function (a) {
-          if (!tagged(a) && isMovieDetailHref(a.href)) {
-            tag(a);
-            a.addEventListener('click', function () { openAd(); });
-          }
-        });
-      }
-
-      // ── 2. Search forms (desktop + mobile) ───────────────────────
-      function attachSearchForms() {
-        document.querySelectorAll('form[action*="search"]').forEach(function (form) {
-          if (!tagged(form)) {
-            tag(form);
-            form.addEventListener('submit', function () { openAd(); });
-          }
-        });
-      }
-
-      // ── 3. Download buttons on movie_detail (now <a> tags to gate) ────────
-      // The gate page itself handles the popunder — but on movie_detail the
-      // download <a> tags are caught by attachMovieLinks? No — they point to
-      // /movie/<pk>/download/ which does NOT match MOVIE_DETAIL_RE.
-      // So we add a dedicated selector for gate links here.
-      function attachGateLinks() {
-        document.querySelectorAll('a[href*="/download/"]').forEach(function (a) {
-          if (!tagged(a)) {
-            tag(a);
-            // Do NOT open ad here — the gate page will fire it on arrival.
-            // We intentionally leave this handler empty; the anchor navigates normally.
-          }
-        });
-      }
-
-      // ── 4. Hero buttons (Watch Now / Download Now) ────────────────
-      function attachHeroButtons() {
-        document.querySelectorAll('.hbtn').forEach(function (a) {
-          if (!tagged(a)) {
-            tag(a);
-            a.addEventListener('click', function () { openAd(); });
-          }
-        });
-      }
-
-      // ── 5. Category tiles ─────────────────────────────────────────
-      function attachCategoryTiles() {
-        document.querySelectorAll('a.cat-tile, a[href*="/category/"]').forEach(function (a) {
-          if (!tagged(a)) {
-            tag(a);
-            a.addEventListener('click', function () { openAd(); });
-          }
-        });
-      }
-
-      // ── 6. Pagination links ───────────────────────────────────────
-      function attachPagination() {
-        document.querySelectorAll('a.pag-btn, a[href*="?page="], a[href*="&page="]').forEach(function (a) {
-          if (!tagged(a)) {
-            tag(a);
-            a.addEventListener('click', function () { openAd(); });
-          }
-        });
-      }
-
-      // ── 7. Load More buttons ──────────────────────────────────────
-      function attachLoadMore() {
-        document.querySelectorAll('button.lm-btn').forEach(function (btn) {
-          if (!tagged(btn)) {
-            tag(btn);
-            btn.addEventListener('click', function () { openAd(); });
-          }
-        });
-      }
-
-      // ── 8. Page jump select (category page) ───────────────────────
-      function attachPageJump() {
-        var sel = document.getElementById('pageJump');
-        if (sel && !tagged(sel)) {
-          tag(sel);
-          sel.addEventListener('change', function () { openAd(); });
-        }
-      }
-
-      // ── 9. Telegram / social footer buttons ───────────────────────
-      function attachFooterButtons() {
-        document.querySelectorAll('a.footer-btn, a[href*="t.me"], a[href*="telegram"]').forEach(function (a) {
-          if (!tagged(a)) {
-            tag(a);
-            a.addEventListener('click', function () { openAd(); });
-          }
-        });
-      }
-
-      // ── Run everything ────────────────────────────────────────────
-      function attachAll() {
-        attachMovieLinks();
-        attachSearchForms();
-        attachGateLinks();   // NEW — registers gate links (no-op ad, just tags them)
-        attachHeroButtons();
-        attachCategoryTiles();
-        attachPagination();
-        attachLoadMore();
-        attachPageJump();
-        attachFooterButtons();
-      }
-
-      attachAll();
-      document.addEventListener('DOMContentLoaded', attachAll);
-      window.addEventListener('load', attachAll);
-      new MutationObserver(attachAll).observe(document.documentElement, { childList: true, subtree: true });
-    })();
-  </script>
-  {% endif %}{# end disable_global_popunder guard #}
-
-
-
-
+  {# The site-wide Monetag Direct Link click-handler that used to live here has
+     been replaced by the al5sm/5gvci zone scripts in the popunder_scripts
+     block up in <head> — same mechanism the gate pages already used. #}
 
 
   {% block extra_js %}{% endblock %}

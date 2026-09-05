@@ -18,6 +18,11 @@ ALLOWED_HOSTS = [
     'watch2d.com',
     'localhost',
     '127.0.0.1',
+    # TierHive's HAProxy health-checks the backend directly by private IP,
+    # sending it as the Host header — without this, Django's DisallowedHost
+    # check rejects the health check, HAProxy marks the backend down, and
+    # real visitors get a 503 even though gunicorn/nginx are both fine.
+    '10.5.184.8',
     '.org',
     '.onrender.com',
 ]

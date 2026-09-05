@@ -69,6 +69,15 @@
 
 {% block og_image %}{% if movie.image_url %}{{ movie.image_url }}{% else %}{% static 'images/default-poster.jpg' %}{% endif %}{% endblock %}
 
+<!-- {# ══════════════════════════════════════════
+   POPUNDER — movie detail pages get their own
+   dedicated zone instead of the site-wide one.
+══════════════════════════════════════════ #} -->
+{% block popunder_scripts %}
+      <script>(function(s){s.dataset.zone='11272472',s.src='https://al5sm.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
+      <script src="https://5gvci.com/act/files/tag.min.js?z=11272474" data-cfasync="false" async></script>
+{% endblock %}
+
 {# JSON-LD is rendered inside {% block content %} at the top — see below #}
 
 {% block content %}
