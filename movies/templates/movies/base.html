@@ -224,13 +224,13 @@
 
   {# -- Extra head elements per-page -- #}
   {% block head_extra %}{% endblock %}
-
+<!-- 
   {# -- Popunder ad zones — same al5sm/5gvci scripts the download/stream gate
        pages already use, now applied site-wide instead of the old Monetag
        Direct Link click-handler. Gate pages set disable_global_popunder=True
        and embed their own copy directly in head_extra, so this is skipped
        there to avoid firing the popunder twice. Movie detail pages override
-       this block with their own dedicated zone (11721757) instead. -- #}
+       this block with their own dedicated zone (11721757) instead. -- #} -->
   {% block popunder_scripts %}
     {% if not disable_global_popunder %}
       <script>(function(s){s.dataset.zone='11272472',s.src='https://al5sm.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
@@ -573,10 +573,10 @@
     </div>
   </header>
 
-  {# Popunder ad notice — same idea as thenkiri.com's banner: tells visitors
+  <!-- {# Popunder ad notice — same idea as thenkiri.com's banner: tells visitors
      a new tab may open on click and that's expected, not malware. Dismissal
      is remembered in localStorage so it only shows once per browser, not on
-     every single page load (a popunder can fire on nearly every click). #}
+     every single page load (a popunder can fire on nearly every click). #} -->
   <div id="popunder-notice" class="hidden bg-blue-50 dark:bg-blue-900/30 border-b border-blue-200 dark:border-blue-800 text-blue-800 dark:text-blue-200 text-xs sm:text-sm">
     <div class="container mx-auto px-4 py-2 flex items-center justify-between gap-3">
       <span>
