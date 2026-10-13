@@ -421,3 +421,114 @@ def normalize_url(url: str) -> str:
     parsed = urlparse(url)
     return unquote(f"{parsed.scheme}://{parsed.netloc}{parsed.path}").lower()
     return None
+
+
+def save_scraped_post(parsed: dict, mod) -> dict:
+    """
+    Create-or-update a Movie from one already-parsed source post, using the
+    same logic scrape_9jarocks/scrape_thenkiri run inline per-post during a
+    category crawl — pulled out here so the single-URL "quick add" admin
+    tool (movies/views.py QuickAddView) can re-scrape one arbitrary post URL
+    on demand without duplicating that ~140-line block, and without needing
+    a category context (forced_db_cats is always empty here; categories come
+    from whatever the post page itself declares).
+
+    `mod` is the already-imported scrape_9jarocks or scrape_thenkiri module
+    — its clean_title_parts/find_existing_movie/assign_db_categories are
+    used so behavior matches that source's own scraper exactly.
+
+    Deliberately does NOT post to Telegram/Twitter/Facebook or upload files
+    — this is a manual, on-the-go fix/add tool, not a bulk scrape; a title
+    added this way will get its normal social post next time the scheduled
+    scraper encounters it (title already exists by then, so that scraper
+    only posts if it newly resurfaces with a download link, same as any
+    other backfilled title).
+
+    Returns {'status': 'no_links'|'created'|'link_added'|'link_updated'|
+    'unchanged', 'movie': Movie|None, 'title': str, 'added': int}.
+    """
+    from django.utils import timezone
+    from movies.models import Movie
+
+    if not parsed or not parsed.get('download_links'):
+        return {'status': 'no_links', 'movie': None,
+                'title': (parsed or {}).get('title_raw', ''), 'added': 0}
+
+    title, title_b = mod.clean_title_parts(parsed['title_raw'])
+    movie = mod.find_existing_movie(title)
+    created = False
+    updated = False
+
+    if not movie:
+        movie = Movie.objects.create(
+            title       = title[:200],
+            title_b     = (title_b or '')[:200] or None,
+            title_b_updated_at = timezone.now() if title_b else None,
+            description = parsed['description'],
+            video_url   = parsed['video_url'][:500] if parsed['video_url'] else '',
+            download_url= parsed['download_links'][0]['url'][:500],
+            image_url   = parsed['image_url'][:500] if parsed['image_url'] else '',
+            completed   = parsed['is_complete'],
+            is_series   = parsed['is_series'],
+            scraped     = True,
+            vi_year     = parsed.get('vi_year', '')[:10],
+            vi_country  = parsed.get('vi_country', '')[:120],
+            vi_language = parsed.get('vi_language', '')[:120],
+            vi_subtitle = parsed.get('vi_subtitle', '')[:60],
+            vi_genre    = parsed.get('vi_genre', '')[:200],
+            vi_cast     = parsed.get('vi_cast', ''),
+            vi_episodes = parsed.get('vi_episodes', '')[:20],
+            vi_status   = parsed.get('vi_status', '')[:60],
+            vi_runtime  = parsed.get('vi_runtime', '')[:30],
+            vi_filesize = parsed.get('vi_filesize', '')[:30],
+        )
+        created = True
+    else:
+        if title_b and movie.title_b != title_b:
+            movie.title_b = title_b
+            movie.title_b_updated_at = timezone.now()
+            updated = True
+        if not movie.video_url and parsed['video_url']:
+            movie.video_url = parsed['video_url']
+            updated = True
+        if not movie.image_url and parsed['image_url']:
+            movie.image_url = parsed['image_url']
+            updated = True
+        new_dl_url = parsed['download_links'][0]['url']
+        if movie.download_url and normalize_url(movie.download_url) != normalize_url(new_dl_url):
+            movie.download_url = new_dl_url
+            updated = True
+        if movie.completed != parsed['is_complete']:
+            movie.completed = parsed['is_complete']
+            updated = True
+        if not getattr(movie, 'is_series', False) and parsed['is_series']:
+            movie.is_series = parsed['is_series']
+            updated = True
+        vi_map = {
+            'vi_year': parsed.get('vi_year', '')[:10], 'vi_country': parsed.get('vi_country', '')[:120],
+            'vi_language': parsed.get('vi_language', '')[:120], 'vi_subtitle': parsed.get('vi_subtitle', '')[:60],
+            'vi_genre': parsed.get('vi_genre', '')[:200], 'vi_cast': parsed.get('vi_cast', ''),
+            'vi_episodes': parsed.get('vi_episodes', '')[:20], 'vi_status': parsed.get('vi_status', '')[:60],
+            'vi_runtime': parsed.get('vi_runtime', '')[:30], 'vi_filesize': parsed.get('vi_filesize', '')[:30],
+        }
+        for field, value in vi_map.items():
+            if value and not getattr(movie, field, ''):
+                setattr(movie, field, value)
+                updated = True
+        if updated:
+            movie.save()
+
+    mod.assign_db_categories(movie, scraped_cats=parsed['categories'], forced_db_cats=[])
+
+    results = route_and_sync_download_links(movie, parsed['download_links'])
+    added = sum(t_added for _movie, t_added, _resurfaced, _is_new in results)
+    link_was_broken = any(r[2] for r in results)  # resurfaced == had zero links before, now has some
+
+    if created:
+        status = 'created'
+    elif link_was_broken or added:
+        status = 'link_added' if added else 'link_updated'
+    else:
+        status = 'unchanged'
+
+    return {'status': status, 'movie': movie, 'title': movie.title, 'added': added}

@@ -26,6 +26,7 @@ from .views import (
     person_filmography,                  # ← NEW: cast filmography popup
     react_to_comment,                    # ← NEW: emoji reactions on chat messages
     update_display_name,                 # ← NEW: change your anonymous nickname
+    quick_add,                           # ← NEW: on-the-go single-URL scrape/fix tool
 )
 
 app_name = 'movies'
@@ -134,4 +135,7 @@ urlpatterns = [
 
     # ── Contact / complaint form (emails admin via Brevo; hides the address) ──
     path('contact/', contact, name='contact'),
+
+    # ── On-the-go single-URL scrape/fix tool (phone-friendly, access-code gated) ──
+    path('ops/quick-add/', quick_add, name='quick_add'),
 ]

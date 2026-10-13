@@ -2946,3 +2946,87 @@ def update_display_name(request):
         return JsonResponse({'success': True, 'display_name': new_name})
     messages.success(request, 'Nickname updated!')
     return redirect('movies:profile', display_name=new_name)
+
+
+def quick_add(request):
+    """
+    Session-gated, mobile-friendly on-the-go tool: paste one or more
+    9jarocks/thenkiri post URLs and each gets re-scraped immediately — adds
+    the title if it's missing, adds a download link if it was stream-only,
+    or replaces a broken link with whatever the source currently shows. No
+    "mode" to pick — every case is just "re-scrape and sync," handled by
+    movies.scraper_utils.save_scraped_post (the same per-post logic the
+    scheduled scrapers use, minus social posting).
+
+    Gated by a plain session flag + shared access code (not Django auth) —
+    this is one person using it from a phone, not a multi-user permission
+    system.
+    """
+    access_code = getattr(settings, 'QUICK_ADD_ACCESS_CODE', '')
+    unlocked = request.session.get('quick_add_unlocked', False)
+    results = None
+    error = None
+
+    if request.method == 'POST':
+        if not unlocked:
+            submitted = request.POST.get('access_code', '')
+            if access_code and submitted == access_code:
+                request.session['quick_add_unlocked'] = True
+                unlocked = True
+            else:
+                error = 'Wrong code.'
+        else:
+            if request.POST.get('lock'):
+                request.session['quick_add_unlocked'] = False
+                unlocked = False
+            else:
+                raw_urls = request.POST.get('urls', '')
+                urls = [u.strip() for u in raw_urls.splitlines() if u.strip()]
+                results = [_quick_add_one(u) for u in urls]
+
+    return render(request, 'movies/quick_add.html', {
+        'unlocked': unlocked, 'results': results, 'error': error,
+    })
+
+
+def _quick_add_one(url: str) -> dict:
+    """Re-scrape one post URL and sync it. See quick_add() above."""
+    from urllib.parse import urlparse
+    from movies.management.commands import scrape_9jarocks as nk9
+    from movies.management.commands import scrape_thenkiri as thenkiri
+    from movies.scraper_utils import save_scraped_post
+
+    host = (urlparse(url).netloc or '').lower()
+    if 'thenkiri' in host:
+        mod = thenkiri
+    elif '9jarocks' in host:
+        mod = nk9
+    else:
+        return {'url': url, 'status': 'error', 'title': '',
+                'message': 'Not a 9jarocks or thenkiri link.'}
+
+    try:
+        scraper = mod._make_scraper()
+        resp = scraper.get(url, timeout=20)
+        if resp.status_code != 200:
+            return {'url': url, 'status': 'error', 'title': '', 'message': f'HTTP {resp.status_code}'}
+        parsed = mod.parse_post_page(resp.text, url)
+        if not parsed:
+            return {'url': url, 'status': 'error', 'title': '', 'message': "Couldn't parse this page."}
+    except Exception as e:
+        return {'url': url, 'status': 'error', 'title': '', 'message': str(e)[:200]}
+
+    result = save_scraped_post(parsed, mod)
+    messages_map = {
+        'no_links':     'No download links found on this page.',
+        'created':      'Added as a new title.',
+        'link_added':   f"Added {result['added']} new download link(s).",
+        'link_updated': 'Download link(s) updated/fixed.',
+        'unchanged':    'Already up to date — nothing changed.',
+    }
+    return {
+        'url': url, 'status': result['status'],
+        'title': result['title'] or parsed.get('title_raw', ''),
+        'message': messages_map.get(result['status'], ''),
+        'movie_id': result['movie'].pk if result['movie'] else None,
+    }

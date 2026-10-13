@@ -429,6 +429,11 @@ CRONJOBS = [
 
 SITE_URL = 'https://watch2d.org'
 
+# On-the-go single-URL scrape/fix tool (movies/views.py quick_add) — a
+# session-gated page, not Django auth, since it's one person using it from a
+# phone, not a multi-user permission system.
+QUICK_ADD_ACCESS_CODE = config('QUICK_ADD_ACCESS_CODE', default='')
+
 
 
 # ============================================================
