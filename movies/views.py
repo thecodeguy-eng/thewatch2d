@@ -728,6 +728,17 @@ def resolve_download_link(request):
             return JsonResponse({'method': 'downloadwella_failed', 'fallback': landing_url, 'debug': dbg})
         return JsonResponse({'download_url': landing_url})
  
+    # ── meetdownload ───────────────────────────────────────────
+    if 'meetdownload.com' in host:
+        result, dbg = _resolve_meetdownload(landing_url, parsed, debug)
+        if result:
+            if debug:
+                return JsonResponse({'method': 'meetdownload_api', 'download_url': result, 'debug': dbg})
+            return JsonResponse({'download_url': result})
+        if debug:
+            return JsonResponse({'method': 'meetdownload_failed', 'fallback': landing_url, 'debug': dbg})
+        return JsonResponse({'download_url': landing_url})
+
     # ── loadedfiles.org / loadedfiles.net ─────────────────────
     if 'loadedfiles.' in host:
         result, dbg = _resolve_loadedfiles(landing_url, parsed, debug)
@@ -764,6 +775,45 @@ def resolve_download_link(request):
             'html_snippet':       html[:3000],
         })
     return JsonResponse({'download_url': landing_url})
+
+def _resolve_meetdownload(landing_url, parsed, debug=False):
+    """
+    meetdownload file pages carry only a one-time ticket
+    (#dl-btn-wrapper[data-md-dl][data-md-t]); its dl-link.js POSTs that ticket
+    to /api/v1/dl-link/<fileToken> and gets back {ok, k, d, s} where d (video)
+    and s (subtitle) are base64'd and XOR-ed with key k. Same steps here.
+    """
+    dbg = {}
+    try:
+        scraper = _get_scraper()
+        base = f"{parsed.scheme}://{parsed.netloc}"
+
+        html = scraper.get(landing_url, timeout=12).text
+        api = re.search(r'data-md-dl="([^"]+)"', html)
+        ticket = re.search(r'data-md-t="([^"]+)"', html)
+        if not api or not ticket:
+            return None, {'error': 'no_ticket', 'html_length': len(html)}
+        dbg['api'] = api.group(1)
+
+        resp = scraper.post(base + api.group(1), data={'t': ticket.group(1)}, timeout=15,
+                            headers={'Referer': landing_url, 'X-Requested-With': 'XMLHttpRequest'})
+        dbg['post_status'] = resp.status_code
+        data = resp.json()
+        if not data.get('ok') or not data.get('k') or not data.get('d'):
+            dbg['error'] = 'api_not_ok'
+            return None, dbg
+
+        import base64
+        key, raw = data['k'], base64.b64decode(data['d'])
+        url = ''.join(chr(b ^ ord(key[i % len(key)])) for i, b in enumerate(raw))
+        if not url.startswith('http'):
+            dbg['error'] = 'bad_unscramble'
+            return None, dbg
+        return url, dbg
+
+    except Exception as e:
+        return None, {'exception': str(e)}
+
 
 def _resolve_downloadwella(landing_url, parsed, debug=False):
     dbg = {}
@@ -878,10 +928,12 @@ def _resolve_loadedfiles(landing_url, parsed, debug=False):
             r"var\s+downloadUrl\s*=\s*['\"](https?://[^'\"]+)['\"]",
             r"window\.location(?:\.href)?\s*=\s*['\"](https?://[^'\"]+\?pt=[^'\"]+)['\"]",
             r"['\"](https?://loadedfiles\.[a-z]{2,}/[^'\"]+\?pt=[^'\"]+)['\"]",
-            # 2026 redesign: an Alpine.js widget (`x-data="dlTimer({ link: '...' })"`)
-            # replaced the old countdown script. The link is JSON/unicode-escaped
-            # inside the HTML attribute (e.g. : for ':'), not a plain URL.
-            r"dlTimer\(\{[^}]*?link:\s*'([^']+)'",
+            # 2026 redesign: an Alpine.js widget holds the next hop as
+            # `link: '...'` — first as `x-data="dlTimer({ link: '...' })"`, now
+            # as an inline multi-line `x-data="{ ... link: '...', start() {...} }"`.
+            # The link is JSON/unicode-escaped inside the HTML attribute
+            # (e.g. : for ':'), not a plain URL.
+            r"\blink:\s*'([^']+)'",
         )
         referer = 'https://www.my9jarocks.bz/'
         current = landing_url
@@ -1054,6 +1106,9 @@ def stream_proxy(request):
         direct_url = urlunparse(parsed._replace(query='', fragment=''))
     elif 'downloadwella.com' in host:
         resolved, _ = _resolve_downloadwella(landing_url, parsed)
+        direct_url = resolved if resolved else landing_url
+    elif 'meetdownload.com' in host:
+        resolved, _ = _resolve_meetdownload(landing_url, parsed)
         direct_url = resolved if resolved else landing_url
     elif 'mylulutv.com' in host or 'kissorgrab.com' in host:
         direct_url = landing_url
